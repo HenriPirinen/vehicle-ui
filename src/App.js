@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import './App.css';
 import ToggleButton from './components/toggleButton';
 import ButtonAppBar from './components/appBar';
-import SimpleBottomNavigation from './components/bottomNavigation';
 import VisGraph from './components/visVoltageLine';
 import SimpleExpansionPanel from './components/expansionPanel';
 import openSocket from 'socket.io-client';
@@ -129,8 +128,6 @@ class App extends Component {
         <div style={{ height: 4 }}></div>
         <VisGraph voltageData={ cellData[0][4] } dataLimit={ 100 } graphName={'Group 4'}/>
         <SimpleExpansionPanel />
-        <div style={{ height: 4 }}></div>
-        <SimpleBottomNavigation />
       </div>
     );
   }
