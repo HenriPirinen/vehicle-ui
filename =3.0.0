@@ -1,0 +1,6 @@
++ immutable@3.8.2
+added 1 package from 1 contributor in 101.228s
+[!] 29 vulnerabilities found [15270 packages audited]
+    Severity: 29 Low
+    Run `npm audit` for more detail
+

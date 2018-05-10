@@ -1,0 +1,28 @@
+{
+  "name": "vehicle-ui",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^1.0.0",
+    "@material-ui/icons": "^1.0.0-beta.43",
+    "ajv": "^6.5.0",
+    "d3-time-format": "^2.1.1",
+    "highcharts": "^5.0.15",
+    "immutable": "^3.8.2",
+    "material-ui": "^1.0.0-beta.47",
+    "prop-types": "^15.6.1",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
+    "react-jsx-highstock": "^2.2.1",
+    "react-scripts": "1.1.4",
+    "react-vis": "^1.9.3",
+    "socket.io-client": "^2.1.0",
+    "typeface-roboto": "0.0.54"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
