@@ -21,6 +21,12 @@ import Divider from '@material-ui/core/Divider';
 import MenuIcon from '@material-ui/icons/Menu';
 import DrawerList from './components/controlDrawerList';
 import MainMenu from './components/main';
+import InverterTab from './components/inverter';
+import LogTab from './components/log';
+import WeatherTab from './components/weather';
+import MapTab from './components/mapTab';
+import SystemUpdateTab from './components/systemUpdate'
+import SettingsTab from './components/settings';
 
 //---Variables---//
 
@@ -29,7 +35,7 @@ var cellData = [
     This 3D array stores latest measured value for each cell.
     Each value inside Group array represents measured cell value
     Z = 0; Voltage, Z = 1; Temperature
-    Y = 0, Group 1; Y = 4, Group 4;
+    Y = 0, Group 0; Y = 4, Group 4;
     X = 0, Cell index 0; X = 7, Cell index 7
             [Z][Y][X]
     cellData[0][1][5] = Latest measured voltage from Group 1, Cell 5.
@@ -106,7 +112,8 @@ const styles = theme => ({
 
 //--Functions--//
 
-function validateJSON(string) { //Validate JSON string
+function validateJSON(string) {
+  /* Validate Json, beacause sometimes i get illegal character error at index 0... */
   try {
     JSON.parse(string);
   } catch (e) {
@@ -159,7 +166,7 @@ socket.on('dataset', function (data) {
 //---Build page---//
 
 class App extends Component {
-  constructor(props){
+  constructor(props) {
     super(props)
 
     this.contentHandler = this.contentHandler.bind(this)
@@ -167,7 +174,7 @@ class App extends Component {
 
   state = {
     mobileOpen: false,
-    selectedTab: 'data',
+    selectedTab: 'Main',
   };
 
   contentHandler = (content) => {
@@ -187,7 +194,7 @@ class App extends Component {
         <div className={classes.toolbar} />
         <Divider />
         <List>
-          <DrawerList webSocket={socket} handleContent={this.contentHandler}/>
+          <DrawerList webSocket={socket} handleContent={this.contentHandler} />
         </List>
       </div>
     );
@@ -205,7 +212,7 @@ class App extends Component {
               <MenuIcon />
             </IconButton>
             <Typography variant="title" color="inherit" noWrap>
-              Main
+              {this.state.selectedTab} {/*Set appbar title*/}
             </Typography>
           </Toolbar>
         </AppBar>
@@ -243,7 +250,7 @@ class App extends Component {
 
             {(() => {
               switch (this.state.selectedTab) {
-                case 'data':
+                case 'Data':
                   return (
                     <div>
                       <VisGraph voltageData={cellData[0][0]} dataLimit={100} graphName={'Group 0'} />
@@ -259,18 +266,54 @@ class App extends Component {
                       <SimpleExpansionPanel />
                     </div>
                   );
-                case 'main':
-                return (
-                          <div>
-                            <MainMenu />
-                          </div>
-                        );
+                case 'Main':
+                  return (
+                    <div>
+                      <MainMenu />
+                    </div>
+                  );
+                case 'Inverter':
+                  return (
+                    <div>
+                      <InverterTab />
+                    </div>
+                  );
+                case 'Log':
+                  return (
+                    <div>
+                      <LogTab />
+                    </div>
+                  );
+                case 'Weather':
+                  return (
+                    <div>
+                      <WeatherTab />
+                    </div>
+                  );
+                case 'Map':
+                  return (
+                    <div>
+                      <MapTab />
+                    </div>
+                  );
+                case 'System Update':
+                  return (
+                    <div>
+                      <SystemUpdateTab />
+                    </div>
+                  );
+                case 'Settings':
+                  return (
+                    <div>
+                      <SettingsTab />
+                    </div>
+                  );
                 default:
-                return (
-                  <div>
-                    <ToggleButton socket={socket} />
-                  </div>
-                );
+                  return (
+                    <div>
+                      <ToggleButton socket={socket} />
+                    </div>
+                  );
               }
             })()}
           </div>

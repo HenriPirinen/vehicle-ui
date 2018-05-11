@@ -13,6 +13,7 @@
     "prop-types": "^15.6.1",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
+    "react-full-screen": "^0.2.2",
     "react-jsx-highstock": "^2.2.1",
     "react-scripts": "1.1.4",
     "react-vis": "^1.9.3",

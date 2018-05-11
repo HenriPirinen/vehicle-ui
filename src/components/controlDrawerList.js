@@ -48,49 +48,49 @@ class DrawerList extends React.Component{
   return (
     <div className={classes.root}>
       <List component="nav">
-      <ListItem button onClick={() => {this.props.handleContent('main')}}>
+      <ListItem button onClick={() => {this.props.handleContent('Main')}}>
           <ListItemIcon>
             <HomeIcon />
           </ListItemIcon>
           <ListItemText primary="Main" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('data')}} >
+        <ListItem button onClick={() => {this.props.handleContent('Data')}} >
           <ListItemIcon>
             <TimelineIcon />
           </ListItemIcon>
           <ListItemText primary="Data" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('inverter')}}>
+        <ListItem button onClick={() => {this.props.handleContent('Inverter')}}>
           <ListItemIcon>
             <FlashOnIcon />
           </ListItemIcon>
           <ListItemText primary="Inverter" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('log')}}>
+        <ListItem button onClick={() => {this.props.handleContent('Log')}}>
           <ListItemIcon>
             <ImportContactsIcon />
           </ListItemIcon>
           <ListItemText primary="Log" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('weather')}}>
+        <ListItem button onClick={() => {this.props.handleContent('Weather')}}>
           <ListItemIcon>
             <WbSunnyIcon />
           </ListItemIcon>
           <ListItemText primary="Weather" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('map')}}>
+        <ListItem button onClick={() => {this.props.handleContent('Map')}}>
           <ListItemIcon>
             <MapIcon />
           </ListItemIcon>
           <ListItemText primary="Map" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('update')}}>
+        <ListItem button onClick={() => {this.props.handleContent('System Update')}}>
           <ListItemIcon>
             <SystemUpdateIcon />
           </ListItemIcon>
           <ListItemText primary="System Update" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('settings')}}>
+        <ListItem button onClick={() => {this.props.handleContent('Settings')}}>
           <ListItemIcon>
             <SettingsIcon />
           </ListItemIcon>
