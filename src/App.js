@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 //import logo from './logo.svg';
 import './App.css';
 import ToggleButton from './components/toggleButton';
-import ButtonAppBar from './components/appBar';
 import VisGraph from './components/visVoltageLine';
 import SimpleExpansionPanel from './components/expansionPanel';
 import openSocket from 'socket.io-client';
+import ResponsiveDrawer from './components/controlDrawer';
 
 //---Variables---//
 
@@ -108,8 +108,8 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <ButtonAppBar />
-        <div style={{ height: 70 }}></div>
+        <ResponsiveDrawer />
+        {/*<div style={{ height: 70 }}></div>
         {/*<header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
