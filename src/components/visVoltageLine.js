@@ -27,6 +27,8 @@ Each datapoint is a object that contains X-axis value and Y-axis value.
 
 */
 
+
+
 class VisGraph extends React.Component {
   constructor(props) {
     super(props)
@@ -61,11 +63,14 @@ class VisGraph extends React.Component {
                   ]
                 ],
       graphIndex: 1,
-      updateComponent: false
+      updateComponent: false,
+      parentWidth: 800
     }
   }
 
   componentWillReceiveProps(newProps) {
+    //var parentWidth = document.getElementById('appContent').offsetWidth;
+    //console.log(document.getElementById('appContent').offsetWidth);
     let tempData = this.state.cellData;
     
     if(this.state.cellData[0][this.state.cellData[0].length - 1].y !== newProps.voltageData[0]){
@@ -78,7 +83,8 @@ class VisGraph extends React.Component {
         graphDatapointLimit: newProps.dataLimit,
         cellData: tempData,
         graphIndex: this.state.graphIndex + 1,
-        updateComponent: true
+        updateComponent: true,
+        parentWidth: document.getElementById('appContent').offsetWidth - 10
       });
     }
   }
@@ -96,7 +102,7 @@ class VisGraph extends React.Component {
   render() {
     return (
       <div>
-        <XYPlot height={300} width={document.body.clientWidth} xType="time" >
+        <XYPlot height={300} width={this.state.parentWidth} xType="time" >
           <HorizontalGridLines />
           <VerticalGridLines />
           <XAxis title="Time" position="start" />
