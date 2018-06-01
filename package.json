@@ -7,6 +7,7 @@
     "@material-ui/icons": "^1.0.0-beta.43",
     "ajv": "^6.5.0",
     "d3-time-format": "^2.1.1",
+    "google-maps-react": "^2.0.2",
     "highcharts": "^5.0.15",
     "immutable": "^3.8.2",
     "material-ui": "^1.0.0-beta.47",

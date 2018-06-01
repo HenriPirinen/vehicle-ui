@@ -5,7 +5,6 @@ import './App.css';
 // eslint-disable-next-line
 import ToggleButton from './components/toggleButton';
 import VisGraph from './components/visVoltageLine';
-import SimpleExpansionPanel from './components/expansionPanel';
 import openSocket from 'socket.io-client';
 
 import PropTypes from 'prop-types';
@@ -125,7 +124,7 @@ function validateJSON(string) {
 
 //---Events---//
 
-window.addEventListener("load", function () {
+window.addEventListener("load", function () { //Will be replaced by fullscreen API
   setTimeout(function () {
     // This hides the address bar:
     window.scrollTo(0, 1);
@@ -154,11 +153,11 @@ socket.on('dataset', function (data) {
     let validData = JSON.parse(input);
 
     for (let i = 0; i < validData.voltage.length; i++) {
-      cellData[0][validData.Group][i] = validData.voltage[i];
+      cellData[0][validData.Group][i] = validData.voltage[i]; //Update latest voltage values
     }
 
     for (let i = 0; i < validData.temperature.length; i++) {
-      cellData[1][validData.Group][i] = validData.temperature[i];
+      cellData[1][validData.Group][i] = validData.temperature[i]; //Update latest temperature values
     }
   }
 });
@@ -169,21 +168,37 @@ class App extends Component {
   constructor(props) {
     super(props)
 
-    this.contentHandler = this.contentHandler.bind(this)
+    this.contentHandler = this.contentHandler.bind(this) //Used @ DrawerList component
   }
 
   state = {
     mobileOpen: false,
-    selectedTab: 'Main',
+    selectedTab: 'Main', //This is set to current tab
+    enabledGraphs: [[true, true, true, true, true], [true, true, true, true, true]], //0 = voltage, 1 = temperature
+    isFullscreenEnabled: false
   };
 
-  contentHandler = (content) => {
+  contentHandler = (content) => { //Change tab
     console.log(content);
-    this.setState({ selectedTab: content });
+    if(content !== 'Fullscreen') //Temporary solution
+    {
+      this.setState({ selectedTab: content });
+    } else {
+      this.setState({ isFullscreenEnabled: !this.state.isFullscreenEnabled });
+      if (!document.fullscreenElement) {
+        document.documentElement.webkitRequestFullScreen();
+        //console.log(document.fullscreenEnabled);
+      } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen(); 
+            //console.log('Windowed');
+          }
+      }
+    }
   }
 
   handleDrawerToggle = () => {
-    this.setState({ mobileOpen: !this.state.mobileOpen });
+    this.setState({ mobileOpen: !this.state.mobileOpen }); //Open / Close drawer
   };
 
   render() {
@@ -253,23 +268,47 @@ class App extends Component {
                 case 'Data':
                   return (
                     <div>
-                      <VisGraph voltageData={cellData[0][0]} dataLimit={100} graphName={'Group 0'} />
+                      <VisGraph 
+                          voltageData={cellData[0][0]} 
+                          dataLimit={100} 
+                          graphName={'Group 0'} 
+                          isEnabled={this.state.enabledGraphs[0][0]}
+                      />
                       <div style={{ height: 4 }}></div>
-                      <VisGraph voltageData={cellData[0][1]} dataLimit={100} graphName={'Group 1'} />
+                      <VisGraph 
+                          voltageData={cellData[0][1]} 
+                          dataLimit={100} 
+                          graphName={'Group 1'} 
+                          isEnabled={this.state.enabledGraphs[0][1]}
+                      />
                       <div style={{ height: 4 }}></div>
-                      <VisGraph voltageData={cellData[0][2]} dataLimit={100} graphName={'Group 2'} />
+                      <VisGraph 
+                          voltageData={cellData[0][2]} 
+                          dataLimit={100} 
+                          graphName={'Group 2'} 
+                          isEnabled={this.state.enabledGraphs[0][2]}
+                      />
                       <div style={{ height: 4 }}></div>
-                      <VisGraph voltageData={cellData[0][3]} dataLimit={100} graphName={'Group 3'} />
+                      <VisGraph 
+                          voltageData={cellData[0][3]} 
+                          dataLimit={100} 
+                          graphName={'Group 3'} 
+                          isEnabled={this.state.enabledGraphs[0][3]}
+                      />
                       <div style={{ height: 4 }}></div>
-                      <VisGraph voltageData={cellData[0][4]} dataLimit={100} graphName={'Group 4'} />
+                      <VisGraph 
+                          voltageData={cellData[0][4]} 
+                          dataLimit={100} 
+                          graphName={'Group 4'} 
+                          isEnabled={this.state.enabledGraphs[0][4]}
+                      />
                       <div style={{ height: 4 }}></div>
-                      <SimpleExpansionPanel />
                     </div>
                   );
                 case 'Main':
                   return (
                     <div>
-                      <MainMenu />
+                      <MainMenu handleContent={this.contentHandler}/>
                     </div>
                   );
                 case 'Inverter':
@@ -281,7 +320,7 @@ class App extends Component {
                 case 'Log':
                   return (
                     <div>
-                      <LogTab />
+                      <LogTab webSocket={socket}/>
                     </div>
                   );
                 case 'Weather':

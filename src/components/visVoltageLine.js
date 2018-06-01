@@ -100,24 +100,29 @@ class VisGraph extends React.Component {
   }
 
   render() {
-    return (
-      <div>
-        <XYPlot height={300} width={this.state.parentWidth} xType="time" >
-          <HorizontalGridLines />
-          <VerticalGridLines />
-          <XAxis title="Time" position="start" />
-          <YAxis title="Voltage" />
-          <LineSeries data={this.state.cellData[0]} />
-          <LineSeries data={this.state.cellData[1]} />
-          <LineSeries data={this.state.cellData[2]} />
-          <LineSeries data={this.state.cellData[3]} />
-          <LineSeries data={this.state.cellData[4]} />
-          <LineSeries data={this.state.cellData[5]} />
-          <LineSeries data={this.state.cellData[6]} />
-          <LineSeries data={this.state.cellData[7]} />
-        </XYPlot>
-      </div>
-    );
+    if(this.props.isEnabled)
+    {
+      return (
+        <div>
+          <XYPlot height={300} width={this.state.parentWidth} xType="time" >
+            <HorizontalGridLines />
+            <VerticalGridLines />
+            <XAxis title="Time" position="start" />
+            <YAxis title="Voltage" />
+            <LineSeries data={this.state.cellData[0]} />
+            <LineSeries data={this.state.cellData[1]} />
+            <LineSeries data={this.state.cellData[2]} />
+            <LineSeries data={this.state.cellData[3]} />
+            <LineSeries data={this.state.cellData[4]} />
+            <LineSeries data={this.state.cellData[5]} />
+            <LineSeries data={this.state.cellData[6]} />
+            <LineSeries data={this.state.cellData[7]} />
+          </XYPlot>
+        </div>
+      );
+    } else {
+      return <div></div>; //Return empty div if graph is not enabled
+    }
   }
 }
 
