@@ -7,7 +7,7 @@ class MainMenu extends React.Component {
     render() {
         return (
             <div>
-                <h1>Main menu / Splash screen</h1>
+                {/*<h1>Main menu / Splash screen</h1>*/}
                 <img src={PeugeotLogo} alt='logo'/>
                 <Button 
                     color="primary"

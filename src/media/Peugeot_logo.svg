@@ -12,8 +12,8 @@
    id="svg2443"
    sodipodi:version="0.32"
    inkscape:version="0.46"
-   width="385.74203"
-   height="271.75516"
+   width="775"
+   height="600"
    xml:space="preserve"
    sodipodi:docname="peu.svg"
    version="1.0"
@@ -965,7 +965,9 @@
      inkscape:cy="34.877579"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
-     inkscape:current-layer="g2452" /><g
+     inkscape:current-layer="g2452" />
+     <g transform="scale(2)">
+     <g
      id="g2452"
      inkscape:groupmode="layer"
      inkscape:label="peu"
@@ -1222,4 +1224,4 @@
              id="g3252"><path
                id="path3254"
                style="fill:#0d224a;fill-opacity:1;fill-rule:nonzero;stroke:none"
-               d="M 0,0 L 3.674,0 L 3.674,-5.733 L 5.518,-5.733 L 5.518,0 L 9.192,0 L 9.192,0.96 L 0,0.96 L 0,0 z" /></g></g></g></g></g></svg>
+               d="M 0,0 L 3.674,0 L 3.674,-5.733 L 5.518,-5.733 L 5.518,0 L 9.192,0 L 9.192,0.96 L 0,0.96 L 0,0 z" /></g></g></g></g></g></g></svg>

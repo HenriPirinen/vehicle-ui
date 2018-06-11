@@ -27,48 +27,72 @@ import MapTab from './components/mapTab';
 import SystemUpdateTab from './components/systemUpdate'
 import SettingsTab from './components/settings';
 
+import api from './keys.js';
+
 //---Variables---//
 
-var cellData = [
-  /* 
-    This 3D array stores latest measured value for each cell.
-    Each value inside Group array represents measured cell value
-    Z = 0; Voltage, Z = 1; Temperature
-    Y = 0, Group 0; Y = 4, Group 4;
-    X = 0, Cell index 0; X = 7, Cell index 7
-            [Z][Y][X]
-    cellData[0][1][5] = Latest measured voltage from Group 1, Cell 5.
-    cellData[1][4][2] = Latest measured temperature from Group 4, Cell 2.
-  */
-  [ //Voltage
-    [0, 0, 0, 0, 0, 0, 0, 0], //Group 0
-    [0, 0, 0, 0, 0, 0, 0, 0], //Group 1 ...
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0] //... Group 9
-  ],
-  [ //Temperature
-    [0, 0, 0, 0, 0, 0, 0, 0], //Group 0
-    [0, 0, 0, 0, 0, 0, 0, 0], //Group 1 ...
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0] //... Group 9
-  ]
-];
+var dataLimit = 100;
+
+var location = {
+  latitude: 60.733852,
+  longitude: 24.761049,
+  accuracy: 20
+}
 
 //---Constants---//
 
+const geoLocOptions = {
+  enableHighAccuracy: true,
+  timeout: 5000,
+  maximumAge: 0
+};
+
+/*3D array, Group(int) -> cell(int) -> datapoint object {'x': time, 'y': voltage value}.
+Get latest value from Group 0, cell 3: cellDataPoints[0][3][cellDataPoints[0][3].length - 1].y
+Each group hold graph datapoint voltage values for 8 cells.*/
+
+var cellDataPoints = 
+[
+    [ //Group 0
+      [],[],[],[],[],[],[],[]
+    ],
+    [ //Group 1
+      [],[],[],[],[],[],[],[]
+    ],
+    [ //Group 2
+      [],[],[],[],[],[],[],[]
+    ],
+    [ //Group 3
+      [],[],[],[],[],[],[],[]
+    ],
+    [ //Group 4
+      [],[],[],[],[],[],[],[]
+    ],
+    [ //Group 5
+      [],[],[],[],[],[],[],[]
+    ],
+    [ //Group 6
+      [],[],[],[],[],[],[],[]
+    ],
+    [ //Group 7
+      [],[],[],[],[],[],[],[]
+    ],
+    [ //Group 8
+      [],[],[],[],[],[],[],[]
+    ],
+    [ //Group 9
+      [],[],[],[],[],[],[],[]
+    ],
+];
+
+for(let i = 0; i < cellDataPoints.length; i++){ //Fill array with default values.
+  for(let x = 0; x <cellDataPoints[i].length; x++){
+    cellDataPoints[i][x].push({ x: new Date().getTime(), y: 0});
+  }
+}
+
 const socket = openSocket('192.168.2.45:4000');
+//const socket = openSocket('37.33.214.149:4000');
 
 const drawerWidth = 240;
 
@@ -122,6 +146,25 @@ function validateJSON(string) {
   return true;
 }
 
+// eslint-disable-next-line
+function getLocation() {
+  if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(gotGeoLoc, geoLocErr, geoLocOptions);
+  } else { 
+      console.log("Geolocation is not supported by this browser.");
+  }
+}
+
+function gotGeoLoc(pos) {
+  location.latitude = pos.coords.latitude;
+  location.longitude = pos.coords.longitude;
+  location.accuracy = pos.coords.accuracy;
+}
+
+function geoLocErr(err) {
+  console.warn(`ERROR(${err.code}): ${err.message}`);
+}
+
 //---Events---//
 
 window.addEventListener("load", function () { //Will be replaced by fullscreen API
@@ -152,12 +195,9 @@ socket.on('dataset', function (data) {
   if (validateJSON(input)) {
     let validData = JSON.parse(input);
 
-    for (let i = 0; i < validData.voltage.length; i++) {
-      cellData[0][validData.Group][i] = validData.voltage[i]; //Update latest voltage values
-    }
-
-    for (let i = 0; i < validData.temperature.length; i++) {
-      cellData[1][validData.Group][i] = validData.temperature[i]; //Update latest temperature values
+    for(let i = 0; i < validData.voltage.length; i++){
+      cellDataPoints[validData.Group][i].push({ x: new Date().getTime(), y: validData.voltage[i] });
+      if(cellDataPoints[validData.Group][i].length > dataLimit) cellDataPoints[validData.Group][i].shift();
     }
   }
 });
@@ -175,24 +215,39 @@ class App extends Component {
     mobileOpen: false,
     selectedTab: 'Main', //This is set to current tab
     enabledGraphs: [[true, true, true, true, true], [true, true, true, true, true]], //0 = voltage, 1 = temperature
-    isFullscreenEnabled: false
+    isFullscreenEnabled: false,
+    weatherData: { 'default': null },
+    contentWidth: document.getElementById('root').offsetWidth - 300
   };
 
+  componentDidMount() {
+    //getLocation();
+    fetch("http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + location.longitude + "&APPID=" + api.api.weather + "") //TODO: get lat and lon from gps
+      .then(res => res.json())
+      .then(
+      (result) => {
+        this.setState({
+          weatherData: result
+        });
+      },
+      (error) => {
+        console.log('Error fetching weather...');
+      }
+      )
+  }
+
   contentHandler = (content) => { //Change tab
-    console.log(content);
-    if(content !== 'Fullscreen') //Temporary solution
+    if (content !== 'Fullscreen') //Temporary solution
     {
       this.setState({ selectedTab: content });
     } else {
       this.setState({ isFullscreenEnabled: !this.state.isFullscreenEnabled });
       if (!document.fullscreenElement) {
         document.documentElement.webkitRequestFullScreen();
-        //console.log(document.fullscreenEnabled);
       } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen(); 
-            //console.log('Windowed');
-          }
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
       }
     }
   }
@@ -268,39 +323,44 @@ class App extends Component {
                 case 'Data':
                   return (
                     <div>
-                      <VisGraph 
-                          voltageData={cellData[0][0]} 
-                          dataLimit={100} 
-                          graphName={'Group 0'} 
-                          isEnabled={this.state.enabledGraphs[0][0]}
+                      <VisGraph
+                        graphWidth={this.state.contentWidth}
+                        newVoltageData={cellDataPoints[0]}
+                        dataLimit={100}
+                        graphName={'Group 0'}
+                        isEnabled={this.state.enabledGraphs[0][0]}
                       />
                       <div style={{ height: 4 }}></div>
-                      <VisGraph 
-                          voltageData={cellData[0][1]} 
-                          dataLimit={100} 
-                          graphName={'Group 1'} 
-                          isEnabled={this.state.enabledGraphs[0][1]}
+                      <VisGraph
+                        graphWidth={this.state.contentWidth}
+                        newVoltageData={cellDataPoints[1]}
+                        dataLimit={100}
+                        graphName={'Group 1'}
+                        isEnabled={this.state.enabledGraphs[0][1]}
                       />
                       <div style={{ height: 4 }}></div>
-                      <VisGraph 
-                          voltageData={cellData[0][2]} 
-                          dataLimit={100} 
-                          graphName={'Group 2'} 
-                          isEnabled={this.state.enabledGraphs[0][2]}
+                      <VisGraph
+                        graphWidth={this.state.contentWidth}
+                        newVoltageData={cellDataPoints[2]}
+                        dataLimit={100}
+                        graphName={'Group 2'}
+                        isEnabled={this.state.enabledGraphs[0][2]}
                       />
                       <div style={{ height: 4 }}></div>
-                      <VisGraph 
-                          voltageData={cellData[0][3]} 
-                          dataLimit={100} 
-                          graphName={'Group 3'} 
-                          isEnabled={this.state.enabledGraphs[0][3]}
+                      <VisGraph
+                        graphWidth={this.state.contentWidth}
+                        newVoltageData={cellDataPoints[3]}
+                        dataLimit={100}
+                        graphName={'Group 3'}
+                        isEnabled={this.state.enabledGraphs[0][3]}
                       />
                       <div style={{ height: 4 }}></div>
-                      <VisGraph 
-                          voltageData={cellData[0][4]} 
-                          dataLimit={100} 
-                          graphName={'Group 4'} 
-                          isEnabled={this.state.enabledGraphs[0][4]}
+                      <VisGraph
+                        graphWidth={this.state.contentWidth}
+                        newVoltageData={cellDataPoints[4]}
+                        dataLimit={100}
+                        graphName={'Group 4'}
+                        isEnabled={this.state.enabledGraphs[0][4]}
                       />
                       <div style={{ height: 4 }}></div>
                     </div>
@@ -308,7 +368,7 @@ class App extends Component {
                 case 'Main':
                   return (
                     <div>
-                      <MainMenu handleContent={this.contentHandler}/>
+                      <MainMenu handleContent={this.contentHandler} />
                     </div>
                   );
                 case 'Inverter':
@@ -320,13 +380,13 @@ class App extends Component {
                 case 'Log':
                   return (
                     <div>
-                      <LogTab webSocket={socket}/>
+                      <LogTab webSocket={socket} />
                     </div>
                   );
                 case 'Weather':
                   return (
                     <div>
-                      <WeatherTab />
+                      <WeatherTab data={this.state.weatherData} />
                     </div>
                   );
                 case 'Map':
