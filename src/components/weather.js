@@ -1,5 +1,8 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
+import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
 
 //SVG Icons were created by amCharts (https://www.amcharts.com/)
 //Creative Commons Attribution 4.0 International Public License
@@ -11,6 +14,21 @@ import RainyIcon_5 from '../media/weatherIcons_animated/rainy-5.svg';
 import SnowyIcon_5 from '../media/weatherIcons_animated/snowy-5.svg';
 import ClearIcon from '../media/weatherIcons_animated/day.svg';
 
+const styles = theme => ({
+  root: theme.mixins.gutters({
+    paddingTop: 16,
+    paddingBottom: 16,
+    marginLeft: 16,
+    marginRight: 16,
+    marginBottom: 16,
+    marginTop: theme.spacing.unit * 3,
+  }),
+  content: theme.mixins.gutters({
+    display: 'flex',
+    textAlign: 'center'
+  }),
+});
+
 class WeatherTab extends React.Component {
   constructor(props) {
     super(props)
@@ -21,74 +39,83 @@ class WeatherTab extends React.Component {
   }
 
   render() {
+    const { classes } = this.props;
     return (
       <div>
-        <Typography variant="display2" component="h3">{this.props.data.name}</Typography>
-        {(() => {
-              switch (true) {
-                case (this.props.data.weather[0].id >= 200 && this.props.data.weather[0].id <= 232):
-                  return (
-                    <div>
-                      <img src={ThunderIcon} alt='logo'/>
-                    </div>
-                  );
-                case (this.props.data.weather[0].id >= 300 && this.props.data.weather[0].id <= 321):
-                  return (
-                    <div>
-                      <img src={RainyIcon_4} alt='logo'/>
-                    </div>
-                  );
-                case (this.props.data.weather[0].id >= 500 && this.props.data.weather[0].id <= 504):
-                  return (
-                    <div>
-                      <img src={RainyIcon_5} alt='logo'/>
-                    </div>
-                  );
-                case (this.props.data.weather[0].id >= 511 && this.props.data.weather[0].id <= 531):
-                  return (
-                    <div>
-                      <img src={RainyIcon_6} alt='logo'/>
-                    </div>
-                  );
-                case (this.props.data.weather[0].id >= 600 && this.props.data.weather[0].id <= 622):
-                  return (
-                    <div>
-                      <img src={SnowyIcon_5} alt='logo'/>
-                    </div>
-                  );
-                case (this.props.data.weather[0].id >= 701 && this.props.data.weather[0].id <= 781):
-                  return (
-                    <div>
-                      <img src={CloudyIcon} alt='logo'/> {/*TODO: atmosphere icons*/}
-                    </div>
-                  );
-                case (this.props.data.weather[0].id === 800):
-                  return (
-                    <div>
-                      <img src={ClearIcon} alt='logo'/>
-                    </div>
-                  );
-                case (this.props.data.weather[0].id >= 801 && this.props.data.weather[0].id <= 804):
-                  return (
-                    <div>
-                      <img src={CloudyIcon} alt='logo'/>
-                    </div>
-                  );
-                default:
-                  return (
-                    <div>
-                      <p>Clear</p>
-                    </div>
-                  );
-              }
-            })()}
-        <Typography variant="headline" component="h3">Temperature: {this.state.data.main.temp - 273.15} &#8451;</Typography>
-        <Typography variant="headline" component="h3">Description: {this.props.data.weather[0].description}</Typography>
-        <Typography variant="headline" component="h3">Humidity: {this.props.data.main.humidity} %</Typography>
-        <Typography variant="headline" component="h3">Wind: {Math.round((this.props.data.wind.speed * 0.44704) * 100) / 100} m/s</Typography>
+        <div className={classes.content}>
+        <Paper className={classes.root} elevation={4}>
+          <Typography variant="display2" component="h3">{this.props.data.name}</Typography>
+          {(() => {
+            switch (true) {
+              case (this.props.data.weather[0].id >= 200 && this.props.data.weather[0].id <= 232):
+                return (
+                  <div>
+                    <img src={ThunderIcon} alt='logo' />
+                  </div>
+                );
+              case (this.props.data.weather[0].id >= 300 && this.props.data.weather[0].id <= 321):
+                return (
+                  <div>
+                    <img src={RainyIcon_4} alt='logo' />
+                  </div>
+                );
+              case (this.props.data.weather[0].id >= 500 && this.props.data.weather[0].id <= 504):
+                return (
+                  <div>
+                    <img src={RainyIcon_5} alt='logo' />
+                  </div>
+                );
+              case (this.props.data.weather[0].id >= 511 && this.props.data.weather[0].id <= 531):
+                return (
+                  <div>
+                    <img src={RainyIcon_6} alt='logo' />
+                  </div>
+                );
+              case (this.props.data.weather[0].id >= 600 && this.props.data.weather[0].id <= 622):
+                return (
+                  <div>
+                    <img src={SnowyIcon_5} alt='logo' />
+                  </div>
+                );
+              case (this.props.data.weather[0].id >= 701 && this.props.data.weather[0].id <= 781):
+                return (
+                  <div>
+                    <img src={CloudyIcon} alt='logo' /> {/*TODO: atmosphere icons*/}
+                  </div>
+                );
+              case (this.props.data.weather[0].id === 800):
+                return (
+                  <div>
+                    <img src={ClearIcon} alt='logo' />
+                  </div>
+                );
+              case (this.props.data.weather[0].id >= 801 && this.props.data.weather[0].id <= 804):
+                return (
+                  <div>
+                    <img src={CloudyIcon} alt='logo' />
+                  </div>
+                );
+              default:
+                return (
+                  <div>
+                    <p>Clear</p>
+                  </div>
+                );
+            }
+          })()}
+          <Typography variant="headline" component="h3">Temperature: {this.state.data.main.temp - 273.15} &#8451;</Typography>
+          <Typography variant="headline" component="h3">Description: {this.props.data.weather[0].description}</Typography>
+          <Typography variant="headline" component="h3">Humidity: {this.props.data.main.humidity} %</Typography>
+          <Typography variant="headline" component="h3">Wind: {Math.round((this.props.data.wind.speed * 0.44704) * 100) / 100} m/s</Typography>
+          </Paper>
+        </div>
       </div>
     );
   }
 }
 
-export default WeatherTab;
+WeatherTab.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(WeatherTab);

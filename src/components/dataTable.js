@@ -17,6 +17,10 @@ const styles = theme => ({
   table: {
     minWidth: 100,
   },
+  content: theme.mixins.gutters({
+    display: 'flex',
+    textAlign: 'center'
+}),
 });
 
 let id = 0;
@@ -37,6 +41,7 @@ function SimpleTable(props) {
   const { classes } = props;
 
   return (
+    <div className={classes.content}>
     <Paper className={classes.root}>
       <Table className={classes.table}>
         <TableHead>
@@ -61,6 +66,7 @@ function SimpleTable(props) {
         </TableBody>
       </Table>
     </Paper>
+    </div>
   );
 }
 

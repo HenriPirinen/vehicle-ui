@@ -17,6 +17,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Hidden from '@material-ui/core/Hidden';
 import Divider from '@material-ui/core/Divider';
 import MenuIcon from '@material-ui/icons/Menu';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import DrawerList from './components/controlDrawerList';
 import MainMenu from './components/main';
 import InverterTab from './components/inverter';
@@ -26,8 +27,6 @@ import MapTab from './components/mapTab';
 import SystemUpdateTab from './components/systemUpdate'
 import SettingsTab from './components/settings';
 import GraphContainer from './components/graphContainer';
-
-import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import api from './keys.js';
 
@@ -39,7 +38,6 @@ import api from './keys.js';
 //---Variables---//
 
 var showNotification = false;
-
 var dataLimit = 100;
 
 var location = {
@@ -251,9 +249,12 @@ socket.on('serverLog', function (data) {
 });
 
 socket.on('driver', function (data) {
-  let input = data.message.toString();
+  /**
+   * Add message to driver log
+   * Show snackbar
+   */
+  //let input = data.message.toString();
   showNotification = true;
-  console.log(input);
 });
 
 //---Build page---//
@@ -390,12 +391,18 @@ class App extends Component {
             <Typography variant="title" color="inherit" noWrap className={classes.flex}>
               {this.state.selectedTab} {/*Set appbar title*/}
             </Typography>
-            <Button
+            {/*webSocketStatus ? (
+                <SyncIcon />
+              ) : (
+                <SyncDisabledIcon />
+              )*/}
+            <IconButton
               color="inherit"
+              aria-label="open drawer"
               onClick={() => this.contentHandler('Fullscreen')}
             >
-              {this.state.fullscreenTxt}
-            </Button>
+              <FullscreenIcon />
+            </IconButton>
           </Toolbar>
         </AppBar>
         <Hidden mdUp>
