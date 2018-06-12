@@ -4,7 +4,6 @@ import './App.css';
 
 // eslint-disable-next-line
 import ToggleButton from './components/toggleButton';
-import VisGraph from './components/visVoltageLine';
 import openSocket from 'socket.io-client';
 
 import PropTypes from 'prop-types';
@@ -26,10 +25,20 @@ import WeatherTab from './components/weather';
 import MapTab from './components/mapTab';
 import SystemUpdateTab from './components/systemUpdate'
 import SettingsTab from './components/settings';
+import GraphContainer from './components/graphContainer';
 
+import Button from '@material-ui/core/Button';
+import Snackbar from '@material-ui/core/Snackbar';
 import api from './keys.js';
 
+/**
+ * App.js holds state of every child component.
+ * If child component is not rendered, it does not remember it's last state when it is re-rendered
+ */
+
 //---Variables---//
+
+var showNotification = false;
 
 var dataLimit = 100;
 
@@ -38,6 +47,8 @@ var location = {
   longitude: 24.761049,
   accuracy: 20
 }
+
+var updateProgress = 'Update microcontroller';
 
 //---Constants---//
 
@@ -51,43 +62,72 @@ const geoLocOptions = {
 Get latest value from Group 0, cell 3: cellDataPoints[0][3][cellDataPoints[0][3].length - 1].y
 Each group hold graph datapoint voltage values for 8 cells.*/
 
-var cellDataPoints = 
-[
-    [ //Group 0
-      [],[],[],[],[],[],[],[]
+var cellDataPoints =
+  [
+    [ //Voltage
+      [ //Group 0
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 1
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 2
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 3
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 4
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 5
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 6
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 7
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 8
+        [], [], [], [], [], [], [], []
+      ],
     ],
-    [ //Group 1
-      [],[],[],[],[],[],[],[]
-    ],
-    [ //Group 2
-      [],[],[],[],[],[],[],[]
-    ],
-    [ //Group 3
-      [],[],[],[],[],[],[],[]
-    ],
-    [ //Group 4
-      [],[],[],[],[],[],[],[]
-    ],
-    [ //Group 5
-      [],[],[],[],[],[],[],[]
-    ],
-    [ //Group 6
-      [],[],[],[],[],[],[],[]
-    ],
-    [ //Group 7
-      [],[],[],[],[],[],[],[]
-    ],
-    [ //Group 8
-      [],[],[],[],[],[],[],[]
-    ],
-    [ //Group 9
-      [],[],[],[],[],[],[],[]
-    ],
-];
+    [ //Temperature
+      [ //Group 0
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 1
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 2
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 3
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 4
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 5
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 6
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 7
+        [], [], [], [], [], [], [], []
+      ],
+      [ //Group 8
+        [], [], [], [], [], [], [], []
+      ],
+    ]
+  ];
 
-for(let i = 0; i < cellDataPoints.length; i++){ //Fill array with default values.
-  for(let x = 0; x <cellDataPoints[i].length; x++){
-    cellDataPoints[i][x].push({ x: new Date().getTime(), y: 0});
+for (let i = 0; i < cellDataPoints[0].length; i++) { //Fill array with default values.
+  for (let x = 0; x < cellDataPoints[0][i].length; x++) { //Voltage and temperature array lenght is equal
+    cellDataPoints[0][i][x].push({ x: new Date().getTime(), y: 0 });
+    cellDataPoints[1][i][x].push({ x: new Date().getTime(), y: 21 });
   }
 }
 
@@ -131,6 +171,9 @@ const styles = theme => ({
     //padding: theme.spacing.unit * 3,
     //margin: 15,
   },
+  flex: {
+    flex: 1,
+  }
 });
 
 //--Functions--//
@@ -149,9 +192,9 @@ function validateJSON(string) {
 // eslint-disable-next-line
 function getLocation() {
   if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(gotGeoLoc, geoLocErr, geoLocOptions);
-  } else { 
-      console.log("Geolocation is not supported by this browser.");
+    navigator.geolocation.getCurrentPosition(gotGeoLoc, geoLocErr, geoLocOptions);
+  } else {
+    console.log("Geolocation is not supported by this browser.");
   }
 }
 
@@ -179,27 +222,38 @@ socket.on('webSocket', function (data) {
 });
 
 socket.on('dataset', function (data) {
-  /*
-    Event: When client receives websocket package 'dataset' from the server.
-    Dataset message should be in JSON format.
-    Validate JSON -> If valid -> Parse JSON -> Write values to cellData array.
-    Example dataset:
-    {
-      "Group":2,
-      "voltage":[6.10,6.20,6.30,6.40,6.50,6.60,6.70,6.80],
-      "temperature":[20,20,20,20,20,20,20,20]
-    }
-  */
+  /**
+   * Event: When client receives websocket package 'dataset' from the server.
+   * Dataset message should be in JSON format.
+   * Validate JSON -> If valid -> Parse JSON -> Write values to cellData array.
+   * Example dataset:
+   * {
+   *  "Group":2,
+   *  "voltage":[6.10,6.20,6.30,6.40,6.50,6.60,6.70,6.80],
+   *  "temperature":[20,20,20,20,20,20,20,20]
+   * }
+   */
   let input = data.message.toString();
 
   if (validateJSON(input)) {
     let validData = JSON.parse(input);
 
-    for(let i = 0; i < validData.voltage.length; i++){
-      cellDataPoints[validData.Group][i].push({ x: new Date().getTime(), y: validData.voltage[i] });
-      if(cellDataPoints[validData.Group][i].length > dataLimit) cellDataPoints[validData.Group][i].shift();
+    for (let i = 0; i < validData.voltage.length; i++) {
+      cellDataPoints[0][validData.Group][i].push({ x: new Date().getTime(), y: validData.voltage[i] });
+      if (cellDataPoints[0][validData.Group][i].length > dataLimit) cellDataPoints[0][validData.Group][i].shift();
     }
   }
+});
+
+socket.on('serverLog', function (data) {
+  let input = data.message.toString();
+  updateProgress = input;
+});
+
+socket.on('driver', function (data) {
+  let input = data.message.toString();
+  showNotification = true;
+  console.log(input);
 });
 
 //---Build page---//
@@ -209,15 +263,22 @@ class App extends Component {
     super(props)
 
     this.contentHandler = this.contentHandler.bind(this) //Used @ DrawerList component
+    this.handleSettings = this.handleSettings.bind(this) //Used @ settings component
+    this.changeDirection = this.changeDirection.bind(this) //Used @ main component
   }
 
   state = {
     mobileOpen: false,
     selectedTab: 'Main', //This is set to current tab
-    enabledGraphs: [[true, true, true, true, true], [true, true, true, true, true]], //0 = voltage, 1 = temperature
+    enabledGraphs: [[true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true]], //0 = voltage, 1 = temperature
+    graphIntreval: [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]],
     isFullscreenEnabled: false,
+    fullscreenTxt: 'Enable Fullscreen',
     weatherData: { 'default': null },
-    contentWidth: document.getElementById('root').offsetWidth - 300
+    contentWidth: document.getElementById('root').offsetWidth - 300,
+    forward: true,
+    vertical: 'top',
+    horizontal: 'center',
   };
 
   componentDidMount() {
@@ -241,14 +302,58 @@ class App extends Component {
     {
       this.setState({ selectedTab: content });
     } else {
-      this.setState({ isFullscreenEnabled: !this.state.isFullscreenEnabled });
+      this.setState({
+        isFullscreenEnabled: !this.state.isFullscreenEnabled,
+      });
       if (!document.fullscreenElement) {
         document.documentElement.webkitRequestFullScreen();
+        this.setState({ fullscreenTxt: 'Exit Fullscreen' });
       } else {
         if (document.exitFullscreen) {
           document.exitFullscreen();
+          this.setState({ fullscreenTxt: 'Enable Fullscreen' });
         }
       }
+    }
+  }
+
+  changeDirection = (direction) => {
+    /**
+     * @param {boolean} direction true = forward, false = reverse 
+     */
+    if (!direction === this.state.forward) this.setState({ forward: direction });
+    socket.emit('command', { //Send update command to server
+      command: direction,
+      handle: 'client',
+      target: 'driver'
+    });
+  }
+
+  handleSettings = (group, setting, type, condition) => {
+    /**
+     * @param {integer} group Value between 0 - 8
+     * @param {string} setting interval or state
+     * @param {integer} type 0 = voltage, 1 = temperature
+     * @param {integer,boolean} condition Interval = integer, enabledGraphs = boolean 
+     */
+
+    switch (setting) {
+      case 'interval':
+        let newIntervalState = this.state.graphIntreval.slice();
+        newIntervalState[type][group] = condition;
+        this.setState({
+          graphIntreval: newIntervalState
+        });
+        break;
+      case 'state':
+        let newGraphState = this.state.enabledGraphs.slice();
+        newGraphState[type][group] = condition;
+        this.setState({
+          enabledGraphs: newGraphState
+        });
+        break;
+      default:
+        console.log('Something went wrong...');
     }
   }
 
@@ -258,6 +363,7 @@ class App extends Component {
 
   render() {
     const { classes, theme } = this.props;
+    const { vertical, horizontal} = this.state;
 
     const drawer = (
       <div>
@@ -281,9 +387,15 @@ class App extends Component {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="title" color="inherit" noWrap>
+            <Typography variant="title" color="inherit" noWrap className={classes.flex}>
               {this.state.selectedTab} {/*Set appbar title*/}
             </Typography>
+            <Button
+              color="inherit"
+              onClick={() => this.contentHandler('Fullscreen')}
+            >
+              {this.state.fullscreenTxt}
+            </Button>
           </Toolbar>
         </AppBar>
         <Hidden mdUp>
@@ -315,6 +427,16 @@ class App extends Component {
         </Hidden>
         <main className={classes.content} >
           <div id='appContent'>
+            <Snackbar
+              anchorOrigin={{ vertical, horizontal }}
+              open={showNotification}
+              autoHideDuration={2000}
+              onClose={() => showNotification = false}
+              ContentProps={{
+                'aria-describedby': 'message-id',
+              }}
+              message={<span id="message-id">Execute commands</span>}
+            />
             <div className={classes.toolbar} />
             <div style={{ height: 10 }}></div>
 
@@ -323,52 +445,21 @@ class App extends Component {
                 case 'Data':
                   return (
                     <div>
-                      <VisGraph
-                        graphWidth={this.state.contentWidth}
-                        newVoltageData={cellDataPoints[0]}
-                        dataLimit={100}
-                        graphName={'Group 0'}
-                        isEnabled={this.state.enabledGraphs[0][0]}
+                      <GraphContainer
+                        contentWidth={this.state.contentWidth}
+                        enabledGraphs={this.state.enabledGraphs}
+                        data={cellDataPoints}
+                        interval={this.state.graphIntreval}
                       />
-                      <div style={{ height: 4 }}></div>
-                      <VisGraph
-                        graphWidth={this.state.contentWidth}
-                        newVoltageData={cellDataPoints[1]}
-                        dataLimit={100}
-                        graphName={'Group 1'}
-                        isEnabled={this.state.enabledGraphs[0][1]}
-                      />
-                      <div style={{ height: 4 }}></div>
-                      <VisGraph
-                        graphWidth={this.state.contentWidth}
-                        newVoltageData={cellDataPoints[2]}
-                        dataLimit={100}
-                        graphName={'Group 2'}
-                        isEnabled={this.state.enabledGraphs[0][2]}
-                      />
-                      <div style={{ height: 4 }}></div>
-                      <VisGraph
-                        graphWidth={this.state.contentWidth}
-                        newVoltageData={cellDataPoints[3]}
-                        dataLimit={100}
-                        graphName={'Group 3'}
-                        isEnabled={this.state.enabledGraphs[0][3]}
-                      />
-                      <div style={{ height: 4 }}></div>
-                      <VisGraph
-                        graphWidth={this.state.contentWidth}
-                        newVoltageData={cellDataPoints[4]}
-                        dataLimit={100}
-                        graphName={'Group 4'}
-                        isEnabled={this.state.enabledGraphs[0][4]}
-                      />
-                      <div style={{ height: 4 }}></div>
                     </div>
                   );
                 case 'Main':
                   return (
                     <div>
-                      <MainMenu handleContent={this.contentHandler} />
+                      <MainMenu
+                        changeDirection={this.changeDirection}
+                        forward={this.state.forward}
+                      />
                     </div>
                   );
                 case 'Inverter':
@@ -398,13 +489,20 @@ class App extends Component {
                 case 'System Update':
                   return (
                     <div>
-                      <SystemUpdateTab />
+                      <SystemUpdateTab
+                        webSocket={socket}
+                        systemUpdateProgress={updateProgress}
+                      />
                     </div>
                   );
                 case 'Settings':
                   return (
                     <div>
-                      <SettingsTab />
+                      <SettingsTab
+                        handleSettings={this.handleSettings}
+                        enabledGraphs={this.state.enabledGraphs}
+                        graphIntreval={this.state.enabledGraphs}
+                      />
                     </div>
                   );
                 default:

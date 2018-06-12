@@ -33,7 +33,6 @@ class VisGraph extends React.Component {
   }
 
   render() {
-    if (this.props.isEnabled) {
       return (
         <div>
           <XYPlot height={300} width={this.state.parentWidth} xType="time" >
@@ -52,9 +51,6 @@ class VisGraph extends React.Component {
           </XYPlot>
         </div>
       );
-    } else {
-      return <div></div>; //Return empty div if graph is not enabled
-    }
   }
 }
 

@@ -9,6 +9,7 @@
     "d3-time-format": "^2.1.1",
     "google-maps-react": "^2.0.2",
     "highcharts": "^5.0.15",
+    "immutability-helper": "^2.7.0",
     "immutable": "^3.8.2",
     "material-ui": "^1.0.0-beta.47",
     "prop-types": "^15.6.1",

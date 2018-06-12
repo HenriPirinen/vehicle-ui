@@ -6,21 +6,25 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 
 class EnableGroupMonitor extends React.Component {
-    state = {
-        group0: true,
-        group1: true,
-        group2: true,
-        group3: true,
-        group4: true,
-        group5: true,
-        group6: true,
-        group7: true,
-        group8: true,
-        group9: true,
-    };
+    constructor(props){
+        super(props)
 
-    handleChange = name => event => {
+        this.state = {
+            group0: props.currentState[0][0],
+            group1: props.currentState[0][1],
+            group2: props.currentState[0][2],
+            group3: props.currentState[0][3],
+            group4: props.currentState[0][4],
+            group5: props.currentState[0][5],
+            group6: props.currentState[0][6],
+            group7: props.currentState[0][7],
+            group8: props.currentState[0][8],
+        };
+    }
+
+    handleChange = (name, group) => event => {
         this.setState({ [name]: event.target.checked });
+        this.props.enabled( group, 'state', 0, !this.props.currentState[0][group]);
     };
 
     render() {
@@ -31,8 +35,8 @@ class EnableGroupMonitor extends React.Component {
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={this.state.group0}
-                                onChange={this.handleChange('group0')}
+                                checked={this.props.currentState[0][0]}
+                                onChange={this.handleChange('group0', 0)}
                                 value="group0"
                             />
                         }
@@ -41,8 +45,8 @@ class EnableGroupMonitor extends React.Component {
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={this.state.group1}
-                                onChange={this.handleChange('group1')}
+                                checked={this.props.currentState[0][1]}
+                                onChange={this.handleChange('group1', 1)}
                                 value="group1"
                             />
                         }
@@ -51,8 +55,8 @@ class EnableGroupMonitor extends React.Component {
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={this.state.group2}
-                                onChange={this.handleChange('group2')}
+                                checked={this.props.currentState[0][2]}
+                                onChange={this.handleChange('group2', 2)}
                                 value="group2"
                             />
                         }
@@ -61,8 +65,8 @@ class EnableGroupMonitor extends React.Component {
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={this.state.group3}
-                                onChange={this.handleChange('group3')}
+                                checked={this.props.currentState[0][3]}
+                                onChange={this.handleChange('group3', 3)}
                                 value="group3"
                             />
                         }
@@ -71,8 +75,8 @@ class EnableGroupMonitor extends React.Component {
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={this.state.group4}
-                                onChange={this.handleChange('group4')}
+                                checked={this.props.currentState[0][4]}
+                                onChange={this.handleChange('group4', 4)}
                                 value="group4"
                             />
                         }
@@ -81,8 +85,8 @@ class EnableGroupMonitor extends React.Component {
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={this.state.group5}
-                                onChange={this.handleChange('group5')}
+                                checked={this.props.currentState[0][5]}
+                                onChange={this.handleChange('group5', 5)}
                                 value="group5"
                             />
                         }
@@ -91,8 +95,8 @@ class EnableGroupMonitor extends React.Component {
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={this.state.group6}
-                                onChange={this.handleChange('group6')}
+                                checked={this.props.currentState[0][6]}
+                                onChange={this.handleChange('group6', 6)}
                                 value="group6"
                             />
                         }
@@ -101,8 +105,8 @@ class EnableGroupMonitor extends React.Component {
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={this.state.group7}
-                                onChange={this.handleChange('group7')}
+                                checked={this.props.currentState[0][7]}
+                                onChange={this.handleChange('group7', 7)}
                                 value="group7"
                             />
                         }
@@ -111,22 +115,12 @@ class EnableGroupMonitor extends React.Component {
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={this.state.group8}
-                                onChange={this.handleChange('group8')}
+                                checked={this.props.currentState[0][8]}
+                                onChange={this.handleChange('group8' ,8)}
                                 value="group8"
                             />
                         }
                         label="8"
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={this.state.group9}
-                                onChange={this.handleChange('group9')}
-                                value="group9"
-                            />
-                        }
-                        label="9"
                     />
                 </FormGroup>
             </FormControl>

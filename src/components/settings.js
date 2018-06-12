@@ -3,11 +3,13 @@ import GraphIntervalSelect from './graphIntervalSelect';
 import EnableGroupMonitor from './enableGroupMonitor';
 
 class InterfaceSettings extends React.Component {
-
   render() {
     return (
       <div>
-        <EnableGroupMonitor />
+        <EnableGroupMonitor 
+          enabled={this.props.handleSettings} 
+          currentState={this.props.enabledGraphs}
+        />
         <GraphIntervalSelect groups={ [0,1,2,3,4]}/>
         <GraphIntervalSelect groups={[5,6,7,8,9]}/>
       </div>

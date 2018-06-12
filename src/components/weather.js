@@ -1,4 +1,5 @@
 import React from 'react';
+import Typography from '@material-ui/core/Typography';
 
 //SVG Icons were created by amCharts (https://www.amcharts.com/)
 //Creative Commons Attribution 4.0 International Public License
@@ -22,7 +23,7 @@ class WeatherTab extends React.Component {
   render() {
     return (
       <div>
-        <h1>{this.props.data.name}</h1>
+        <Typography variant="display2" component="h3">{this.props.data.name}</Typography>
         {(() => {
               switch (true) {
                 case (this.props.data.weather[0].id >= 200 && this.props.data.weather[0].id <= 232):
@@ -81,12 +82,10 @@ class WeatherTab extends React.Component {
                   );
               }
             })()}
-        <p>Temperature: {this.state.data.main.temp - 273.15} &#8451;</p>
-        <p>Description: {this.props.data.weather[0].description}</p>
-        <p>Humidity: {this.props.data.main.humidity} %</p>
-        <p>Wind: {Math.round((this.props.data.wind.speed * 0.44704) * 100) / 100} m/s</p> {/*Convert mph to m/s*/}
-        <p></p>
-        <p></p>
+        <Typography variant="headline" component="h3">Temperature: {this.state.data.main.temp - 273.15} &#8451;</Typography>
+        <Typography variant="headline" component="h3">Description: {this.props.data.weather[0].description}</Typography>
+        <Typography variant="headline" component="h3">Humidity: {this.props.data.main.humidity} %</Typography>
+        <Typography variant="headline" component="h3">Wind: {Math.round((this.props.data.wind.speed * 0.44704) * 100) / 100} m/s</Typography>
       </div>
     );
   }
