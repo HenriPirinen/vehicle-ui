@@ -1,6 +1,8 @@
 import React from 'react';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -31,28 +33,43 @@ class MainMenu extends React.Component {
                 <div className={classes.content}>
                     <Paper className={classes.root} elevation={4}>
                         {/*<img src={PeugeotLogo} alt='logo'/>*/}
-                        <Typography 
-                            variant="headline" 
+                        <Typography
+                            variant="headline"
                             component="h3"
-                            color={this.props.forward ? 'primary' : 'default'}
+                            color={this.props.driveDirection === 'drive' ? 'primary' : 'default'}
                         >
                             Drive
                         </Typography>
                         <ArrowUpwardIcon
-                            color={this.props.forward ? 'primary' : 'disabled'}
+                            color={this.props.driveDirection === 'drive' ? 'primary' : 'disabled'}
                             style={{ fontSize: 120 }}
-                            onClick={() => this.props.changeDirection(true)} //Drive
+                            onClick={() => this.props.changeDirection('drive')} //Drive
                         />
                         <br />
+                        {this.props.driveDirection === 'neutral' ?
+                            (
+                                <RadioButtonCheckedIcon
+                                    style={{ fontSize: 100 }}
+                                    color={'primary'}
+                                    onClick={() => this.props.changeDirection('neutral')}
+                                />) : (
+                                <RadioButtonUncheckedIcon
+                                    style={{ fontSize: 100 }}
+                                    color={'disabled'}
+                                    onClick={() => this.props.changeDirection('neutral')}
+                                />
+                            )
+                        }
+                        <br />
                         <ArrowDownwardIcon
-                            color={this.props.forward ? 'disabled' : 'primary'}
+                            color={this.props.driveDirection === 'reverse' ? 'primary' : 'disabled'}
                             style={{ fontSize: 120 }}
-                            onClick={() => this.props.changeDirection(false)} //Reverse
+                            onClick={() => this.props.changeDirection('reverse')} //Reverse
                         />
-                        <Typography 
-                            variant="headline" 
+                        <Typography
+                            variant="headline"
                             component="h3"
-                            color={this.props.forward ? 'default' : 'primary'}
+                            color={this.props.driveDirection === 'reverse' ? 'primary' : 'default'}
                         >
                             Reverse
                         </Typography>

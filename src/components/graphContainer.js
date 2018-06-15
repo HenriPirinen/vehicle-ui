@@ -16,35 +16,35 @@ class GraphContainer extends React.Component {
                     graphWidth={this.props.contentWidth}
                     newVoltageData={this.props.data[0][0]}
                     dataLimit={100}
-                    graphName={'Group 0'}
+                    graphName={0}
                 />}
                 {this.props.enabledGraphs[0][1] &&
                 <VisGraph
                     graphWidth={this.props.contentWidth}
                     newVoltageData={this.props.data[0][1]}
                     dataLimit={100}
-                    graphName={'Group 1'}
+                    graphName={1}
                 />}
                 {this.props.enabledGraphs[0][2] &&
                 <VisGraph
                     graphWidth={this.props.contentWidth}
                     newVoltageData={this.props.data[0][2]}
                     dataLimit={100}
-                    graphName={'Group 2'}
+                    graphName={2}
                 />}
                 {this.props.enabledGraphs[0][3] &&
                 <VisGraph
                     graphWidth={this.props.contentWidth}
                     newVoltageData={this.props.data[0][3]}
                     dataLimit={100}
-                    graphName={'Group 3'}
+                    graphName={3}
                 />}
                 {this.props.enabledGraphs[0][4] &&
                 <VisGraph
                     graphWidth={this.props.contentWidth}
                     newVoltageData={this.props.data[0][4]}
                     dataLimit={100}
-                    graphName={'Group 4'}
+                    graphName={4}
                 />}
             </div>
         );

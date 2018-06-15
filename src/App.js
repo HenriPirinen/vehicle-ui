@@ -70,86 +70,6 @@ var location = {
   accuracy: 20
 };
 
-/**
- * systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver.
- */
-var systemLog = [[], [], [],[]];
-
-/**
- * 3D array, Group(int) -> cell(int) -> datapoint object {'x': time, 'y': voltage value}.
- * Get latest value from Group 0, cell 3: cellDataPoints[0][3][cellDataPoints[0][3].length - 1].y
- * Each group hold graph datapoint voltage values for 8 cells.
- */
-
-var cellDataPoints =
-  [
-    [ //Voltage
-      [ //Group 0
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 1
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 2
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 3
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 4
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 5
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 6
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 7
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 8
-        [], [], [], [], [], [], [], []
-      ],
-    ],
-    [ //Temperature
-      [ //Group 0
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 1
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 2
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 3
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 4
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 5
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 6
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 7
-        [], [], [], [], [], [], [], []
-      ],
-      [ //Group 8
-        [], [], [], [], [], [], [], []
-      ],
-    ]
-  ];
-
-for (let i = 0; i < cellDataPoints[0].length; i++) { //Fill array with default values.
-  for (let x = 0; x < cellDataPoints[0][i].length; x++) { //Voltage and temperature array lenght is equal
-    cellDataPoints[0][i][x].push({ x: new Date().getTime(), y: 0 });
-    cellDataPoints[1][i][x].push({ x: new Date().getTime(), y: 21 });
-  }
-};
-
 //---Constants---//
 
 const geoLocOptions = {
@@ -210,15 +130,24 @@ class App extends Component {
       enabledGraphs: [[true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true]], //[0] = voltage, [1] = temperature
       graphIntreval: [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]],
       isFullscreenEnabled: false,
-      fullscreenTxt: 'Enable Fullscreen',
       weatherData: { 'default': null },
       contentWidth: document.getElementById('root').offsetWidth - 300,
-      forward: true,
+      driveDirection: 'neutral',
       vertical: 'top',
       horizontal: 'center',
       dataLimit: 100,
       showNotification: false,
-      updateProgress: 'Update microcontroller'
+      updateProgress: 'Update microcontroller',
+      /**
+       * systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver.
+       */
+      systemLog: [[], [], [], []],
+      /**
+       * 3D array, Group(int) -> cell(int) -> datapoint object {'x': time, 'y': voltage value}.
+       * Get latest value from Group 0, cell 3: cellDataPoints[0][3][cellDataPoints[0][3].length - 1].y
+       * Each group hold graph datapoint voltage values for 8 cells.
+       */
+      cellDataPoints: [[[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],], [[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],]]
     };
 
     this.contentHandler = this.contentHandler.bind(this) //Used @ DrawerList component
@@ -233,106 +162,134 @@ class App extends Component {
     var s = today.getSeconds();
     if (m < 10) m = '0' + m;
     if (s < 10) s = '0' + m;
-  
+
     return '' + h + ':' + m + ':' + s + '';
   };
 
   componentDidMount() {
+
+    let _updateCellDataPoints = this.state.cellDataPoints;
+    for (let i = 0; i < _updateCellDataPoints[0].length; i++) { //Fill array with default values.
+      for (let x = 0; x < _updateCellDataPoints[0][i].length; x++) { //Voltage and temperature array lenght is equal
+        _updateCellDataPoints[0][i][x].push({ x: new Date().getTime(), y: 0 });
+        _updateCellDataPoints[1][i][x].push({ x: new Date().getTime(), y: 21 });
+      }
+    };
+
+    this.setState({ cellDataPoints: _updateCellDataPoints });
+
     //getLocation();
     fetch("http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + location.longitude + "&APPID=" + api.api.weather + "") //TODO: get lat and lon from gps
       .then(res => res.json())
       .then(
-        (result) => {
-          this.setState({
-            weatherData: result
-          });
-        },
-        (error) => {
-          console.log('Error fetching weather...');
-        }
-      )
-      
-      this.socket = openSocket('192.168.2.45:4000');
-
-      this.socket.on('webSocket', (data) => {
-        console.log(data.handle + ' ' + data.message);
-        this.socket.emit('command', { //Send update command to server
-          command: '99',
-          handle: 'client',
-          target: 'driver'
+      (result) => {
+        this.setState({
+          weatherData: result
         });
-      });
+      },
+      (error) => {
+        console.log('Error fetching weather...');
+      }
+      )
 
-      this.socket.on('dataset', (data) => {
-        /**
-         * Event: When client receives websocket package 'dataset' from the server.
-         * Dataset message should be in JSON format.
-         * Validate JSON -> If valid -> Parse JSON -> Write values to cellData array.
-         * Example dataset:
-         * {
-         *  "Group":2,
-         *  "voltage":[6.10,6.20,6.30,6.40,6.50,6.60,6.70,6.80],
-         *  "temperature":[20,20,20,20,20,20,20,20]
-         * }
-         */
-        let input = data.message.toString();
-      
-        if (validateJSON(input)) {
-          let validData = JSON.parse(input);
-      
-          for (let i = 0; i < validData.voltage.length; i++) {
-            cellDataPoints[0][validData.Group][i].push({ x: new Date().getTime(), y: validData.voltage[i] });
-            if (cellDataPoints[0][validData.Group][i].length > this.state.dataLimit) cellDataPoints[0][validData.Group][i].shift();
-          }
+    this.socket = openSocket('192.168.2.45:4000');
+
+    this.socket.on('webSocket', (data) => {
+      console.log(data.handle + ' ' + data.message);
+      this.socket.emit('command', { //Send update command to server
+        command: 'getSettings',
+        handle: 'client',
+        target: 'driver'
+      });
+    });
+
+    this.socket.on('dataset', (data) => {
+      /**
+       * Event: When client receives websocket package 'dataset' from the server.
+       * Dataset message should be in JSON format.
+       * Validate JSON -> If valid -> Parse JSON -> Write values to cellData array.
+       * Example dataset:
+       * {
+       *  "Group":2,
+       *  "voltage":[6.10,6.20,6.30,6.40,6.50,6.60,6.70,6.80],
+       *  "temperature":[20,20,20,20,20,20,20,20]
+       * }
+       */
+      let _input = data.message.toString();
+      let _updateCellDataPoints = this.state.cellDataPoints;
+
+      if (validateJSON(_input)) {
+        let _validData = JSON.parse(_input);
+
+        for (let i = 0; i < _validData.voltage.length; i++) {
+          _updateCellDataPoints[0][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.voltage[i] });
+          if (_updateCellDataPoints[0][_validData.Group][i].length > this.state.dataLimit) _updateCellDataPoints[0][_validData.Group][i].shift();
         }
-      });
-      
-      this.socket.on('serverLog', (data) => {
-        let input = data.message.toString();
-        //systemLog[0].push({'time':timestamp(),'msg':input,'importance':'Low'});
-        this.setState({updateProgress: input});
-      });
-      
-      this.socket.on('driver', (data) => {
-        /**
-         * Add message to driver log
-         * Show snackbar
-         */
-        let input = data.message.toString();
-        let message = JSON.parse(input);
-        if(message.type === 'param') message.direction === 1 ? this.setState({forward: true}) : this.setState({forward: false});
-        if(message.type === 'log') systemLog[3].push(this.timestamp() + " | Message: " + message.msg + " | Importance: " + message.importance + "\n");
-        this.setState({ showNotification: true });
-      });
+        this.setState({ cellDataPoints: _updateCellDataPoints });
+      }
+    });
+
+    this.socket.on('serverLog', (data) => {
+      let _input = data.message.toString();
+      this.setState({ updateProgress: _input });
+    });
+
+    this.socket.on('driver', (data) => {
+      /**
+       * Add message to driver log
+       * Show snackbar
+       * Initialize main tab
+       */
+      let _input = data.message.toString();
+      let _message = JSON.parse(_input);
+      if (_message.type === 'param'){
+        switch(_message.direction){
+          case 0:
+            this.setState({ driveDirection: 'neutral' });
+            break;
+          case 1:
+            this.setState({ driveDirection: 'reverse' });
+            break;
+          case 2:
+            this.setState({ driveDirection: 'drive' });
+            break;
+          default:
+            console.log('Something went wrong at driver: Direction = ' + _message.direction);
+        }
+      }
+      if (_message.type === 'log'){
+        let _updateSystemLog = this.state.systemLog;
+        _updateSystemLog[3].push(this.timestamp() + " | Message: " + _message.msg + " | Importance: " + _message.importance + "\n");
+        this.setState({systemLog: _updateSystemLog});
+      }
+      this.setState({ showNotification: true });
+    });
   }
 
   contentHandler = (content) => { //Change tab
-    if (content !== 'Fullscreen') //Temporary solution
-    {
       this.setState({ selectedTab: content });
+  }
+
+  toggleFullscreen = () => {
+    this.setState({
+      isFullscreenEnabled: !this.state.isFullscreenEnabled,
+    });
+    if (!document.fullscreenElement) {
+      document.documentElement.webkitRequestFullScreen();
     } else {
-      this.setState({
-        isFullscreenEnabled: !this.state.isFullscreenEnabled,
-      });
-      if (!document.fullscreenElement) {
-        document.documentElement.webkitRequestFullScreen();
-        this.setState({ fullscreenTxt: 'Exit Fullscreen' });
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-          this.setState({ fullscreenTxt: 'Enable Fullscreen' });
-        }
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
       }
     }
   }
 
   changeDirection = (direction) => {
     /**
-     * @param {boolean} direction true = forward, false = reverse 
+     * @param {string} direction neutral, drive, reverse 
      */
-    if (!direction === this.state.forward) this.setState({ forward: direction });
+    this.setState({ driveDirection: direction });
     this.socket.emit('command', { //Send update command to server
-      command: direction ? 1 : 0,
+      command: direction,
       handle: 'client',
       target: 'driver'
     });
@@ -348,17 +305,17 @@ class App extends Component {
 
     switch (setting) {
       case 'interval':
-        let newIntervalState = this.state.graphIntreval.slice();
-        newIntervalState[type][group] = condition;
+        let _newIntervalState = this.state.graphIntreval;
+        _newIntervalState[type][group] = condition;
         this.setState({
-          graphIntreval: newIntervalState
+          graphIntreval: _newIntervalState
         });
         break;
       case 'state':
-        let newGraphState = this.state.enabledGraphs.slice();
-        newGraphState[type][group] = condition;
+        let _newGraphState = this.state.enabledGraphs;
+        _newGraphState[type][group] = condition;
         this.setState({
-          enabledGraphs: newGraphState
+          enabledGraphs: _newGraphState
         });
         break;
       default:
@@ -407,7 +364,7 @@ class App extends Component {
             <IconButton
               color="inherit"
               aria-label="open drawer"
-              onClick={() => this.contentHandler('Fullscreen')}
+              onClick={() => this.toggleFullscreen()}
             >
               <FullscreenIcon />
             </IconButton>
@@ -446,7 +403,7 @@ class App extends Component {
               anchorOrigin={{ vertical, horizontal }}
               open={this.state.showNotification}
               autoHideDuration={2000}
-              onClose={() => this.setState({showNotification: false})}
+              onClose={() => this.setState({ showNotification: false })}
               ContentProps={{
                 'aria-describedby': 'message-id',
               }}
@@ -462,7 +419,7 @@ class App extends Component {
                       <GraphContainer
                         contentWidth={this.state.contentWidth}
                         enabledGraphs={this.state.enabledGraphs}
-                        data={cellDataPoints}
+                        data={this.state.cellDataPoints}
                         interval={this.state.graphIntreval}
                       />
                     </div>
@@ -472,7 +429,7 @@ class App extends Component {
                     <div>
                       <MainMenu
                         changeDirection={this.changeDirection}
-                        forward={this.state.forward}
+                        driveDirection={this.state.driveDirection}
                       />
                     </div>
                   );
@@ -485,7 +442,7 @@ class App extends Component {
                 case 'Log':
                   return (
                     <div>
-                      <LogTab logs={systemLog} />
+                      <LogTab logs={this.state.systemLog} />
                     </div>
                   );
                 case 'Weather':

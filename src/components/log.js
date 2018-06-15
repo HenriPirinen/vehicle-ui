@@ -6,19 +6,16 @@ import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: theme.mixins.gutters({
-    paddingTop: 16,
-    paddingBottom: 16,
-    marginLeft: 16,
-    marginRight: 16,
-    marginBottom: 16,
+    paddingTop: 5,
+    paddingBottom: 5,
+    marginLeft: 5,
+    marginRight: 5,
+    marginBottom: 5,
     marginTop: theme.spacing.unit * 3,
   }),
   content: theme.mixins.gutters({
-    display: 'flex',
-    textAlign: 'center'
-  }),
-  txtArea: theme.mixins.gutters({
-    width:600
+    width: '90%',
+    textAlign: 'center',
   }),
 });
 
@@ -34,7 +31,7 @@ class LogTab extends React.Component {
               variant="display2"
               component="h3"
             >Server</Typography>
-            <textarea className={classes.txtArea} rows="10" cols="50" readOnly></textarea>
+            <textarea style={{ width: '100%' }} rows="10" cols="50" readOnly value={this.props.logs[0]}></textarea>
           </Paper>
         </div>
         <div className={classes.content}>
@@ -43,7 +40,7 @@ class LogTab extends React.Component {
               variant="display2"
               component="h3"
             >Inverter</Typography>
-            <textarea className={classes.txtArea} rows="10" cols="50" readOnly></textarea>
+            <textarea style={{ width: '100%' }} rows="10" cols="50" readOnly value={this.props.logs[1]}></textarea>
           </Paper>
         </div>
         <div className={classes.content}>
@@ -52,8 +49,7 @@ class LogTab extends React.Component {
               variant="display2"
               component="h3"
             >Driver</Typography>
-            <textarea className={classes.txtArea} rows="10" cols="50" readOnly value={this.props.logs[3]}>
-            </textarea>
+            <textarea style={{ width: '100%' }} rows="10" cols="50" readOnly value={this.props.logs[3]}></textarea>
           </Paper>
         </div>
         <div className={classes.content}>
@@ -62,7 +58,7 @@ class LogTab extends React.Component {
               variant="display2"
               component="h3"
             >Controller</Typography>
-            <textarea className={classes.txtArea} rows="10" cols="50" readOnly></textarea>
+            <textarea style={{ width: '100%' }} rows="10" cols="50" readOnly value={this.props.logs[2]}></textarea>
           </Paper>
         </div>
       </div>
