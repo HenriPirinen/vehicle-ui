@@ -41,13 +41,13 @@ class MainMenu extends React.Component {
                         <ArrowUpwardIcon
                             color={this.props.forward ? 'primary' : 'disabled'}
                             style={{ fontSize: 120 }}
-                            onClick={() => this.props.changeDirection(true)}
+                            onClick={() => this.props.changeDirection(true)} //Drive
                         />
                         <br />
                         <ArrowDownwardIcon
                             color={this.props.forward ? 'disabled' : 'primary'}
                             style={{ fontSize: 120 }}
-                            onClick={() => this.props.changeDirection(false)}
+                            onClick={() => this.props.changeDirection(false)} //Reverse
                         />
                         <Typography 
                             variant="headline" 

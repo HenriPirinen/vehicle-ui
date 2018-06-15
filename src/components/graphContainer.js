@@ -10,6 +10,7 @@ class GraphContainer extends React.Component {
     render() {
         return (
             <div>
+                <div style={{ height: 10 }}></div>
                 {this.props.enabledGraphs[0][0] &&
                 <VisGraph
                     graphWidth={this.props.contentWidth}

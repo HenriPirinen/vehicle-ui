@@ -17,6 +17,9 @@ const styles = theme => ({
     display: 'flex',
     textAlign: 'center'
   }),
+  txtArea: theme.mixins.gutters({
+    width:600
+  }),
 });
 
 class LogTab extends React.Component {
@@ -31,7 +34,7 @@ class LogTab extends React.Component {
               variant="display2"
               component="h3"
             >Server</Typography>
-            <textarea rows="10" cols="50"></textarea>
+            <textarea className={classes.txtArea} rows="10" cols="50" readOnly></textarea>
           </Paper>
         </div>
         <div className={classes.content}>
@@ -40,7 +43,26 @@ class LogTab extends React.Component {
               variant="display2"
               component="h3"
             >Inverter</Typography>
-            <textarea rows="10" cols="50"></textarea>
+            <textarea className={classes.txtArea} rows="10" cols="50" readOnly></textarea>
+          </Paper>
+        </div>
+        <div className={classes.content}>
+          <Paper className={classes.root} elevation={4}>
+            <Typography
+              variant="display2"
+              component="h3"
+            >Driver</Typography>
+            <textarea className={classes.txtArea} rows="10" cols="50" readOnly value={this.props.logs[3]}>
+            </textarea>
+          </Paper>
+        </div>
+        <div className={classes.content}>
+          <Paper className={classes.root} elevation={4}>
+            <Typography
+              variant="display2"
+              component="h3"
+            >Controller</Typography>
+            <textarea className={classes.txtArea} rows="10" cols="50" readOnly></textarea>
           </Paper>
         </div>
       </div>
