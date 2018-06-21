@@ -50,6 +50,7 @@ class InverterManagmentTable extends React.Component {
 
     this.state = {
       openDialog: false,
+      dialogId: 0,
       dialogTitle: '',
       dialogDesc: '',
       dialogMin: '',
@@ -57,7 +58,8 @@ class InverterManagmentTable extends React.Component {
     }
   }
 
-  handleClickOpen = (item, desc, min, max) => {
+  handleClickOpen = (id, item, desc, min, max) => {
+    this.setState({dialogId: id});
     this.setState({dialogDesc: desc});
     this.setState({dialogMin: min});
     this.setState({dialogMax: max});
@@ -65,7 +67,8 @@ class InverterManagmentTable extends React.Component {
     this.setState({ openDialog: true });
   };
 
-  handleClose = () => {
+  handleClose = (value) => {
+    if(value != null)  document.getElementById(this.state.dialogId.toString()).innerHTML = value;
     this.setState({ openDialog: false });
   };
 
@@ -88,17 +91,17 @@ class InverterManagmentTable extends React.Component {
             <TextField
               autoFocus
               margin="dense"
-              id="name"
+              id="paramValue"
               label="Value"
               type="number"
               fullWidth
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.handleClose} color="primary">
+            <Button onClick={() => {this.handleClose(null)}} color="primary">
               Cancel
             </Button>
-            <Button onClick={this.handleClose} color="primary">
+            <Button onClick={() => {this.handleClose(document.getElementById('paramValue').value)}} color="primary">
               Set
             </Button>
           </DialogActions>
@@ -115,11 +118,11 @@ class InverterManagmentTable extends React.Component {
             <TableBody>
               {data.map(n => {
                 return (
-                  <TableRow key={n.id} onClick={() => {this.handleClickOpen(n.name, n.desc, n.min, n.max)}}>
+                  <TableRow hover key={n.id} onClick={() => {this.handleClickOpen(n.id, n.name, n.desc, n.min, n.max)}}>
                     <TableCell component="th" scope="row">
                       {n.name}
                     </TableCell>
-                    <TableCell numeric>{n.value}</TableCell>
+                    <TableCell numeric id={n.id}>{n.value}</TableCell>
                     <TableCell numeric>{n.unit}</TableCell>
                   </TableRow>
                 );
