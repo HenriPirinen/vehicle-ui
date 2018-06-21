@@ -7,10 +7,18 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import Button from '@material-ui/core/Button';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import {parameters} from './parameterDesc';
 
 const styles = theme => ({
   root: {
-    width: '100%',
+    width: '80%',
     marginTop: theme.spacing.unit * 3,
     overflowX: 'auto',
   },
@@ -20,58 +28,112 @@ const styles = theme => ({
   content: theme.mixins.gutters({
     display: 'flex',
     textAlign: 'center'
-}),
+  }),
 });
 
 let id = 0;
-function createData(name, calories, fat, carbs, protein) {
+function createData(name, value, unit, min, max, desc) {
   id += 1;
-  return { id, name, calories, fat, carbs, protein };
+  return { id, name, value, unit, min, max, desc };
 }
 
-const data = [
-  createData('boost', 159, 6.0),
-  createData('fweak', 237, 9.0),
-  createData('udcnom', 262, 16.0),
-  createData('fpconst', 305, 3.7),
-  createData('fslipmin', 356, 16.0),
-];
+//console.log(parameters[0].name);
+var data = [];
 
-function SimpleTable(props) {
-  const { classes } = props;
+for(let param of parameters){
+  data.push(createData(param.name, param.default, param.unit, param.minimum, param.maximum, param.description));
+}
 
-  return (
-    <div className={classes.content}>
-    <Paper className={classes.root}>
-      <Table className={classes.table}>
-        <TableHead>
-          <TableRow>
-            <TableCell>Parameter</TableCell>
-            <TableCell numeric>Value</TableCell>
-            <TableCell numeric>Unit</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map(n => {
-            return (
-              <TableRow key={n.id}>
-                <TableCell component="th" scope="row">
-                  {n.name}
-                </TableCell>
-                <TableCell numeric>{n.calories}</TableCell>
-                <TableCell numeric>{n.fat}</TableCell>
+class InverterManagmentTable extends React.Component {
+  constructor(props){
+    super(props)
+
+    this.state = {
+      openDialog: false,
+      dialogTitle: '',
+      dialogDesc: '',
+      dialogMin: '',
+      dialogMax: ''
+    }
+  }
+
+  handleClickOpen = (item, desc, min, max) => {
+    this.setState({dialogDesc: desc});
+    this.setState({dialogMin: min});
+    this.setState({dialogMax: max});
+    this.setState({dialogTitle: item});
+    this.setState({ openDialog: true });
+  };
+
+  handleClose = () => {
+    this.setState({ openDialog: false });
+  };
+
+  render() {
+    const { classes } = this.props;
+    return (
+      <div className={classes.content}>
+      <Dialog
+          open={this.state.openDialog}
+          onClose={this.handleClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Set {this.state.dialogTitle} value</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              {this.state.dialogDesc} &nbsp;
+              Min: {this.state.dialogMin} &nbsp;
+              Max: {this.state.dialogMax}
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Value"
+              type="number"
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={this.handleClose} color="primary">
+              Set
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Paper className={classes.root}>
+          <Table className={classes.table}>
+            <TableHead>
+              <TableRow>
+                <TableCell>Parameter</TableCell>
+                <TableCell numeric>Value</TableCell>
+                <TableCell numeric>Unit</TableCell>
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </Paper>
-    </div>
-  );
+            </TableHead>
+            <TableBody>
+              {data.map(n => {
+                return (
+                  <TableRow key={n.id} onClick={() => {this.handleClickOpen(n.name, n.desc, n.min, n.max)}}>
+                    <TableCell component="th" scope="row">
+                      {n.name}
+                    </TableCell>
+                    <TableCell numeric>{n.value}</TableCell>
+                    <TableCell numeric>{n.unit}</TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </Paper>
+      </div>
+    );
+  }
 }
 
-SimpleTable.propTypes = {
+InverterManagmentTable.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(SimpleTable);
+export default withStyles(styles)(InverterManagmentTable);

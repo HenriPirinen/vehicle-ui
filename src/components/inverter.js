@@ -1,12 +1,14 @@
 import React from 'react';
-import SimpleTable from './dataTable';
+import InverterManagmentTable from './dataTable';
+import InverterCommands from './inverterCommand';
 
 class InverterTab extends React.Component {
 
   render() {
     return (
         <div>
-            <SimpleTable />
+            <InverterCommands />
+            <InverterManagmentTable />
         </div>
     );
   }

@@ -138,6 +138,7 @@ class App extends Component {
       dataLimit: 100,
       showNotification: false,
       updateProgress: 'Update microcontroller',
+      editing: false,
       /**
        * systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver.
        */
@@ -263,6 +264,7 @@ class App extends Component {
         this.setState({systemLog: _updateSystemLog});
       }
       this.setState({ showNotification: true });
+      this.setState({editing: false});
     });
   }
 
@@ -287,6 +289,7 @@ class App extends Component {
     /**
      * @param {string} direction neutral, drive, reverse 
      */
+    this.setState({editing: true});
     this.setState({ driveDirection: direction });
     this.socket.emit('command', { //Send update command to server
       command: direction,
@@ -430,6 +433,7 @@ class App extends Component {
                       <MainMenu
                         changeDirection={this.changeDirection}
                         driveDirection={this.state.driveDirection}
+                        editing={this.state.editing}
                       />
                     </div>
                   );

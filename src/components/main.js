@@ -36,12 +36,24 @@ class MainMenu extends React.Component {
                         <Typography
                             variant="headline"
                             component="h3"
-                            color={this.props.driveDirection === 'drive' ? 'primary' : 'default'}
+                            color= {
+                                this.props.editing ? (
+                                    this.props.driveDirection === 'drive' ? 'secondary' : 'default'
+                                ) : (
+                                    this.props.driveDirection === 'drive' ? 'primary' : 'default'
+                                )
+                            }
                         >
                             Drive
                         </Typography>
                         <ArrowUpwardIcon
-                            color={this.props.driveDirection === 'drive' ? 'primary' : 'disabled'}
+                            color= {
+                                this.props.editing ? (
+                                    this.props.driveDirection === 'drive' ? 'secondary' : 'disabled'
+                                ) : (
+                                    this.props.driveDirection === 'drive' ? 'primary' : 'disabled'
+                                )
+                            }
                             style={{ fontSize: 120 }}
                             onClick={() => this.props.changeDirection('drive')} //Drive
                         />
@@ -50,7 +62,7 @@ class MainMenu extends React.Component {
                             (
                                 <RadioButtonCheckedIcon
                                     style={{ fontSize: 100 }}
-                                    color={'primary'}
+                                    color={this.props.editing ? 'secondary' : 'primary'}
                                     onClick={() => this.props.changeDirection('neutral')}
                                 />) : (
                                 <RadioButtonUncheckedIcon
@@ -62,14 +74,22 @@ class MainMenu extends React.Component {
                         }
                         <br />
                         <ArrowDownwardIcon
-                            color={this.props.driveDirection === 'reverse' ? 'primary' : 'disabled'}
+                            color={this.props.editing ? (
+                                this.props.driveDirection === 'reverse' ? 'secondary' : 'disabled'
+                                ) : (
+                                this.props.driveDirection === 'reverse' ? 'primary' : 'disabled'
+                            )}
                             style={{ fontSize: 120 }}
                             onClick={() => this.props.changeDirection('reverse')} //Reverse
                         />
                         <Typography
                             variant="headline"
                             component="h3"
-                            color={this.props.driveDirection === 'reverse' ? 'primary' : 'default'}
+                            color={this.props.editing ? (
+                                this.props.driveDirection === 'reverse' ? 'secondary' : 'default'
+                                ) : (
+                                this.props.driveDirection === 'reverse' ? 'primary' : 'default'
+                            )}
                         >
                             Reverse
                         </Typography>
