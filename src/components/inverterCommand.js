@@ -22,6 +22,12 @@ class InverterCommands extends React.Component {
 
     sendCmd = (command) => {
         console.log(command);
+
+        this.props.webSocket.emit('command', { //Send update command to server
+            command: command,
+            handle: 'client',
+            target: 'inverter'
+        });
     }
 
     render() {
@@ -58,7 +64,7 @@ class InverterCommands extends React.Component {
                     className={classes.textField}
                     margin="normal"
                 />
-                <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('Custom cmd')}}>
+                <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd(document.getElementById('customCmd').value)}}>
                     Send Custom Command
                 </Button>
             </div>

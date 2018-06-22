@@ -38,7 +38,7 @@ function validateJSON(string) {
   try {
     JSON.parse(string);
   } catch (e) {
-    console.log(e);
+    console.warn(e);
     return false;
   }
   return true;
@@ -60,7 +60,7 @@ function gotGeoLoc(pos) {
 }
 
 function geoLocErr(err) {
-  console.warn(`ERROR(${err.code}): ${err.message}`);
+  console.warn('Error ' + err.code + ': ' + err.message + '');
 }
 
 //---Variables---//
@@ -83,7 +83,6 @@ const drawerWidth = 240;
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    //height: 430,
     zIndex: 1,
     overflow: 'hidden',
     position: 'relative',
@@ -117,8 +116,6 @@ const styles = theme => ({
     flex: 1,
   },
 });
-
-//---Build page---//
 
 class App extends Component {
   constructor(props) {
@@ -189,11 +186,11 @@ class App extends Component {
         });
       },
       (error) => {
-        console.log('Error fetching weather...');
+        console.warn('Error fetching weather...');
       }
       )
 
-    this.socket = openSocket('192.168.2.45:4000');
+    this.socket = openSocket('192.168.1.36:4000');
 
     this.socket.on('webSocket', (data) => {
       console.log(data.handle + ' ' + data.message);
@@ -235,6 +232,11 @@ class App extends Component {
       this.setState({ updateProgress: _input });
     });
 
+    this.socket.on('inverterResponse', (data) => {
+      let _input = data.message.toString();
+      console.log("Inverter response: " + _input);
+    });
+
     this.socket.on('driver', (data) => {
       /**
        * Add message to driver log
@@ -255,7 +257,7 @@ class App extends Component {
             this.setState({ driveDirection: 'drive' });
             break;
           default:
-            console.log('Something went wrong at driver: Direction = ' + _message.direction);
+            console.warn('Something went wrong at driver: Direction = ' + _message.direction);
         }
       }
       if (_message.type === 'log'){
@@ -322,7 +324,7 @@ class App extends Component {
         });
         break;
       default:
-        console.log('Something went wrong...');
+        console.warn('Something went wrong...');
     }
   }
 
@@ -440,7 +442,7 @@ class App extends Component {
                 case 'Inverter':
                   return (
                     <div>
-                      <InverterTab />
+                      <InverterTab webSocket={this.socket}/>
                     </div>
                   );
                 case 'Log':

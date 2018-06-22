@@ -37,7 +37,6 @@ function createData(name, value, unit, min, max, desc) {
   return { id, name, value, unit, min, max, desc };
 }
 
-//console.log(parameters[0].name);
 var data = [];
 
 for(let param of parameters){
