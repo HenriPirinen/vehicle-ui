@@ -18,7 +18,7 @@ import {parameters} from './parameterDesc';
 
 const styles = theme => ({
   root: {
-    width: '80%',
+    width: '100%',
     marginTop: theme.spacing.unit * 3,
     overflowX: 'auto',
   },

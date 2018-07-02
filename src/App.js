@@ -136,7 +136,8 @@ class App extends Component {
       showNotification: false,
       updateProgress: 'Update microcontroller',
       editing: false,
-      cruiseSpeed: 50,
+      cruiseON: false,
+      cruiseSpeed: 25,
       inverterValues: '',
       vehicleStarted: false,
       starting: false,
@@ -156,6 +157,7 @@ class App extends Component {
     this.handleSettings = this.handleSettings.bind(this) //Used @ settings component
     this.changeDirection = this.changeDirection.bind(this) //Used @ main component
     this.vehicleMode = this.vehicleMode.bind(this) //Used @ main component
+    this.setCruise = this.setCruise.bind(this) //Used @ main component
   }
 
   timestamp = () => {
@@ -247,7 +249,7 @@ class App extends Component {
       let _input = data.message.toString();
       _input.length > 300 ? console.log('Inverter values') : console.log('Regular');
       console.log("Inverter response: " + _input);
-      this.setState({inverterValues: _input});
+      this.setState({ inverterValues: _input });
     });
 
     this.socket.on('driver', (data) => {
@@ -258,8 +260,8 @@ class App extends Component {
        */
       let _input = data.message.toString();
       let _message = JSON.parse(_input);
-      if (_message.type === 'param'){
-        switch(_message.direction){
+      if (_message.type === 'param') {
+        switch (_message.direction) {
           case 0:
             this.setState({ driveDirection: 'neutral' });
             break;
@@ -273,18 +275,18 @@ class App extends Component {
             console.warn('Something went wrong at driver: Direction = ' + _message.direction);
         }
       }
-      if (_message.type === 'log'){
+      if (_message.type === 'log') {
         let _updateSystemLog = this.state.systemLog;
         _updateSystemLog[3].push(this.timestamp() + " | Message: " + _message.msg + " | Importance: " + _message.importance + "\n");
-        this.setState({systemLog: _updateSystemLog});
+        this.setState({ systemLog: _updateSystemLog });
       }
       this.setState({ showNotification: true });
-      this.setState({editing: false});
+      this.setState({ editing: false });
     });
   }
 
   contentHandler = (content) => { //Change tab
-      this.setState({ selectedTab: content });
+    this.setState({ selectedTab: content });
   }
 
   toggleFullscreen = () => {
@@ -304,7 +306,7 @@ class App extends Component {
     /**
      * @param {string} direction neutral, drive, reverse 
      */
-    this.setState({editing: true});
+    this.setState({ editing: true });
     this.setState({ driveDirection: direction });
     this.socket.emit('command', { //Send update command to server
       command: direction,
@@ -314,14 +316,28 @@ class App extends Component {
   }
 
   vehicleMode = () => {
-    
-    this.setState({starting: true});
+
+    this.setState({ starting: true });
     setTimeout(() => { //Simulate starting
       this.setState({
         vehicleStarted: !this.state.vehicleStarted,
         starting: false
       });
-    }, 3000);
+    }, 2000);
+  }
+
+  setCruise = () => {
+    /**
+     * Toggle cruise mode.
+     * Update status on the server
+     */
+      this.setState({cruiseON: !this.state.cruiseON});
+
+    this.socket.emit('command', { //Temporary, for testing
+      command: 'set cruisemode ' + this.state.cruiseON ? '1' : '0',
+      handle: 'client',
+      target: 'inverter'
+    });
   }
 
   handleSettings = (group, setting, type, condition) => {
@@ -457,20 +473,22 @@ class App extends Component {
                   return (
                     <div>
                       <MainMenu
-                        changeDirection={this.changeDirection} //Function
-                        vehicleMode={this.vehicleMode} //Function
+                        changeDirection={this.changeDirection}
+                        vehicleMode={this.vehicleMode}
+                        setCruise={this.setCruise}
                         driveDirection={this.state.driveDirection}
                         editing={this.state.editing}
                         cruise={this.state.cruiseSpeed}
                         vehicleStarted={this.state.vehicleStarted}
                         starting={this.state.starting}
+                        cruiseON={this.state.cruiseON}
                       />
                     </div>
                   );
                 case 'Inverter':
                   return (
                     <div>
-                      <InverterTab 
+                      <InverterTab
                         webSocket={this.socket}
                         values={this.state.inverterValues}
                       />
