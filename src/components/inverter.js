@@ -8,7 +8,10 @@ class InverterTab extends React.Component {
     return (
         <div>
             <InverterCommands webSocket={this.props.webSocket}/>
-            <InverterManagmentTable webSocket={this.socket}/>
+            <InverterManagmentTable 
+              webSocket={this.props.webSocket}
+              values={this.props.values}
+            />
         </div>
     );
   }

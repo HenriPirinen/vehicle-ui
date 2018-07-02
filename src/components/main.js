@@ -7,6 +7,12 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
+import PowerSettingsIcon from '@material-ui/icons/PowerSettingsNew';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import CheckIcon from '@material-ui/icons/Check';
+import green from '@material-ui/core/colors/green';
+import Button from '@material-ui/core/Button';
+import classNames from 'classnames';
 // eslint-disable-next-line
 import PeugeotLogo from '../media/Peugeot_logo.svg';
 
@@ -23,14 +29,31 @@ const styles = theme => ({
         display: 'flex',
         textAlign: 'center'
     }),
+    buttonSuccess: {
+        backgroundColor: green[500],
+        '&:hover': {
+          backgroundColor: green[700],
+        },
+      },
+    fabProgress: {
+        color: green[500],
+        position: 'absolute',
+        top: -6,
+        left: -6,
+        zIndex: 1,
+      },
 });
 
 class MainMenu extends React.Component {
     render() {
         const { classes } = this.props;
+        const buttonClassname = classNames({
+            [classes.buttonSuccess]: this.props.vehicleStarted,
+          });
         return (
             <div>
                 <div className={classes.content}>
+                {this.props.vehicleStarted ? (                
                     <Paper className={classes.root} elevation={4}>
                         {/*<img src={PeugeotLogo} alt='logo'/>*/}
                         <Typography
@@ -94,6 +117,30 @@ class MainMenu extends React.Component {
                             Reverse
                         </Typography>
                     </Paper>
+                     ) : (
+                        <Paper className={classes.root} elevation={4}>
+                        <Button
+                            variant="fab"
+                            color="primary"
+                            className={buttonClassname}
+                            onClick={() => this.props.vehicleMode()}
+                        >
+                        {this.props.vehicleStarted ? <CheckIcon /> : <PowerSettingsIcon />}
+                        </Button>
+                        {this.props.starting && <CircularProgress size={150} className={classes.fabProgress} />}
+                            <PowerSettingsIcon 
+                                style={{ fontSize: 150 }}
+                                color={'primary'}
+                            />
+                            <Typography
+                                variant="headline"
+                                component="h3"
+                                color={'primary'}
+                            >
+                            Start
+                            </Typography>
+                        </Paper>
+                     )}
                 </div>
             </div>
         );

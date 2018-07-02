@@ -55,6 +55,11 @@ class InverterManagmentTable extends React.Component {
       dialogMin: '',
       dialogMax: ''
     }
+    /*let initialValues = JSON.parse(props.values);
+    for(let item of data){ //After table data has been created, read current inverter values from the props.values and update correct values to the object
+        item.value = initialValues[item.name].value;
+    }*/
+    //data[1].value = initialValues['fweak'].value; Get real values from the inverter
   }
 
   handleClickOpen = (id, item, desc, min, max) => {
@@ -67,7 +72,14 @@ class InverterManagmentTable extends React.Component {
   };
 
   handleClose = (value) => {
-    if(value != null)  document.getElementById(this.state.dialogId.toString()).innerHTML = value;
+    if(value != null)  {
+      document.getElementById(this.state.dialogId.toString()).innerHTML = value;
+      this.props.webSocket.emit('command', { //Send update command to server
+        command: 'set ' + this.state.dialogTitle + ' ' + value,
+        handle: 'client',
+        target: 'inverter'
+      });
+    }
     this.setState({ openDialog: false });
   };
 

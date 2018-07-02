@@ -136,6 +136,10 @@ class App extends Component {
       showNotification: false,
       updateProgress: 'Update microcontroller',
       editing: false,
+      cruiseSpeed: 50,
+      inverterValues: '',
+      vehicleStarted: false,
+      starting: false,
       /**
        * systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver.
        */
@@ -151,6 +155,7 @@ class App extends Component {
     this.contentHandler = this.contentHandler.bind(this) //Used @ DrawerList component
     this.handleSettings = this.handleSettings.bind(this) //Used @ settings component
     this.changeDirection = this.changeDirection.bind(this) //Used @ main component
+    this.vehicleMode = this.vehicleMode.bind(this) //Used @ main component
   }
 
   timestamp = () => {
@@ -194,11 +199,17 @@ class App extends Component {
 
     this.socket.on('webSocket', (data) => {
       console.log(data.handle + ' ' + data.message);
-      this.socket.emit('command', { //Send update command to server
+      this.socket.emit('command', { //Request driver settings from the server.
         command: 'getSettings',
         handle: 'client',
         target: 'driver'
       });
+
+      /*this.socket.emit('command', { //Request inverter settings from the server
+        command: 'json',
+        handle: 'client',
+        target: 'inverter'
+      });*/
     });
 
     this.socket.on('dataset', (data) => {
@@ -234,7 +245,9 @@ class App extends Component {
 
     this.socket.on('inverterResponse', (data) => {
       let _input = data.message.toString();
+      _input.length > 300 ? console.log('Inverter values') : console.log('Regular');
       console.log("Inverter response: " + _input);
+      this.setState({inverterValues: _input});
     });
 
     this.socket.on('driver', (data) => {
@@ -298,6 +311,17 @@ class App extends Component {
       handle: 'client',
       target: 'driver'
     });
+  }
+
+  vehicleMode = () => {
+    
+    this.setState({starting: true});
+    setTimeout(() => { //Simulate starting
+      this.setState({
+        vehicleStarted: !this.state.vehicleStarted,
+        starting: false
+      });
+    }, 3000);
   }
 
   handleSettings = (group, setting, type, condition) => {
@@ -433,16 +457,23 @@ class App extends Component {
                   return (
                     <div>
                       <MainMenu
-                        changeDirection={this.changeDirection}
+                        changeDirection={this.changeDirection} //Function
+                        vehicleMode={this.vehicleMode} //Function
                         driveDirection={this.state.driveDirection}
                         editing={this.state.editing}
+                        cruise={this.state.cruiseSpeed}
+                        vehicleStarted={this.state.vehicleStarted}
+                        starting={this.state.starting}
                       />
                     </div>
                   );
                 case 'Inverter':
                   return (
                     <div>
-                      <InverterTab webSocket={this.socket}/>
+                      <InverterTab 
+                        webSocket={this.socket}
+                        values={this.state.inverterValues}
+                      />
                     </div>
                   );
                 case 'Log':
