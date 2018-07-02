@@ -141,10 +141,8 @@ class App extends Component {
       inverterValues: '',
       vehicleStarted: false,
       starting: false,
-      /**
-       * systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver.
-       */
-      systemLog: [[], [], [], []],
+      sysLogFilter:[[true,true,true],[true,true,true],[true,true,true],[true,true,true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
+      systemLog: [[], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver.
       /**
        * 3D array, Group(int) -> cell(int) -> datapoint object {'x': time, 'y': voltage value}.
        * Get latest value from Group 0, cell 3: cellDataPoints[0][3][cellDataPoints[0][3].length - 1].y
@@ -153,11 +151,12 @@ class App extends Component {
       cellDataPoints: [[[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],], [[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],]]
     };
 
-    this.contentHandler = this.contentHandler.bind(this) //Used @ DrawerList component
-    this.handleSettings = this.handleSettings.bind(this) //Used @ settings component
-    this.changeDirection = this.changeDirection.bind(this) //Used @ main component
-    this.vehicleMode = this.vehicleMode.bind(this) //Used @ main component
-    this.setCruise = this.setCruise.bind(this) //Used @ main component
+    this.contentHandler = this.contentHandler.bind(this); //Used @ DrawerList component
+    this.handleSettings = this.handleSettings.bind(this); //Used @ settings component
+    this.changeDirection = this.changeDirection.bind(this); //Used @ main component
+    this.vehicleMode = this.vehicleMode.bind(this); //Used @ main component
+    this.setCruise = this.setCruise.bind(this); //Used @ main component
+    this.logControl = this.logControl.bind(this); //Used @ log components
   }
 
   timestamp = () => {
@@ -200,7 +199,6 @@ class App extends Component {
     this.socket = openSocket('192.168.1.36:4000');
 
     this.socket.on('webSocket', (data) => {
-      console.log(data.handle + ' ' + data.message);
       this.socket.emit('command', { //Request driver settings from the server.
         command: 'getSettings',
         handle: 'client',
@@ -275,11 +273,14 @@ class App extends Component {
             console.warn('Something went wrong at driver: Direction = ' + _message.direction);
         }
       }
+
       if (_message.type === 'log') {
         let _updateSystemLog = this.state.systemLog;
-        _updateSystemLog[3].push(this.timestamp() + " | Message: " + _message.msg + " | Importance: " + _message.importance + "\n");
+        //_updateSystemLog[3].push(this.timestamp() + " | Message: " + _message.msg + " | Importance: " + _message.importance + "\n");
+        _updateSystemLog[3].push(JSON.parse('{"time":"'+ this.timestamp() + '","msg":"' + _message.msg + '","importance":"' + _message.importance + '"}'));
         this.setState({ systemLog: _updateSystemLog });
       }
+
       this.setState({ showNotification: true });
       this.setState({ editing: false });
     });
@@ -331,13 +332,33 @@ class App extends Component {
      * Toggle cruise mode.
      * Update status on the server
      */
-      this.setState({cruiseON: !this.state.cruiseON});
+    this.setState({ cruiseON: !this.state.cruiseON });
 
     this.socket.emit('command', { //Temporary, for testing
       command: 'set cruisemode ' + this.state.cruiseON ? '1' : '0',
       handle: 'client',
       target: 'inverter'
     });
+  }
+
+  logControl = (target, action) => {
+    /**
+     * @param {integer} target Server, Inverter, Driver or Controller
+     * @param {string} action clear or filter
+     */
+
+    switch(action){
+      case 'clear':
+        let _systemLog = this.state.systemLog;
+        _systemLog[target] = '';
+        this.setState({_systemLog});
+        break;
+      case 'filter':
+        console.log('Filter');
+        break;
+      default:
+        console.warn('Invalid action');
+    }
   }
 
   handleSettings = (group, setting, type, condition) => {
@@ -497,7 +518,11 @@ class App extends Component {
                 case 'Log':
                   return (
                     <div>
-                      <LogTab logs={this.state.systemLog} />
+                      <LogTab
+                        logs={this.state.systemLog}
+                        logControl={this.logControl}
+                        filter={this.state.sysLogFilter}
+                      />
                     </div>
                   );
                 case 'Weather':
