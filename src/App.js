@@ -26,6 +26,16 @@ import GraphContainer from './components/graphContainer';
 import Snackbar from '@material-ui/core/Snackbar';
 import api from './keys.js';
 
+import BatteryFullIcon from '@material-ui/icons/BatteryFull';
+import BatteryChargingFullIcon from '@material-ui/icons/BatteryChargingFull';
+
+import BatteryCharging20Icon from '@material-ui/icons/BatteryCharging20';
+import BatteryCharging30Icon from '@material-ui/icons/BatteryCharging30';
+import BatteryCharging50Icon from '@material-ui/icons/BatteryCharging50';
+import BatteryCharging60Icon from '@material-ui/icons/BatteryCharging60';
+import BatteryCharging80Icon from '@material-ui/icons/BatteryCharging80';
+import BatteryCharging90Icon from '@material-ui/icons/BatteryCharging90';
+
 /**
  * App.js holds state of every child component.
  */
@@ -60,6 +70,33 @@ function gotGeoLoc(pos) {
 
 function geoLocErr(err) {
   console.warn('Error ' + err.code + ': ' + err.message + '');
+}
+
+var currentIndex = 0;
+function alterChargeIcon(){
+  switch(currentIndex){
+    case 20:
+      currentIndex = 30;
+      return <BatteryCharging20Icon />
+    case 30:
+      currentIndex = 50;
+      return <BatteryCharging30Icon />
+    case 50:
+      currentIndex = 60;
+      return <BatteryCharging50Icon />
+    case 60:
+      currentIndex = 80;
+      return <BatteryCharging60Icon />
+    case 80:
+      currentIndex = 90;
+      return <BatteryCharging80Icon />
+    case 90:
+      currentIndex = 100;
+      return <BatteryCharging90Icon />
+    default:
+      currentIndex = 20;
+      return <BatteryChargingFullIcon />
+  }
 }
 
 //---Variables---//
@@ -140,7 +177,8 @@ class App extends Component {
       inverterValues: '',
       vehicleStarted: false,
       starting: false,
-      sysLogFilter:[[true,true,true],[true,true,true],[true,true,true],[true,true,true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
+      charging: false,
+      sysLogFilter: [[true, true, true], [true, true, true], [true, true, true], [true, true, true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
       systemLog: [[], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver.
       /**
        * 3D array, Group(int) -> cell(int) -> datapoint object {'x': time, 'y': voltage value}.
@@ -240,8 +278,8 @@ class App extends Component {
     this.socket.on('serverLog', (data) => {
       let _input = JSON.parse(data.message.toString());
       let _systemLog = this.state.systemLog;
-      _systemLog[0].push(JSON.parse('{"time":"'+ this.timestamp() + '","msg":"' + _input.msg + '","importance":"' + _input.importance + '"}'));
-      this.setState({systemLog: _systemLog});
+      _systemLog[0].push(JSON.parse('{"time":"' + this.timestamp() + '","msg":"' + _input.msg + '","importance":"' + _input.importance + '"}'));
+      this.setState({ systemLog: _systemLog });
       //this.setState({ updateProgress: _input });
     });
 
@@ -279,7 +317,7 @@ class App extends Component {
       if (_message.type === 'log') {
         let _updateSystemLog = this.state.systemLog;
         //_updateSystemLog[3].push(this.timestamp() + " | Message: " + _message.msg + " | Importance: " + _message.importance + "\n");
-        _updateSystemLog[3].push(JSON.parse('{"time":"'+ this.timestamp() + '","msg":"' + _message.msg + '","importance":"' + _message.importance + '"}'));
+        _updateSystemLog[3].push(JSON.parse('{"time":"' + this.timestamp() + '","msg":"' + _message.msg + '","importance":"' + _message.importance + '"}'));
         this.setState({ systemLog: _updateSystemLog });
       }
 
@@ -350,25 +388,37 @@ class App extends Component {
      * @param {boolean[]} filter null or bool array
      */
 
-    switch(action){
+    switch (action) {
       case 'clear':
         let _systemLog = this.state.systemLog;
         _systemLog[target] = '';
-        this.setState({_systemLog});
+        this.setState({ _systemLog });
         break;
       case 'filter':
         let _systemLogFilter = this.state.sysLogFilter;
 
-        for(let i = 0, y = 0; i <= 3; i++){
-          for(let x = 0; x <= 2; x++, y++){
-            _systemLogFilter[i][x] = filter[y]; 
+        for (let i = 0, y = 0; i <= 3; i++) {
+          for (let x = 0; x <= 2; x++ , y++) {
+            _systemLogFilter[i][x] = filter[y];
           }
         }
 
-        this.setState({sysLogFilter: _systemLogFilter});
+        this.setState({ sysLogFilter: _systemLogFilter });
         break;
       default:
         console.warn('Invalid action');
+    }
+  }
+
+  setCharge = (state) => {
+    /**
+     * @param {boolean} state charging state. true = charging
+     */
+    if(state){
+      this.setState({charging: true});
+
+    } else {
+      this.setState({charging: false});
     }
   }
 
@@ -433,11 +483,12 @@ class App extends Component {
             <Typography variant="title" color="inherit" noWrap className={classes.flex}>
               {this.state.selectedTab} {/*Set appbar title*/}
             </Typography>
-            {/*webSocketStatus ? (
-                <SyncIcon />
-              ) : (
-                <SyncDisabledIcon />
-              )*/}
+            {this.state.charging ? (
+              alterChargeIcon()
+            ) : (
+                <BatteryFullIcon />
+              )
+            }
             <IconButton
               color="inherit"
               aria-label="open drawer"
