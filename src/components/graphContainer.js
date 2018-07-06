@@ -2,6 +2,13 @@ import React from 'react';
 import VisGraph from './visVoltageLine';
 
 class GraphContainer extends React.Component {
+    constructor(props){
+        super(props)
+
+        this.state = {
+            parentWidth: document.getElementById('appContent').offsetWidth - 10,
+        }
+    }
 
     shouldComponentUpdate(newProps, newState) {
         return true;
@@ -9,7 +16,7 @@ class GraphContainer extends React.Component {
 
     render() {
         return (
-            <div>
+            <div id={'graphContainer'} style={{width: this.state.parentWidth}}>
                 <div style={{ height: 10 }}></div>
                 {this.props.enabledGraphs[0][0] &&
                 <VisGraph

@@ -275,12 +275,22 @@ class App extends Component {
       }
     });
 
+    //Combine all logs to one websocket message ('log'). Add origin parameter to message.
+    //WebSocket message types: dataset (for graphs), log & response (init values, get values from the inverter)
+
     this.socket.on('serverLog', (data) => {
       let _input = JSON.parse(data.message.toString());
       let _systemLog = this.state.systemLog;
       _systemLog[0].push(JSON.parse('{"time":"' + this.timestamp() + '","msg":"' + _input.msg + '","importance":"' + _input.importance + '"}'));
       this.setState({ systemLog: _systemLog });
       //this.setState({ updateProgress: _input });
+    });
+
+    this.socket.on('controllerLog', (data) => {
+      let _input = JSON.parse(data.message.toString());
+      let _systemLog = this.state.systemLog;
+      _systemLog[2].push(JSON.parse('{"time":"' + this.timestamp() + '","msg":"' + _input.msg + '","importance":"' + _input.importance + '"}'));
+      console.log(_input);
     });
 
     this.socket.on('inverterResponse', (data) => {
@@ -335,11 +345,15 @@ class App extends Component {
       isFullscreenEnabled: !this.state.isFullscreenEnabled,
     });
     if (!document.fullscreenElement) {
-      document.documentElement.webkitRequestFullScreen();
+      if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+      else if(document.documentElement.mozRequestFullScreen) document.documentElement.mozRequestFullScreen(); //Firefox
+      else if(document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullScreen(); //Chrome, Safari, Opera
+      else if(document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen(); //Edge
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.mozCancelFullScreen) document.mozCancelFullScreen(); //Firefox
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); //Chrome, Safari, opera
+      else if (document.msExitFullscreen) document.msExitFullscreen(); //Edge
     }
   }
 

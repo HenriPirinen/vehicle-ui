@@ -1,6 +1,7 @@
 import React from 'react';
 import '../../node_modules/react-vis/dist/style.css';
 import { XYPlot, XAxis, YAxis, HorizontalGridLines, VerticalGridLines, LineSeries } from 'react-vis';
+import DiscreteColorLegend from 'react-vis/dist/legends/discrete-color-legend';
 import Typography from '@material-ui/core/Typography';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -16,7 +17,7 @@ const styles = theme => ({
     paddingTop: 15
   }),
   root: theme.mixins.gutters({
-    //marginTop: theme.spacing.unit * 1,
+    marginTop: theme.spacing.unit * 1.5,
   }),
   heading: {
     fontSize: theme.typography.pxToRem(15),
@@ -31,18 +32,19 @@ class VisGraph extends React.Component {
     this.state = {
       graphDatapointLimit: props.dataLimit,
       graphName: props.graphName,
-      parentWidth: document.getElementById('appContent').offsetWidth - 10,
+      parentWidth: document.getElementById('appContent').offsetWidth,
       data: props.newVoltageData,
       latest: 0,
       shouldUpdate: false,
       infoExapanded: false,
+      items: ['0','1','2','3','4','5','6','7'],
     }
   }
 
   componentWillReceiveProps(newProps) {
     newProps.newVoltageData[0][newProps.newVoltageData[0].length - 1].y !== this.state.latest ? this.setState({ shouldUpdate: true }) : this.setState({ shouldUpdate: false })
     this.setState({
-      parentWidth: document.getElementById('appContent').offsetWidth - 10,
+      parentWidth: document.getElementById('graphRoot').offsetWidth - 10,
       latest: newProps.newVoltageData[0][newProps.newVoltageData[0].length - 1].y
     });
   }
@@ -58,12 +60,12 @@ class VisGraph extends React.Component {
   render() {
     const { classes } = this.props;
     return (
-      <div>
+      <div id={"graphRoot"} className={classes.root}>
         <Paper elevation={4}>
           <Typography className={classes.headline} variant="title" gutterBottom>
             Group {this.props.graphName}
           </Typography>
-          <XYPlot height={300} width={this.state.parentWidth} xType="time" >
+          <XYPlot height={300} width={this.state.parentWidth - 35} xType="time" >
             <HorizontalGridLines />
             <VerticalGridLines />
             <XAxis title="Time" position="start" />
@@ -85,6 +87,12 @@ class VisGraph extends React.Component {
               <Typography>
                 Legend, current values, charge status
               </Typography>
+              <br />
+              <DiscreteColorLegend
+                orientation="horizontal"
+                width={300}
+                items={this.state.items}
+              />
             </ExpansionPanelDetails>
           </ExpansionPanel>
         </Paper>
