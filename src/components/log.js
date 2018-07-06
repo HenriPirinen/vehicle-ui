@@ -42,11 +42,10 @@ class LogTab extends React.Component {
     this.state = {
       openDialog: false,
       dialogTitle: '',
-      dialogID: 0,
-      server: [true, true, true],
-      inverter: [true, true, true],
-      driver: [true, true, true],
-      controller: [true, true, true],
+      dialogLowID: 0,
+      dialogMedID: 0,
+      dialogHighID: 0,
+      filter: [true, true, true, true, true, true, true, true, true, true, true, true,],
     }
   }
 
@@ -73,19 +72,28 @@ class LogTab extends React.Component {
 
   handleClose = () => {
     this.setState({ openDialog: false });
+    this.props.logControl(null, 'filter', this.state.filter);
   }
 
-  openDialog = (id, target) => {
-    this.setState({dialogTitle: target});
-    this.setState({openDialog: true });
-    this.setState({dialogID: id});
+  openDialog = (lowID, medID, highID, target) => {
+    /**
+     * @param {integer} lowID id for low checkbox
+     * @param {integer} medID id for med checkbox
+     * @param {integer} highID id for high checkbox
+     * @param {string} target dialog title
+     */
+
+    this.setState({ dialogTitle: target });
+    this.setState({ openDialog: true });
+    this.setState({ dialogLowID: lowID });
+    this.setState({ dialogMedID: medID });
+    this.setState({ dialogHighID: highID });
   }
 
   handleChange = (target, index) => event => {
-    //let _select = 
-    //this.setState({[target]: event.target.checked});
-    console.log(event.target.name);
-    console.log(event.target.checked);
+    let _selected = this.state.filter;
+    _selected[parseInt(event.target.name, 10)] = event.target.checked;
+    this.setState({ filter: _selected });
   }
 
   render() {
@@ -105,10 +113,10 @@ class LogTab extends React.Component {
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={this.state.serverFilterLow}
+                        checked={this.state.filter[this.state.dialogLowID]}
                         onChange={this.handleChange(this.state.dialogTitle, 0)}
                         value="lowFilter"
-                        name="low"
+                        name={this.state.dialogLowID.toString()}
                       />
                     }
                     label="Low"
@@ -116,10 +124,10 @@ class LogTab extends React.Component {
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={this.state.serverFilterMed}
+                        checked={this.state.filter[this.state.dialogMedID]}
                         onChange={this.handleChange(this.state.dialogTitle, 1)}
                         value="mediumFilter"
-                        name="med"
+                        name={this.state.dialogMedID.toString()}
                       />
                     }
                     label="Medium"
@@ -127,10 +135,10 @@ class LogTab extends React.Component {
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={this.state.serverFilterHigh}
-                        onChange={this.handleChange(this.state.dialogTitle ,2)}
+                        checked={this.state.filter[this.state.dialogHighID]}
+                        onChange={this.handleChange(this.state.dialogTitle, 2)}
                         value="highFilter"
-                        name="high"
+                        name={this.state.dialogHighID.toString()}
                       />
                     }
                     label="High"
@@ -155,13 +163,13 @@ class LogTab extends React.Component {
             <textarea style={{ width: '100%' }} rows="10" cols="50" readOnly value={this.generateLog(this.props.logs[0], this.props.filter[0])}></textarea>
             <div className={classes.buttonContainer}>
               <div className={classes.buttonFlex}>
-                <Button variant="raised" color="primary" fullWidth onClick={() => { this.props.logControl(0, 'clear') }}>
+                <Button variant="raised" color="primary" fullWidth onClick={() => { this.props.logControl(0, 'clear', null) }}>
                   Clear
                 </Button>
               </div>
               &nbsp;
               <div className={classes.buttonFlex}>
-                <Button variant="raised" color="primary" fullWidth onClick={() => { this.openDialog(0, 'server') }}>
+                <Button variant="raised" color="primary" fullWidth onClick={() => { this.openDialog(0, 1, 2, 'server') }}>
                   Filter
                 </Button>
               </div>
@@ -177,13 +185,13 @@ class LogTab extends React.Component {
             <textarea style={{ width: '100%' }} rows="10" cols="50" readOnly value={this.generateLog(this.props.logs[1], this.props.filter[1])}></textarea>
             <div className={classes.buttonContainer}>
               <div className={classes.buttonFlex}>
-                <Button variant="raised" color="primary" fullWidth onClick={() => { this.props.logControl(1, 'clear') }}>
+                <Button variant="raised" color="primary" fullWidth onClick={() => { this.props.logControl(1, 'clear', null) }}>
                   Clear
                 </Button>
               </div>
               &nbsp;
               <div className={classes.buttonFlex}>
-                <Button variant="raised" color="primary" fullWidth onClick={() => { this.openDialog(1, 'inverter') }}>
+                <Button variant="raised" color="primary" fullWidth onClick={() => { this.openDialog(3, 4, 5, 'inverter') }}>
                   Filter
                 </Button>
               </div>
@@ -199,13 +207,13 @@ class LogTab extends React.Component {
             <textarea style={{ width: '100%' }} rows="10" cols="50" readOnly value={this.generateLog(this.props.logs[3], this.props.filter[3])}></textarea>
             <div className={classes.buttonContainer}>
               <div className={classes.buttonFlex}>
-                <Button variant="raised" color="primary" fullWidth onClick={() => { this.props.logControl(3, 'clear') }}>
+                <Button variant="raised" color="primary" fullWidth onClick={() => { this.props.logControl(3, 'clear', null) }}>
                   Clear
                 </Button>
               </div>
               &nbsp;
               <div className={classes.buttonFlex}>
-                <Button variant="raised" color="primary" fullWidth onClick={() => { this.openDialog(3, 'driver') }}>
+                <Button variant="raised" color="primary" fullWidth onClick={() => { this.openDialog(9, 10, 11, 'driver') }}>
                   Filter
                 </Button>
               </div>
@@ -221,13 +229,13 @@ class LogTab extends React.Component {
             <textarea style={{ width: '100%' }} rows="10" cols="50" readOnly value={this.generateLog(this.props.logs[2], this.props.filter[2])}></textarea>
             <div className={classes.buttonContainer}>
               <div className={classes.buttonFlex}>
-                <Button variant="raised" color="primary" fullWidth onClick={() => { this.props.logControl(2, 'clear') }}>
+                <Button variant="raised" color="primary" fullWidth onClick={() => { this.props.logControl(2, 'clear', null) }}>
                   Clear
                 </Button>
               </div>
               &nbsp;
               <div className={classes.buttonFlex}>
-                <Button variant="raised" color="primary" fullWidth onClick={() => { this.openDialog(2, 'controller') }}>
+                <Button variant="raised" color="primary" fullWidth onClick={() => { this.openDialog(6, 7, 8, 'controller') }}>
                   Filter
                 </Button>
               </div>

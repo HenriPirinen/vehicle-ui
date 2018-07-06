@@ -28,7 +28,6 @@ import api from './keys.js';
 
 /**
  * App.js holds state of every child component.
- * If child component is not rendered, it does not remember it's last state when it is re-rendered
  */
 
 //--Functions--//
@@ -239,8 +238,11 @@ class App extends Component {
     });
 
     this.socket.on('serverLog', (data) => {
-      let _input = data.message.toString();
-      this.setState({ updateProgress: _input });
+      let _input = JSON.parse(data.message.toString());
+      let _systemLog = this.state.systemLog;
+      _systemLog[0].push(JSON.parse('{"time":"'+ this.timestamp() + '","msg":"' + _input.msg + '","importance":"' + _input.importance + '"}'));
+      this.setState({systemLog: _systemLog});
+      //this.setState({ updateProgress: _input });
     });
 
     this.socket.on('inverterResponse', (data) => {
@@ -341,10 +343,11 @@ class App extends Component {
     });
   }
 
-  logControl = (target, action) => {
+  logControl = (target, action, filter) => {
     /**
      * @param {integer} target Server, Inverter, Driver or Controller
      * @param {string} action clear or filter
+     * @param {boolean[]} filter null or bool array
      */
 
     switch(action){
@@ -354,7 +357,15 @@ class App extends Component {
         this.setState({_systemLog});
         break;
       case 'filter':
-        console.log('Filter');
+        let _systemLogFilter = this.state.sysLogFilter;
+
+        for(let i = 0, y = 0; i <= 3; i++){
+          for(let x = 0; x <= 2; x++, y++){
+            _systemLogFilter[i][x] = filter[y]; 
+          }
+        }
+
+        this.setState({sysLogFilter: _systemLogFilter});
         break;
       default:
         console.warn('Invalid action');
