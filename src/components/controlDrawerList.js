@@ -17,6 +17,8 @@ import WbSunnyIcon from '@material-ui/icons/WbSunny';
 import MapIcon from '@material-ui/icons/Map';
 import FlashOnIcon from '@material-ui/icons/FlashOn';
 
+import Badge from '@material-ui/core/Badge';
+
 const styles = theme => ({
   root: {
     width: '100%',
@@ -28,7 +30,11 @@ const styles = theme => ({
 class DrawerList extends React.Component{
   constructor(props){
     super(props)
-    this.state = {isToggleOn: false};
+    this.state = {
+      isToggleOn: false,
+      logNotifications: 0,
+      updateNotifications: 0
+    };
 
     this.handleClick = this.handleSystemCommand.bind(this);
   }
@@ -68,7 +74,14 @@ class DrawerList extends React.Component{
         </ListItem>
         <ListItem button onClick={() => {this.props.handleContent('Log')}}>
           <ListItemIcon>
-            <ImportContactsIcon />
+            {this.state.logNotifications > 0 ? (
+              <Badge badgeContent={this.state.logNotifications} color="primary">
+                <ImportContactsIcon />
+              </Badge>
+              ):(
+                <ImportContactsIcon />
+                )
+            }
           </ListItemIcon>
           <ListItemText primary="Log" />
         </ListItem>
@@ -86,7 +99,14 @@ class DrawerList extends React.Component{
         </ListItem>
         <ListItem button onClick={() => {this.props.handleContent('System Update')}}>
           <ListItemIcon>
-            <SystemUpdateIcon />
+          {this.state.updateNotifications > 0 ? (
+              <Badge badgeContent={this.state.updateNotifications} color="primary">
+                <SystemUpdateIcon />
+              </Badge>
+              ):(
+                <SystemUpdateIcon />
+              )
+          }
           </ListItemIcon>
           <ListItemText primary="System Update" />
         </ListItem>

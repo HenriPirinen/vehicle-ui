@@ -10,6 +10,11 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import TrendingUpIcon from '@material-ui/icons/TrendingUp';
+import Divider from '@material-ui/core/Divider';
+import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import CheckIcon from '@material-ui/icons/Check';
 
 const styles = theme => ({
   headline: theme.mixins.gutters({
@@ -23,6 +28,19 @@ const styles = theme => ({
     fontSize: theme.typography.pxToRem(15),
     fontWeight: theme.typography.fontWeightRegular,
   },
+  button: {
+    margin: theme.spacing.unit,
+  },
+  rightIcon: {
+    marginLeft: theme.spacing.unit,
+  },
+  progress: {
+    margin: theme.spacing.unit * 2,
+  },
+  graphHeader: {
+    display: 'flex',
+    alignItems: 'center'
+  }
 });
 
 class VisGraph extends React.Component {
@@ -62,9 +80,17 @@ class VisGraph extends React.Component {
     return (
       <div id={"graphRoot"} className={classes.root}>
         <Paper elevation={4}>
-          <Typography className={classes.headline} variant="title" gutterBottom>
-            Group {this.props.graphName}
-          </Typography>
+          <div className={classes.graphHeader}>
+            <Typography className={classes.headline} variant="title" gutterBottom>
+              Group {this.props.graphName}
+            </Typography>
+            {this.props.isCharging === true ? (
+              this.props.chargeStatus ? <CheckIcon/> : <CircularProgress className={classes.progress}/>
+                ) : (
+                  null
+                )
+            }
+          </div>
           <XYPlot height={300} width={this.state.parentWidth - 35} xType="time" >
             <HorizontalGridLines />
             <VerticalGridLines />
@@ -84,10 +110,13 @@ class VisGraph extends React.Component {
               <Typography className={classes.heading}>More about group {this.props.graphName}</Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
-              <Typography>
-                Legend, current values, charge status
-              </Typography>
-              <br />
+              <Button disabled={!this.props.isCharging} variant="raised" color="primary" className={classes.button} onClick={() => this.props.toggleCharging(this.props.graphName)}>
+                {this.props.chargeStatus ? "Start charging" : "Stop charging"}
+                <TrendingUpIcon className={classes.rightIcon}>start</TrendingUpIcon>
+              </Button>
+            </ExpansionPanelDetails>
+            <Divider />
+            <ExpansionPanelDetails>
               <DiscreteColorLegend
                 orientation="horizontal"
                 width={300}

@@ -99,6 +99,10 @@ function alterChargeIcon(){
   }
 }
 
+function checkValues(group){
+  return group === true;
+}
+
 //---Variables---//
 var location = {
   latitude: 60.733852,
@@ -177,9 +181,11 @@ class App extends Component {
       inverterValues: '',
       vehicleStarted: false,
       starting: false,
-      charging: false,
+      charging: true,
       sysLogFilter: [[true, true, true], [true, true, true], [true, true, true], [true, true, true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
       systemLog: [[], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver.
+      //groupChargeStatus:[false, false, false, false, false, false, false, false, false],
+      groupChargeStatus:[false, false, false, false, false],
       /**
        * 3D array, Group(int) -> cell(int) -> datapoint object {'x': time, 'y': voltage value}.
        * Get latest value from Group 0, cell 3: cellDataPoints[0][3][cellDataPoints[0][3].length - 1].y
@@ -194,6 +200,7 @@ class App extends Component {
     this.vehicleMode = this.vehicleMode.bind(this); //Used @ main component
     this.setCruise = this.setCruise.bind(this); //Used @ main component
     this.logControl = this.logControl.bind(this); //Used @ log components
+    this.toggleCharging = this.toggleCharging.bind(this); //Used @ graph component
   }
 
   timestamp = () => {
@@ -424,7 +431,7 @@ class App extends Component {
     }
   }
 
-  setCharge = (state) => {
+  setCharge = (state) => { //Global
     /**
      * @param {boolean} state charging state. true = charging
      */
@@ -434,6 +441,13 @@ class App extends Component {
     } else {
       this.setState({charging: false});
     }
+  }
+
+  toggleCharging = (target) => { //Group
+    let _groupChargeStatus = this.state.groupChargeStatus;
+    _groupChargeStatus[target] = !_groupChargeStatus[target];
+    this.setState({groupChargeStatus: _groupChargeStatus});
+    if(_groupChargeStatus.every(checkValues))this.setState({charging: false});
   }
 
   handleSettings = (group, setting, type, condition) => {
@@ -557,18 +571,21 @@ class App extends Component {
               switch (this.state.selectedTab) {
                 case 'Data':
                   return (
-                    <div>
+                    <React.Fragment>
                       <GraphContainer
+                        toggleCharging={this.toggleCharging}
                         contentWidth={this.state.contentWidth}
                         enabledGraphs={this.state.enabledGraphs}
                         data={this.state.cellDataPoints}
                         interval={this.state.graphIntreval}
+                        chargeStatus={this.state.groupChargeStatus}
+                        charging={this.state.charging}
                       />
-                    </div>
+                    </React.Fragment>
                   );
                 case 'Main':
                   return (
-                    <div>
+                    <React.Fragment>
                       <MainMenu
                         changeDirection={this.changeDirection}
                         vehicleMode={this.vehicleMode}
@@ -580,63 +597,63 @@ class App extends Component {
                         starting={this.state.starting}
                         cruiseON={this.state.cruiseON}
                       />
-                    </div>
+                    </React.Fragment>
                   );
                 case 'Inverter':
                   return (
-                    <div>
+                    <React.Fragment>
                       <InverterTab
                         webSocket={this.socket}
                         values={this.state.inverterValues}
                       />
-                    </div>
+                    </React.Fragment>
                   );
                 case 'Log':
                   return (
-                    <div>
+                    <React.Fragment>
                       <LogTab
                         logs={this.state.systemLog}
                         logControl={this.logControl}
                         filter={this.state.sysLogFilter}
                       />
-                    </div>
+                    </React.Fragment>
                   );
                 case 'Weather':
                   return (
-                    <div>
+                    <React.Fragment>
                       <WeatherTab data={this.state.weatherData} />
-                    </div>
+                    </React.Fragment>
                   );
                 case 'Map':
                   return (
-                    <div>
+                    <React.Fragment>
                       <MapTab />
-                    </div>
+                    </React.Fragment>
                   );
                 case 'System Update':
                   return (
-                    <div>
+                    <React.Fragment>
                       <SystemUpdateTab
                         webSocket={this.socket}
                         systemUpdateProgress={this.state.updateProgress}
                       />
-                    </div>
+                    </React.Fragment>
                   );
                 case 'Settings':
                   return (
-                    <div>
+                    <React.Fragment>
                       <SettingsTab
                         handleSettings={this.handleSettings}
                         enabledGraphs={this.state.enabledGraphs}
                         graphIntreval={this.state.enabledGraphs}
                       />
-                    </div>
+                    </React.Fragment>
                   );
                 default:
                   return (
-                    <div>
+                    <React.Fragment>
                       <ToggleButton socket={this.socket} />
-                    </div>
+                    </React.Fragment>
                   );
               }
             })()}

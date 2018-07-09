@@ -9,6 +9,12 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
+import StopIcon from '@material-ui/icons/Stop';
+import SaveIcon from '@material-ui/icons/Save';
+import Icon from '@material-ui/core/Icon';
+import MemoryIcon from '@material-ui/icons/Memory';
+import RestorePageIcon from '@material-ui/icons/RestorePage';
 
 const styles = theme => ({
     root: {
@@ -28,17 +34,20 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit,
         marginRight: theme.spacing.unit,
         width: 200,
-      },
-      secondaryHeading: {
+    },
+    secondaryHeading: {
         fontSize: theme.typography.pxToRem(15),
         color: theme.palette.text.secondary,
-      },
-      details: {
+    },
+    details: {
         alignItems: 'center',
-      },
-      column: {
+    },
+    column: {
         flexBasis: '33.33%',
-      },
+    },
+    rightIcon: {
+        marginLeft: theme.spacing.unit,
+    },
 });
 
 class InverterCommands extends React.Component {
@@ -79,30 +88,26 @@ class InverterCommands extends React.Component {
                     <ExpansionPanelDetails className={classes.details}>
                         <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('start 2')}}>
                             Start Inverter In Manual Mode
+                            <PlayArrowIcon className={classes.rightIcon}>send</PlayArrowIcon>
                         </Button>
                         <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('stop')}}>
                             Stop Inverter
+                            <StopIcon className={classes.rightIcon}>send</StopIcon>
                         </Button>
                     </ExpansionPanelDetails>
                     <Divider />
                     <ExpansionPanelDetails>
                         <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('Save')}}>
                             Save Parameters To Flash
+                            <SaveIcon className={classes.rightIcon}>send</SaveIcon>
                         </Button>
                         <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('Restore from flash')}}>
                             Restore Parameters From Flash
+                            <MemoryIcon className={classes.rightIcon}>send</MemoryIcon>
                         </Button>
                         <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('Restore def')}}>
                             Restore Defaults
-                        </Button>
-                    </ExpansionPanelDetails>
-                    <Divider />
-                    <ExpansionPanelDetails>
-                        <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('Display error')}}>
-                            Display Error Memory
-                        </Button>
-                        <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('Reset CAN')}}>
-                            Reset CAN Mapping
+                            <RestorePageIcon className={classes.rightIcon}>send</RestorePageIcon>
                         </Button>
                     </ExpansionPanelDetails>
                     <Divider />
@@ -115,6 +120,7 @@ class InverterCommands extends React.Component {
                         />
                         <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd(document.getElementById('customCmd').value)}}>
                             Send Custom Command
+                            <Icon className={classes.rightIcon}>send</Icon>
                         </Button>
                     </ExpansionPanelDetails>
                 </ExpansionPanel>

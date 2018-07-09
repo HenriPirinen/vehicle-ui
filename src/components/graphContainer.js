@@ -24,6 +24,9 @@ class GraphContainer extends React.Component {
                     newVoltageData={this.props.data[0][0]}
                     dataLimit={100}
                     graphName={0}
+                    chargeStatus={this.props.chargeStatus[0]}
+                    isCharging={this.props.charging}
+                    toggleCharging={this.props.toggleCharging}
                 />}
                 {this.props.enabledGraphs[0][1] &&
                 <VisGraph
@@ -31,6 +34,9 @@ class GraphContainer extends React.Component {
                     newVoltageData={this.props.data[0][1]}
                     dataLimit={100}
                     graphName={1}
+                    chargeStatus={this.props.chargeStatus[1]}
+                    isCharging={this.props.charging}
+                    toggleCharging={this.props.toggleCharging}
                 />}
                 {this.props.enabledGraphs[0][2] &&
                 <VisGraph
@@ -38,6 +44,9 @@ class GraphContainer extends React.Component {
                     newVoltageData={this.props.data[0][2]}
                     dataLimit={100}
                     graphName={2}
+                    chargeStatus={this.props.chargeStatus[2]}
+                    isCharging={this.props.charging}
+                    toggleCharging={this.props.toggleCharging}
                 />}
                 {this.props.enabledGraphs[0][3] &&
                 <VisGraph
@@ -45,6 +54,9 @@ class GraphContainer extends React.Component {
                     newVoltageData={this.props.data[0][3]}
                     dataLimit={100}
                     graphName={3}
+                    chargeStatus={this.props.chargeStatus[3]}
+                    isCharging={this.props.charging}
+                    toggleCharging={this.props.toggleCharging}
                 />}
                 {this.props.enabledGraphs[0][4] &&
                 <VisGraph
@@ -52,6 +64,9 @@ class GraphContainer extends React.Component {
                     newVoltageData={this.props.data[0][4]}
                     dataLimit={100}
                     graphName={4}
+                    chargeStatus={this.props.chargeStatus[4]}
+                    isCharging={this.props.charging}
+                    toggleCharging={this.props.toggleCharging}
                 />}
             </div>
         );
