@@ -13,7 +13,7 @@ import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import StopIcon from '@material-ui/icons/Stop';
 import SaveIcon from '@material-ui/icons/Save';
 import Icon from '@material-ui/core/Icon';
-import MemoryIcon from '@material-ui/icons/Memory';
+import SdCardIcon from '@material-ui/icons/SdCard';
 import RestorePageIcon from '@material-ui/icons/RestorePage';
 
 const styles = theme => ({
@@ -103,7 +103,7 @@ class InverterCommands extends React.Component {
                         </Button>
                         <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('Restore from flash')}}>
                             Restore Parameters From Flash
-                            <MemoryIcon className={classes.rightIcon}>send</MemoryIcon>
+                            <SdCardIcon className={classes.rightIcon}>send</SdCardIcon>
                         </Button>
                         <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('Restore def')}}>
                             Restore Defaults

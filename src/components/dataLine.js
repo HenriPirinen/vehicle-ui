@@ -43,7 +43,7 @@ const styles = theme => ({
   }
 });
 
-class VisGraph extends React.Component {
+class DataLine extends React.Component {
   constructor(props) {
     super(props)
 
@@ -95,7 +95,7 @@ class VisGraph extends React.Component {
             <HorizontalGridLines />
             <VerticalGridLines />
             <XAxis title="Time" position="start" />
-            <YAxis title="Voltage" />
+            <YAxis title={this.props.type} />
             <LineSeries data={this.props.newVoltageData[0]} />
             <LineSeries data={this.props.newVoltageData[1]} />
             <LineSeries data={this.props.newVoltageData[2]} />
@@ -109,12 +109,14 @@ class VisGraph extends React.Component {
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
               <Typography className={classes.heading}>More about group {this.props.graphName}</Typography>
             </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
-              <Button disabled={!this.props.isCharging} variant="raised" color="primary" className={classes.button} onClick={() => this.props.toggleCharging(this.props.graphName)}>
-                {this.props.chargeStatus ? "Start charging" : "Stop charging"}
-                <TrendingUpIcon className={classes.rightIcon}>start</TrendingUpIcon>
-              </Button>
-            </ExpansionPanelDetails>
+            {this.props.commands &&
+              <ExpansionPanelDetails>
+                <Button disabled={!this.props.isCharging} variant="raised" color="primary" className={classes.button} onClick={() => this.props.toggleCharging(this.props.graphName)}>
+                  {this.props.chargeStatus ? "Start charging" : "Stop charging"}
+                  <TrendingUpIcon className={classes.rightIcon}>start</TrendingUpIcon>
+                </Button>
+              </ExpansionPanelDetails>
+            }
             <Divider />
             <ExpansionPanelDetails>
               <DiscreteColorLegend
@@ -130,9 +132,9 @@ class VisGraph extends React.Component {
   }
 }
 
-VisGraph.propTypes = {
+DataLine.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
 
-export default withStyles(styles)(VisGraph);
+export default withStyles(styles)(DataLine);

@@ -16,14 +16,21 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import WbSunnyIcon from '@material-ui/icons/WbSunny';
 import MapIcon from '@material-ui/icons/Map';
 import FlashOnIcon from '@material-ui/icons/FlashOn';
-
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
 import Badge from '@material-ui/core/Badge';
+import Collapse from '@material-ui/core/Collapse';
+import WhatshotIcon from '@material-ui/icons/Whatshot';
+import BatteryChargingFullIcon from '@material-ui/icons/BatteryChargingFull';
 
 const styles = theme => ({
   root: {
     width: '100%',
     maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
+  },
+  nested: {
+    paddingLeft: theme.spacing.unit * 4,
   },
 });
 
@@ -33,7 +40,8 @@ class DrawerList extends React.Component{
     this.state = {
       isToggleOn: false,
       logNotifications: 0,
-      updateNotifications: 0
+      updateNotifications: 0,
+      dataExpanded: false
     };
 
     this.handleClick = this.handleSystemCommand.bind(this);
@@ -48,6 +56,10 @@ class DrawerList extends React.Component{
     });
   }
 
+  expand = () => {
+    this.setState({dataExpanded: !this.state.dataExpanded});
+  };
+
   render(){
     const { classes } = this.props;
 
@@ -60,12 +72,32 @@ class DrawerList extends React.Component{
           </ListItemIcon>
           <ListItemText primary="Main" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('Data')}} >
+        {/*<ListItem button onClick={() => {this.props.handleContent('Data')}} >*/}
+        <ListItem button onClick={() => this.expand()}>
           <ListItemIcon>
             <TimelineIcon />
           </ListItemIcon>
           <ListItemText primary="Data" />
-        </ListItem>
+          {this.state.dataExpanded ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={this.state.dataExpanded} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItem button className={classes.nested} onClick={() => {this.props.handleContent('Voltage')}}>
+                <ListItemIcon>
+                  <BatteryChargingFullIcon />
+                </ListItemIcon>
+                <ListItemText inset primary="Voltage" />
+              </ListItem>
+            </List>
+            <List component="div" disablePadding>
+              <ListItem button className={classes.nested} onClick={() => {this.props.handleContent('Temperature')}}>
+                <ListItemIcon>
+                  <WhatshotIcon />
+                </ListItemIcon>
+                <ListItemText inset primary="Temperature" />
+              </ListItem>
+            </List>
+          </Collapse>
         <ListItem button onClick={() => {this.props.handleContent('Inverter')}}>
           <ListItemIcon>
             <FlashOnIcon />

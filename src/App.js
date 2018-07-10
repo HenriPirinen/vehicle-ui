@@ -181,7 +181,7 @@ class App extends Component {
       inverterValues: '',
       vehicleStarted: false,
       starting: false,
-      charging: true,
+      charging: false,
       sysLogFilter: [[true, true, true], [true, true, true], [true, true, true], [true, true, true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
       systemLog: [[], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver.
       //groupChargeStatus:[false, false, false, false, false, false, false, false, false],
@@ -569,7 +569,8 @@ class App extends Component {
 
             {(() => {
               switch (this.state.selectedTab) {
-                case 'Data':
+                case 'Voltage':
+                case 'Temperature':
                   return (
                     <React.Fragment>
                       <GraphContainer
@@ -580,6 +581,7 @@ class App extends Component {
                         interval={this.state.graphIntreval}
                         chargeStatus={this.state.groupChargeStatus}
                         charging={this.state.charging}
+                        type={this.state.selectedTab}
                       />
                     </React.Fragment>
                   );
