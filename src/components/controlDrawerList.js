@@ -72,7 +72,6 @@ class DrawerList extends React.Component{
           </ListItemIcon>
           <ListItemText primary="Main" />
         </ListItem>
-        {/*<ListItem button onClick={() => {this.props.handleContent('Data')}} >*/}
         <ListItem button onClick={() => this.expand()}>
           <ListItemIcon>
             <TimelineIcon />

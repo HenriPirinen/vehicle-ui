@@ -18,7 +18,8 @@ class GraphContainer extends React.Component {
     render() {
         return (
             <div id={'graphContainer'} style={{width: this.state.parentWidth}}>
-                {this.state.graphs.map(i => {
+                {this.props.type === 'Voltage' ? (
+                    this.state.graphs.map(i => {
                         return (
                             this.props.enabledGraphs[0][i] ? (
                             <DataLine
@@ -35,7 +36,20 @@ class GraphContainer extends React.Component {
                             />
                             ):(null)
                         );
-                    })
+                    })) : (
+                            <DataLine
+                                key={0}
+                                graphWidth={this.props.contentWidth}
+                                newVoltageData={this.props.data[0][0]}
+                                dataLimit={100}
+                                graphName={0}
+                                chargeStatus={this.props.chargeStatus[0]}
+                                isCharging={this.props.charging}
+                                toggleCharging={this.props.toggleCharging}
+                                commands={false}
+                                type={"Temperature"}
+                            />
+                        )
                 }
             </div>
         );

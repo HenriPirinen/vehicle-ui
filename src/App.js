@@ -25,16 +25,15 @@ import SettingsTab from './components/settings';
 import GraphContainer from './components/graphContainer';
 import Snackbar from '@material-ui/core/Snackbar';
 import api from './keys.js';
-
 import BatteryFullIcon from '@material-ui/icons/BatteryFull';
 import BatteryChargingFullIcon from '@material-ui/icons/BatteryChargingFull';
-
 import BatteryCharging20Icon from '@material-ui/icons/BatteryCharging20';
 import BatteryCharging30Icon from '@material-ui/icons/BatteryCharging30';
 import BatteryCharging50Icon from '@material-ui/icons/BatteryCharging50';
 import BatteryCharging60Icon from '@material-ui/icons/BatteryCharging60';
 import BatteryCharging80Icon from '@material-ui/icons/BatteryCharging80';
 import BatteryCharging90Icon from '@material-ui/icons/BatteryCharging90';
+import PowerIcon from '@material-ui/icons/Power';
 
 /**
  * App.js holds state of every child component.
@@ -155,6 +154,14 @@ const styles = theme => ({
   flex: {
     flex: 1,
   },
+  appTitle: {
+    flex: 1,
+    paddingLeft: theme.spacing.unit * 3,
+  },
+  link: {
+    textDecoration: 'none',
+    color: 'inherit',
+}
 });
 
 class App extends Component {
@@ -181,7 +188,7 @@ class App extends Component {
       inverterValues: '',
       vehicleStarted: false,
       starting: false,
-      charging: false,
+      charging: true,
       sysLogFilter: [[true, true, true], [true, true, true], [true, true, true], [true, true, true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
       systemLog: [[], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver.
       //groupChargeStatus:[false, false, false, false, false, false, false, false, false],
@@ -230,14 +237,14 @@ class App extends Component {
     fetch("http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + location.longitude + "&APPID=" + api.api.weather + "") //TODO: get lat and lon from gps
       .then(res => res.json())
       .then(
-      (result) => {
-        this.setState({
-          weatherData: result
-        });
-      },
-      (error) => {
-        console.warn('Error fetching weather...');
-      }
+        (result) => {
+          this.setState({
+            weatherData: result
+          });
+        },
+        (error) => {
+          console.warn('Error fetching weather...');
+        }
       )
 
     this.socket = openSocket('192.168.1.36:4000');
@@ -444,10 +451,26 @@ class App extends Component {
   }
 
   toggleCharging = (target) => { //Group
+    /**
+     * @param {integer} target Target group for toggling charging on/off
+     * Socket message: 0        1
+     *                 ^        ^
+     *               Target   State 
+     * 50 = Group 5 -> Off
+     * 51 = Group 5 -> On
+     */
+
     let _groupChargeStatus = this.state.groupChargeStatus;
+    let _state = 0;
     _groupChargeStatus[target] = !_groupChargeStatus[target];
     this.setState({groupChargeStatus: _groupChargeStatus});
-    if(_groupChargeStatus.every(checkValues))this.setState({charging: false});
+    _state = _groupChargeStatus[target] === true ? '0' : '1';
+
+    this.socket.emit('command', {
+      command: target.toString() + _state,
+      handle: 'client',
+      target: target < 4 ? 'controller_1' : 'controller_2'
+    });
   }
 
   handleSettings = (group, setting, type, condition) => {
@@ -488,7 +511,14 @@ class App extends Component {
 
     const drawer = (
       <div>
-        <div className={classes.toolbar} />
+        <div className={classes.toolbar}>
+          <Typography variant="display1" noWrap className={classes.appTitle}>
+              <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui">Regni UI</a>
+          </Typography>
+          <Typography variant="caption" noWrap className={classes.appTitle}>
+          <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui/releases">v0.1a</a>
+          </Typography>
+        </div>
         <Divider />
         <List>
           <DrawerList webSocket={this.socket} handleContent={this.contentHandler} />
@@ -511,8 +541,15 @@ class App extends Component {
             <Typography variant="title" color="inherit" noWrap className={classes.flex}>
               {this.state.selectedTab} {/*Set appbar title*/}
             </Typography>
+            {this.state.charging &&
+              <PowerIcon />
+            }
             {this.state.charging ? (
-              alterChargeIcon()
+              this.state.groupChargeStatus.every(checkValues) ? (
+                <BatteryFullIcon />
+              ) : (
+                    alterChargeIcon()
+                  )
             ) : (
                 <BatteryFullIcon />
               )
