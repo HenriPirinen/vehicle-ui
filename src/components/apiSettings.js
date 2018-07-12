@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
+import Button from '@material-ui/core/Button';
 
 const styles = theme => ({
     container: {
@@ -83,6 +84,9 @@ class ApiSettings extends React.Component {
                     margin="normal"
                 />
             </form>
+            <Button variant="raised" color="primary" onClick={() => this.props.handleSystemCommand('sudo bash restart.sh')}>
+                Reconfigure
+            </Button>
         </React.Fragment>
     );
   }

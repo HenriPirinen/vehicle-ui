@@ -152,7 +152,7 @@ class DrawerList extends React.Component{
           <ListItemIcon>
             <PowerSettingsNewIcon />
           </ListItemIcon>
-          <ListItemText primary="Shutdown" />
+          <ListItemText primary="Reload API" />
         </ListItem>
         <ListItem button onClick={() => this.handleSystemCommand('sudo reboot')}>
           <ListItemIcon>

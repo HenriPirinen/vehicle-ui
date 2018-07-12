@@ -194,7 +194,7 @@ class App extends Component {
       starting: false,
       charging: true,
       sysLogFilter: [[true, true, true], [true, true, true], [true, true, true], [true, true, true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
-      systemLog: [[], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver.
+      systemLog: [[], [], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver, [4] = UI.
       //groupChargeStatus:[false, false, false, false, false, false, false, false, false],
       groupChargeStatus:[false, false, false, false, false],
       /**
@@ -213,6 +213,7 @@ class App extends Component {
     this.logControl = this.logControl.bind(this); //Used @ log components
     this.toggleCharging = this.toggleCharging.bind(this); //Used @ graph component
     this.confApi = this.confApi.bind(this); //Used @settings component
+    this.handleSystemCommand = this.handleSystemCommand.bind(this) //Used @settings component
   }
 
   timestamp = () => {
@@ -254,9 +255,19 @@ class App extends Component {
 
     this.socket = openSocket('192.168.1.33:4000');
 
-    this.socket.on('webSocket', (data) => {
+    /**
+     * WebSocket topics:
+     *  INPUT
+     *    dataSet (message, handle)
+     *    systemLog (message, handle)
+     *    systemParam (message, handle)
+     *  OUTPUT
+     *    command (command, handle, target)
+     */
+
+    this.socket.on('systemParam', (data) => {
       let _message = JSON.parse(data.message.toString());
-      console.log(_message.weatherAPI + ' ' + _message.mapAPI + ' ' + _message.remoteAddress);
+      console.log(_message.weatherAPI + ' ' + _message.mapAPI + ' ' + _message.remoteAddress + ' ' + _message.driveDirection);
       
       this.setState({
         weatherAPI: _message.weatherAPI,
@@ -264,11 +275,25 @@ class App extends Component {
         remoteServerAddress: _message.remoteAddress,
       });
 
-      this.socket.emit('command', { //Request driver settings from the server.
+      switch (_message.driveDirection) {
+        case '0':
+          this.setState({ driveDirection: 'neutral' });
+          break;
+        case '1':
+          this.setState({ driveDirection: 'reverse' });
+          break;
+        case '2':
+          this.setState({ driveDirection: 'drive' });
+          break;
+        default:
+          console.warn('Something went wrong at driver: Direction = ' + _message.driveDirection);
+      }
+
+      /*this.socket.emit('command', { //Request driver settings from the server.
         command: 'getSettings',
         handle: 'client',
         target: 'driver'
-      });
+      });*/
 
       /*this.socket.emit('command', { //Request inverter settings from the server
         command: 'json',
@@ -305,6 +330,20 @@ class App extends Component {
 
     //Combine all logs to one websocket message ('log'). Add origin parameter to message.
     //WebSocket message types: dataset (for graphs), log & response (init values, get values from the inverter)
+    
+    this.socket.on('systemLog', (data) => {
+      let _message = JSON.parse(data.message.toString());
+      let _systemLog = this.state.systemLog;
+      let index = 4; //4 = UI Log
+
+      if(_message.origin === 'Server'){index = 0}
+      else if(_message.origin === 'Inverter'){index = 1}
+      else if(_message.origin === 'Controller'){index = 2}
+      else if(_message.origin === 'Driver'){index = 3}
+
+       _systemLog[index].push(JSON.parse('{"time":"' + this.timestamp() + '","msg":"' + _message.msg + '","importance":"' + _message.importance + '"}'));
+       this.setState({ systemLog: _systemLog });
+    });
 
     this.socket.on('serverLog', (data) => {
       let _input = JSON.parse(data.message.toString());
@@ -520,6 +559,20 @@ class App extends Component {
     this.setState({[setting]: value});
   }
 
+  handleSystemCommand = (command) => {
+
+    //Send values to server -> server writes values to conf file -> Reload server -> server reads new conf file
+
+    this.socket.emit('reconfigure', { //Send toggle command to server
+      command: command,
+      weather: this.state.weatherAPI,
+      map: this.state.mapAPI,
+      address: this.state.remoteServerAddress,
+      handle: 'client',
+      target: 'server'
+    });
+  }
+
   handleDrawerToggle = () => {
     this.setState({ mobileOpen: !this.state.mobileOpen }); //Open / Close drawer
   };
@@ -702,6 +755,7 @@ class App extends Component {
                     <React.Fragment>
                       <SettingsTab
                         confApi={this.confApi}
+                        handleSystemCommand={this.handleSystemCommand}
                         handleSettings={this.handleSettings}
                         enabledGraphs={this.state.enabledGraphs}
                         graphIntreval={this.state.enabledGraphs}

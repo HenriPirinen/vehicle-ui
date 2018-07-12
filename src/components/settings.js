@@ -48,6 +48,7 @@ class InterfaceSettings extends React.Component {
               remoteServerAddress={this.props.remoteServerAddress}
               weatherAPI={this.props.weatherAPI}
               mapAPI={this.props.mapAPI}
+              handleSystemCommand={this.props.handleSystemCommand}
             />
           </Paper>
         </div>
