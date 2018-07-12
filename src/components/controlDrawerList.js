@@ -148,7 +148,7 @@ class DrawerList extends React.Component{
           <ListItemText primary="Settings" />
         </ListItem>
         <Divider />
-        <ListItem button onClick={() => this.handleSystemCommand('sudo shutdown now')}>
+        <ListItem button onClick={() => this.handleSystemCommand('sudo bash restart.sh')}>
           <ListItemIcon>
             <PowerSettingsNewIcon />
           </ListItemIcon>

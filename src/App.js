@@ -170,6 +170,10 @@ class App extends Component {
 
     this.state = {
       mobileOpen: false,
+      weatherAPI: 'YOUR_API_KEY',
+      mapAPI: 'YOUR_API_KEY',
+      localServerAddress: '192.168.1.33',
+      remoteServerAddress: '192.168.2.56',
       selectedTab: 'Main', //This is set to current tab
       enabledGraphs: [[true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true]], //[0] = voltage, [1] = temperature
       graphIntreval: [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]],
@@ -208,6 +212,7 @@ class App extends Component {
     this.setCruise = this.setCruise.bind(this); //Used @ main component
     this.logControl = this.logControl.bind(this); //Used @ log components
     this.toggleCharging = this.toggleCharging.bind(this); //Used @ graph component
+    this.confApi = this.confApi.bind(this); //Used @settings component
   }
 
   timestamp = () => {
@@ -247,9 +252,18 @@ class App extends Component {
         }
       )
 
-    this.socket = openSocket('192.168.1.36:4000');
+    this.socket = openSocket('192.168.1.33:4000');
 
     this.socket.on('webSocket', (data) => {
+      let _message = JSON.parse(data.message.toString());
+      console.log(_message.weatherAPI + ' ' + _message.mapAPI + ' ' + _message.remoteAddress);
+      
+      this.setState({
+        weatherAPI: _message.weatherAPI,
+        mapAPI: _message.mapAPI,
+        remoteServerAddress: _message.remoteAddress,
+      });
+
       this.socket.emit('command', { //Request driver settings from the server.
         command: 'getSettings',
         handle: 'client',
@@ -501,6 +515,11 @@ class App extends Component {
     }
   }
 
+  confApi = (setting, value) => {
+    console.log(setting + ': ' + value);
+    this.setState({[setting]: value});
+  }
+
   handleDrawerToggle = () => {
     this.setState({ mobileOpen: !this.state.mobileOpen }); //Open / Close drawer
   };
@@ -682,9 +701,14 @@ class App extends Component {
                   return (
                     <React.Fragment>
                       <SettingsTab
+                        confApi={this.confApi}
                         handleSettings={this.handleSettings}
                         enabledGraphs={this.state.enabledGraphs}
                         graphIntreval={this.state.enabledGraphs}
+                        localServerAddress={this.state.localServerAddress}
+                        remoteServerAddress={this.state.remoteServerAddress}
+                        weatherAPI={this.state.weatherAPI}
+                        mapAPI={this.state.mapAPI}
                       />
                     </React.Fragment>
                   );
