@@ -49,6 +49,10 @@ class InterfaceSettings extends React.Component {
               weatherAPI={this.props.weatherAPI}
               mapAPI={this.props.mapAPI}
               handleSystemCommand={this.props.handleSystemCommand}
+              controller1port={this.props.controller1port}
+              controller2port={this.props.controller2port}
+              driver1port={this.props.driver1port}
+              remoteUpdateInterval={this.props.remoteUpdateInterval}
             />
           </Paper>
         </div>

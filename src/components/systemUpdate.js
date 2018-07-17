@@ -30,11 +30,12 @@ class SystemUpdateTab extends React.Component {
     this.handleClick = this.handleClick.bind(this);
   }
 
-  handleClick() {
-    this.props.webSocket.emit('update', { //Send update command to server
+  handleClick(target) {
+    /*this.props.webSocket.emit('update', { //Send update command to server
       handle: 'client',
       target: 'arduino'
-    });
+    });*/
+    console.log(target);
   }
 
   componentWillReceiveProps(newProps) {
@@ -49,31 +50,31 @@ class SystemUpdateTab extends React.Component {
       <div>
         <div className={classes.content}>
         <Paper className={classes.root} elevation={4}>
-          <Typography variant="headline" component="h3">Update available for controller</Typography>
+          <Typography variant="headline" component="h3">Controllers</Typography>
           <Typography variant="subheading">Build number 0000</Typography>
           <br />
-          <Button onClick={this.handleClick} variant="raised" color="primary">
-            {this.state.updateComplete}
+          <Button onClick={() =>this.handleClick('controller')} variant="raised" color="primary">
+            Check for updates
           </Button>
         </Paper>
         </div>
         <div className={classes.content}>
         <Paper className={classes.root} elevation={4}>
-          <Typography variant="headline" component="h3">User interface is up to date</Typography>
+          <Typography variant="headline" component="h3">User interface</Typography>
           <Typography variant="subheading">Build number 0000</Typography>
           <br />
-          <Button onClick={this.handleClick} variant="raised" color="primary" disabled>
-            Check for update
+          <Button onClick={() =>this.handleClick('ui')} variant="raised" color="primary">
+            Check for updates
           </Button>
         </Paper>
         </div>
         <div className={classes.content}>
         <Paper className={classes.root} elevation={4}>
-          <Typography variant="headline" component="h3">Server is up to date</Typography>
+          <Typography variant="headline" component="h3">Server</Typography>
           <Typography variant="subheading">Build number 0000</Typography>
           <br />
-          <Button onClick={this.handleClick} variant="raised" color="primary" disabled>
-            Check for update
+          <Button onClick={() =>this.handleClick('server')} variant="raised" color="primary">
+            Check for updates
           </Button>
         </Paper>
         </div>

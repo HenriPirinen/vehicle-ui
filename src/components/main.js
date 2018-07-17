@@ -27,7 +27,7 @@ const styles = theme => ({
     }),
     content: theme.mixins.gutters({
         display: 'flex',
-        textAlign: 'center'
+        textAlign: 'center',
     }),
     wrapper: {
         margin: theme.spacing.unit,

@@ -170,10 +170,14 @@ class App extends Component {
 
     this.state = {
       mobileOpen: false,
-      weatherAPI: 'YOUR_API_KEY',
-      mapAPI: 'YOUR_API_KEY',
+      weatherAPI: '',
+      mapAPI: '',
       localServerAddress: '192.168.1.33',
-      remoteServerAddress: '192.168.2.56',
+      remoteServerAddress: '',
+      driver1port: '',
+      controller1port: '',
+      controller2port: '',
+      remoteUpdateInterval: 300000,
       selectedTab: 'Main', //This is set to current tab
       enabledGraphs: [[true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true]], //[0] = voltage, [1] = temperature
       graphIntreval: [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]],
@@ -268,11 +272,16 @@ class App extends Component {
     this.socket.on('systemParam', (data) => {
       let _message = JSON.parse(data.message.toString());
       console.log(_message.weatherAPI + ' ' + _message.mapAPI + ' ' + _message.remoteAddress + ' ' + _message.driveDirection);
-      
+      console.log();
+
       this.setState({
         weatherAPI: _message.weatherAPI,
         mapAPI: _message.mapAPI,
         remoteServerAddress: _message.remoteAddress,
+        driver1port: _message.driverPort,
+        controller1port: _message.controller_1,
+        controller2port: _message.controller_2,
+        remoteUpdateInterval: _message.remoteUpdateInterval,
       });
 
       switch (_message.driveDirection) {
@@ -568,6 +577,10 @@ class App extends Component {
       weather: this.state.weatherAPI,
       map: this.state.mapAPI,
       address: this.state.remoteServerAddress,
+      controller1port: this.state.controller1port,
+      controller2port: this.state.controller2port,
+      driverPort: this.state.driver1port,
+      interval: this.state.remoteUpdateInterval,
       handle: 'client',
       target: 'server'
     });
@@ -763,6 +776,10 @@ class App extends Component {
                         remoteServerAddress={this.state.remoteServerAddress}
                         weatherAPI={this.state.weatherAPI}
                         mapAPI={this.state.mapAPI}
+                        controller1port={this.state.controller1port}
+                        controller2port={this.state.controller2port}
+                        driver1port={this.state.driver1port}
+                        remoteUpdateInterval={this.state.remoteUpdateInterval}
                       />
                     </React.Fragment>
                   );
