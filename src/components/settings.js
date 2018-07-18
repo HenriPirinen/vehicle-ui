@@ -1,10 +1,10 @@
 import React from 'react';
-import GraphIntervalSelect from './graphIntervalSelect';
-import EnableGroupMonitor from './enableGroupMonitor';
+import GraphConfiguration from './graphConfig';
 import ApiSettings from './apiSettings';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: theme.mixins.gutters({
@@ -17,8 +17,10 @@ const styles = theme => ({
   }),
   content: theme.mixins.gutters({
     display: 'flex',
-    textAlign: 'center'
   }),
+  title: {
+    textAlign: 'center'
+  }
 });
 
 class InterfaceSettings extends React.Component {
@@ -28,16 +30,16 @@ class InterfaceSettings extends React.Component {
       <React.Fragment>
         <div className={classes.content}>
           <Paper className={classes.root} elevation={4}>
-            <EnableGroupMonitor
+            <Typography variant="title" noWrap className={classes.title}>
+              Graph Configuration
+            </Typography>
+            <GraphConfiguration
               enabled={this.props.handleSettings}
               currentState={this.props.enabledGraphs}
+              graphSettings={this.props.graphSettings}
+              dataLimit={this.props.dataLimit}
+              graphIntreval={this.props.graphIntreval}
             />
-          </Paper>
-        </div>
-        <div className={classes.content}>
-          <Paper className={classes.root} elevation={4}>
-            <GraphIntervalSelect groups={[0, 1, 2, 3, 4]} />
-            <GraphIntervalSelect groups={[5, 6, 7, 8, 9]} />
           </Paper>
         </div>
         <div className={classes.content}>

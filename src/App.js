@@ -183,6 +183,7 @@ class App extends Component {
       graphIntreval: [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]],
       isFullscreenEnabled: false,
       weatherData: { 'default': null },
+      weatherForecast: { 'default': null },
       contentWidth: document.getElementById('root').offsetWidth - 300,
       driveDirection: 'neutral',
       vertical: 'top',
@@ -218,6 +219,7 @@ class App extends Component {
     this.toggleCharging = this.toggleCharging.bind(this); //Used @ graph component
     this.confApi = this.confApi.bind(this); //Used @settings component
     this.handleSystemCommand = this.handleSystemCommand.bind(this) //Used @settings component
+    this.graphSettings = this.graphSettings.bind(this) //Used @settings
   }
 
   timestamp = () => {
@@ -256,6 +258,19 @@ class App extends Component {
           console.warn('Error fetching weather...');
         }
       )
+
+      fetch("http://api.openweathermap.org/data/2.5/forecast?lat=60.733852&lon=24.761049&APPID=fdc49637770264f7b7b4c46708c68ce9")
+        .then(res => res.json())
+        .then(
+          (result) => {
+            this.setState({
+              weatherForecast: result
+            });
+          },
+          (error) => {
+            console.warn('Error fetching forecast...');
+          }
+        )
 
     this.socket = openSocket('192.168.1.33:4000');
 
@@ -331,8 +346,9 @@ class App extends Component {
 
         for (let i = 0; i < _validData.voltage.length; i++) {
           _updateCellDataPoints[0][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.voltage[i] });
-          if (_updateCellDataPoints[0][_validData.Group][i].length > this.state.dataLimit) _updateCellDataPoints[0][_validData.Group][i].shift();
+          //if (_updateCellDataPoints[0][_validData.Group][i].length > this.state.dataLimit) _updateCellDataPoints[0][_validData.Group][i].shift();
         }
+
         this.setState({ cellDataPoints: _updateCellDataPoints });
       }
     });
@@ -563,6 +579,26 @@ class App extends Component {
     }
   }
 
+  graphSettings = (stateName, value, index = null, index2nd = null) => { //Replace handleSettings & confApi? https://stackoverflow.com/questions/43985321/get-state-value-by-a-dynamic-key-in-react
+    /**
+     * If parameter @param index has a value = state is array
+     * If parameter @param index2nd has a value = state is 2D array
+     */
+
+    if(index === null){
+      this.setState({[stateName]: value});
+    } else {
+      let _state = this.state[stateName]
+      if(index2nd !== null){
+        _state[index][index2nd] = value;
+      } else {
+        _state[index] = value;
+      }
+      console.log(_state);
+      this.setState({[stateName]: _state});
+    }
+  }
+
   confApi = (setting, value) => {
     console.log(setting + ': ' + value);
     this.setState({[setting]: value});
@@ -601,7 +637,7 @@ class App extends Component {
               <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui">Regni UI</a>
           </Typography>
           <Typography variant="caption" noWrap className={classes.appTitle}>
-          <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui/releases">v0.1a</a>
+          <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui/releases">v0.1.0</a>
           </Typography>
         </div>
         <Divider />
@@ -704,6 +740,7 @@ class App extends Component {
                         chargeStatus={this.state.groupChargeStatus}
                         charging={this.state.charging}
                         type={this.state.selectedTab}
+                        dataLimit={this.state.dataLimit}
                       />
                     </React.Fragment>
                   );
@@ -745,7 +782,10 @@ class App extends Component {
                 case 'Weather':
                   return (
                     <React.Fragment>
-                      <WeatherTab data={this.state.weatherData} />
+                      <WeatherTab 
+                        data={this.state.weatherData} 
+                        forecast={this.state.weatherForecast}
+                      />
                     </React.Fragment>
                   );
                 case 'Map':
@@ -767,11 +807,12 @@ class App extends Component {
                   return (
                     <React.Fragment>
                       <SettingsTab
+                        graphSettings={this.graphSettings}
                         confApi={this.confApi}
                         handleSystemCommand={this.handleSystemCommand}
                         handleSettings={this.handleSettings}
                         enabledGraphs={this.state.enabledGraphs}
-                        graphIntreval={this.state.enabledGraphs}
+                        dataLimit={this.state.dataLimit}
                         localServerAddress={this.state.localServerAddress}
                         remoteServerAddress={this.state.remoteServerAddress}
                         weatherAPI={this.state.weatherAPI}
@@ -780,6 +821,7 @@ class App extends Component {
                         controller2port={this.state.controller2port}
                         driver1port={this.state.driver1port}
                         remoteUpdateInterval={this.state.remoteUpdateInterval}
+                        graphIntreval={this.state.graphIntreval}
                       />
                     </React.Fragment>
                   );

@@ -26,7 +26,7 @@ class GraphContainer extends React.Component {
                                 key={i}
                                 graphWidth={this.props.contentWidth}
                                 newVoltageData={this.props.data[0][i]}
-                                dataLimit={100}
+                                dataLimit={this.props.dataLimit}
                                 graphName={i}
                                 chargeStatus={this.props.chargeStatus[i]}
                                 isCharging={this.props.charging}
@@ -41,7 +41,7 @@ class GraphContainer extends React.Component {
                                 key={0}
                                 graphWidth={this.props.contentWidth}
                                 newVoltageData={this.props.data[0][0]}
-                                dataLimit={100}
+                                dataLimit={this.props.dataLimit}
                                 graphName={0}
                                 chargeStatus={this.props.chargeStatus[0]}
                                 isCharging={this.props.charging}

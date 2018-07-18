@@ -14,11 +14,11 @@ const styles = theme => ({
     textField: {
       marginLeft: theme.spacing.unit,
       marginRight: theme.spacing.unit,
-      width: 200,
+      width: 250,
     },
-    menu: {
-      width: 200,
-    },
+    title: {
+        textAlign: 'center'
+    }
 });
 
 class ApiSettings extends React.Component {
@@ -46,7 +46,7 @@ class ApiSettings extends React.Component {
     const { classes } = this.props;
     return (
         <React.Fragment>
-            <Typography variant="title" noWrap>
+            <Typography variant="title" noWrap className={classes.title}>
               API Configuration
             </Typography>
             <form noValidate autoComplete="off">

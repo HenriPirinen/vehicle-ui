@@ -50,6 +50,7 @@ class DataLine extends React.Component {
     this.state = {
       graphDatapointLimit: props.dataLimit,
       graphName: props.graphName,
+      graphData: props.newVoltageData,
       parentWidth: document.getElementById('appContent').offsetWidth,
       data: props.newVoltageData,
       latest: 0,
@@ -60,10 +61,21 @@ class DataLine extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
+    let _data = [];
     newProps.newVoltageData[0][newProps.newVoltageData[0].length - 1].y !== this.state.latest ? this.setState({ shouldUpdate: true }) : this.setState({ shouldUpdate: false })
+
+    for(var i = 0; i < this.props.newVoltageData.length; i++){ //Cut data array if it's length exceeds limit
+      newProps.newVoltageData[i].length - newProps.dataLimit < newProps.dataLimit ? (
+        _data[i] = newProps.newVoltageData[i]
+      ):(
+        _data[i] = newProps.newVoltageData[i].slice(newProps.newVoltageData[i].length - newProps.dataLimit, newProps.newVoltageData[i].length)
+      )
+    }
+
     this.setState({
       parentWidth: document.getElementById('graphRoot').offsetWidth - 10,
-      latest: newProps.newVoltageData[0][newProps.newVoltageData[0].length - 1].y
+      latest: newProps.newVoltageData[0][newProps.newVoltageData[0].length - 1].y,
+      graphData: _data
     });
   }
 
@@ -96,14 +108,14 @@ class DataLine extends React.Component {
             <VerticalGridLines />
             <XAxis title="Time" position="start" />
             <YAxis title={this.props.type} />
-            <LineSeries data={this.props.newVoltageData[0]} />
-            <LineSeries data={this.props.newVoltageData[1]} />
-            <LineSeries data={this.props.newVoltageData[2]} />
-            <LineSeries data={this.props.newVoltageData[3]} />
-            <LineSeries data={this.props.newVoltageData[4]} />
-            <LineSeries data={this.props.newVoltageData[5]} />
-            <LineSeries data={this.props.newVoltageData[6]} />
-            <LineSeries data={this.props.newVoltageData[7]} />
+            <LineSeries data={this.state.graphData[0]} />
+            <LineSeries data={this.state.graphData[1]} />
+            <LineSeries data={this.state.graphData[2]} />
+            <LineSeries data={this.state.graphData[3]} />
+            <LineSeries data={this.state.graphData[4]} />
+            <LineSeries data={this.state.graphData[5]} />
+            <LineSeries data={this.state.graphData[6]} />
+            <LineSeries data={this.state.graphData[7]} />
           </XYPlot>
           <ExpansionPanel>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>

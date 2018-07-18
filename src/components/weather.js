@@ -3,6 +3,7 @@ import Typography from '@material-ui/core/Typography';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
+import {XYPlot, XAxis, YAxis, HorizontalGridLines, VerticalGridLines, LineSeries } from 'react-vis';
 
 //SVG Icons were created by amCharts (https://www.amcharts.com/)
 //Creative Commons Attribution 4.0 International Public License
@@ -13,6 +14,7 @@ import RainyIcon_4 from '../media/weatherIcons_animated/rainy-4.svg';
 import RainyIcon_5 from '../media/weatherIcons_animated/rainy-5.svg';
 import SnowyIcon_5 from '../media/weatherIcons_animated/snowy-5.svg';
 import ClearIcon from '../media/weatherIcons_animated/day.svg';
+
 
 const styles = theme => ({
   root: theme.mixins.gutters({
@@ -34,8 +36,28 @@ class WeatherTab extends React.Component {
     super(props)
 
     this.state = {
-      data: props.data //TODO: select correct icon https://openweathermap.org/weather-conditions
+      data: props.data,
+      forecastData: [],
+      tick: []
     }
+  }
+
+  componentDidMount() {
+    let forecastBuild = [];
+    let tick = [];
+    let i,x;
+    for(i = 0, x = 0; i < this.props.forecast.list.length; i++, x++){ //Tick value, every 8th epoch
+      forecastBuild.push({x: this.props.forecast.list[i].dt, y: Math.round((this.props.forecast.list[i].main.temp - 273.15)*100) / 100}); //x = epoch time
+      if(x === 7){
+        tick.push(this.props.forecast.list[i].dt);
+        x = 0;
+      }
+    }
+    console.log(tick);
+    this.setState({
+      forecastData: forecastBuild,
+      tick: tick
+    })
   }
 
   render() {
@@ -107,6 +129,17 @@ class WeatherTab extends React.Component {
           <Typography variant="headline" component="h3">Description: {this.props.data.weather[0].description}</Typography>
           <Typography variant="headline" component="h3">Humidity: {this.props.data.main.humidity} %</Typography>
           <Typography variant="headline" component="h3">Wind: {Math.round((this.props.data.wind.speed * 0.44704) * 100) / 100} m/s</Typography>
+          </Paper>
+          <Paper className={classes.root} elevation={4}>
+          <XYPlot width={600} height={500} xType="time">
+            <HorizontalGridLines />
+            <VerticalGridLines />
+            <XAxis title="Time" position="start" tickValues={[this.state.tick[0], this.state.tick[1], this.state.tick[2], this.state.tick[3], this.state.tick[4]]}/>
+            <YAxis title="Temperature"/>
+            <LineSeries
+              className="first-series"
+              data={this.state.forecastData}/>
+          </XYPlot>
           </Paper>
         </div>
       </div>
