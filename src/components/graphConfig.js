@@ -118,8 +118,8 @@ class GraphConfiguration extends React.Component {
                                     }}
                                 >
                                     <MenuItem value={0}>Realtime</MenuItem>
-                                    <MenuItem value={1}>Minute</MenuItem>
-                                    <MenuItem value={5}>5 minutes</MenuItem>
+                                    <MenuItem value={30000}>Minute</MenuItem>
+                                    <MenuItem value={150000}>5 minutes</MenuItem>
                                 </Select>
                             </FormControl>
                         );

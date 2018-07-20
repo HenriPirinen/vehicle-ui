@@ -50,26 +50,41 @@ class DataLine extends React.Component {
     this.state = {
       graphDatapointLimit: props.dataLimit,
       graphName: props.graphName,
-      graphData: props.newVoltageData,
+      //graphData: props.newVoltageData,
+      graphData: [],
       parentWidth: document.getElementById('appContent').offsetWidth,
       data: props.newVoltageData,
       latest: 0,
       shouldUpdate: false,
       infoExapanded: false,
       items: ['0','1','2','3','4','5','6','7'],
+      interval: props.interval,
     }
   }
 
   componentWillReceiveProps(newProps) {
-    let _data = [];
-    newProps.newVoltageData[0][newProps.newVoltageData[0].length - 1].y !== this.state.latest ? this.setState({ shouldUpdate: true }) : this.setState({ shouldUpdate: false })
+    let _data = [[],[],[],[],[],[],[],[]];
 
-    for(var i = 0; i < this.props.newVoltageData.length; i++){ //Cut data array if it's length exceeds limit
-      newProps.newVoltageData[i].length - newProps.dataLimit < newProps.dataLimit ? (
-        _data[i] = newProps.newVoltageData[i]
-      ):(
-        _data[i] = newProps.newVoltageData[i].slice(newProps.newVoltageData[i].length - newProps.dataLimit, newProps.newVoltageData[i].length)
-      )
+    newProps.newVoltageData[0][newProps.newVoltageData[0].length - 1].y !== this.state.latest ? this.setState({ shouldUpdate: true }) : this.setState({ shouldUpdate: false })
+    
+    if(this.state.shouldUpdate){
+      for(let i = 0; i < this.props.newVoltageData.length; i++){
+        if(this.state.interval[0][newProps.graphName] === 0){ //If graph is realtime, build array
+          if(newProps.newVoltageData[i].length < newProps.dataLimit){ //If graph has not exceeded it's limit => copy
+            _data[i] = newProps.newVoltageData[i]
+          } else {
+            _data[i] = newProps.newVoltageData[i].slice(newProps.newVoltageData[i].length - newProps.dataLimit, newProps.newVoltageData[i].length) //Slice array if it's length exceeds limit, limit set @ settings tab
+          }
+        } else { //If graph IS NOT realtime, build array
+          for(let z = 0, mult = 0; z < newProps.newVoltageData[i].length; z++){ //Search data object with selected interval. Interval count starts at first data object
+            if(newProps.newVoltageData[i][z].x > (parseInt(newProps.newVoltageData[i][0].x, 10) + parseInt(newProps.interval[0][newProps.graphName] * mult, 10))){
+              mult += 2;
+              _data[i].push(newProps.newVoltageData[i][z]);
+              if(_data[i].length > newProps.dataLimit) _data[i].shift();
+            }
+          }
+        }
+      }
     }
 
     this.setState({

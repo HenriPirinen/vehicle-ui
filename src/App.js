@@ -346,7 +346,6 @@ class App extends Component {
 
         for (let i = 0; i < _validData.voltage.length; i++) {
           _updateCellDataPoints[0][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.voltage[i] });
-          //if (_updateCellDataPoints[0][_validData.Group][i].length > this.state.dataLimit) _updateCellDataPoints[0][_validData.Group][i].shift();
         }
 
         this.setState({ cellDataPoints: _updateCellDataPoints });
@@ -579,7 +578,7 @@ class App extends Component {
     }
   }
 
-  graphSettings = (stateName, value, index = null, index2nd = null) => { //Replace handleSettings & confApi? https://stackoverflow.com/questions/43985321/get-state-value-by-a-dynamic-key-in-react
+  graphSettings = (stateName, value, index = null, index2nd = null) => { //Replace handleSettings & confApi?
     /**
      * If parameter @param index has a value = state is array
      * If parameter @param index2nd has a value = state is 2D array
@@ -594,7 +593,6 @@ class App extends Component {
       } else {
         _state[index] = value;
       }
-      console.log(_state);
       this.setState({[stateName]: _state});
     }
   }
