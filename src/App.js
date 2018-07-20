@@ -1,3 +1,25 @@
+/*MIT License
+
+Copyright (c) 2018 Henri Pirinen
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.*/
+
 import React, { Component } from 'react';
 import './App.css';
 import ToggleButton from './components/toggleButton';
@@ -239,14 +261,14 @@ class App extends Component {
     for (let i = 0; i < _updateCellDataPoints[0].length; i++) { //Fill array with default values.
       for (let x = 0; x < _updateCellDataPoints[0][i].length; x++) { //Voltage and temperature array lenght is equal
         _updateCellDataPoints[0][i][x].push({ x: new Date().getTime(), y: 0 });
-        _updateCellDataPoints[1][i][x].push({ x: new Date().getTime(), y: 21 });
+        _updateCellDataPoints[1][i][x].push({ x: new Date().getTime(), y: 80 });
       }
     };
 
     this.setState({ cellDataPoints: _updateCellDataPoints });
 
     //getLocation();
-    fetch("http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + location.longitude + "&APPID=" + api.api.weather + "") //TODO: get lat and lon from gps
+    /*fetch("http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + location.longitude + "&APPID=" + api.api.weather + "") //TODO: get lat and lon from gps
       .then(res => res.json())
       .then(
         (result) => {
@@ -270,7 +292,7 @@ class App extends Component {
           (error) => {
             console.warn('Error fetching forecast...');
           }
-        )
+        )*/
 
     this.socket = openSocket('192.168.1.33:4000');
 
