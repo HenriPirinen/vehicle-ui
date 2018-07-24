@@ -48,6 +48,8 @@ class GraphConfiguration extends React.Component {
             dataPoints: props.dataLimit,
             selects: [0,1,2,3,4,5,6,7,8],
             interval: props.graphIntreval[0],
+            heatmapMin: props.heatmapRange[0],
+            heatmapMax: props.heatmapRange[1],
         };
     }
 
@@ -56,9 +58,9 @@ class GraphConfiguration extends React.Component {
         this.props.enabled( group, 'state', 0, !this.props.currentState[0][group]);
     };
 
-    changeDataLimit = name => event => {
+    updateState = event => {
         this.setState({
-          [name]: event.target.value,
+          [event.target.id]: event.target.value,
         });
     };
 
@@ -95,12 +97,12 @@ class GraphConfiguration extends React.Component {
                 </FormControl>
                 <Divider />
                 <TextField
-                    id="dataPoint"
+                    id="dataPoints"
                     label="Number of data points"
                     className={classes.textField}
                     value={this.state.dataPoints}
-                    onChange={this.changeDataLimit('dataPoints')}
-                    onBlur={() => this.props.graphSettings('dataLimit', document.getElementById('dataPoint').value)}
+                    onChange={this.updateState}
+                    onBlur={() => this.props.updateParentState('dataLimit', document.getElementById('dataPoints').value)}
                     margin="normal"
                 />
                 <Divider />
@@ -126,6 +128,25 @@ class GraphConfiguration extends React.Component {
                     })
                     }
                 </form>
+                <Divider />
+                <TextField
+                    id="heatmapMin"
+                    label="Heatmap range (min)"
+                    className={classes.textField}
+                    value={this.state.heatmapMin}
+                    onChange={this.updateState}
+                    onBlur={() => this.props.updateParentState('heatmapRange', document.getElementById('heatmapMin').value, 0)}
+                    margin="normal"
+                />
+                <TextField
+                    id="heatmapMax"
+                    label="Heatmap range (max)"
+                    className={classes.textField}
+                    value={this.state.heatmapMax}
+                    onChange={this.updateState}
+                    onBlur={() => this.props.updateParentState('heatmapRange', document.getElementById('heatmapMax').value, 1)}
+                    margin="normal"
+                />
             </React.Fragment>
         );
     }

@@ -36,16 +36,17 @@ class InterfaceSettings extends React.Component {
             <GraphConfiguration
               enabled={this.props.handleSettings}
               currentState={this.props.enabledGraphs}
-              graphSettings={this.props.graphSettings}
+              updateParentState={this.props.updateParentState}
               dataLimit={this.props.dataLimit}
               graphIntreval={this.props.graphIntreval}
+              heatmapRange={this.props.heatmapRange}
             />
           </Paper>
         </div>
         <div className={classes.content}>
           <Paper className={classes.root} elevation={4}>
             <ApiSettings 
-              confApi={this.props.confApi}
+              updateParentState={this.props.updateParentState}
               localServerAddress={this.props.localServerAddress}
               remoteServerAddress={this.props.remoteServerAddress}
               weatherAPI={this.props.weatherAPI}

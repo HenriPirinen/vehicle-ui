@@ -61,12 +61,17 @@ function generateData(measurements, rangeMin, rangeMax){
     //Group / Cell / List of measuruments
     for(let group = 0; group < measurements.length; group++){ //Format data to simple list
         for(let cell = 0; cell < measurements[group].length; cell++){
-            formatedData.push(measurements[group][cell][measurements[0][0].length - 1].y);
+            formatedData.push(measurements[group][cell][measurements[group][cell].length - 1].y);
         }
     }
 
     for(let i = 0, y = 1, x = 1; i < 72; i++){ //Generate heatmap data
-        data.push({x: x, y: y, color: gradient[Math.round((formatedData[i] - rangeMin) / ((rangeMax - rangeMin) / 510))]});
+        data.push({x: x, y: y, color: gradient[Math.round(formatedData[i] > rangeMin && formatedData[i] < rangeMax ? (
+            (formatedData[i] - rangeMin) / ((rangeMax - rangeMin) / (gradient.length - 1))
+            ) : (
+                formatedData[i] > rangeMin ?  gradient.length - 1 : 0
+            )
+        )]});
         if(y === 15){
             y = 1;
             x++;
@@ -90,7 +95,7 @@ class Heatmap extends React.Component {
                     <YAxis />
                     <HeatmapSeries
                     colorType="literal"
-                    data={generateData(this.props.data, 20, 80)}
+                    data={generateData(this.props.data, this.props.heatmapRange[0], this.props.heatmapRange[1])}
                     />
                 </XYPlot>
             </Paper>

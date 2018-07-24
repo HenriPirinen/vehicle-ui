@@ -47,8 +47,9 @@ class GraphContainer extends React.Component {
                             this.props.enabledGraphs[0][i] ? (
                             <DataLine
                                 key={i}
+                                graphTitle={true}
                                 graphWidth={this.props.contentWidth}
-                                newVoltageData={this.props.data[0][i]}
+                                data={this.props.data[0][i]}
                                 dataLimit={this.props.dataLimit}
                                 graphName={i}
                                 chargeStatus={this.props.chargeStatus[i]}
@@ -63,9 +64,10 @@ class GraphContainer extends React.Component {
                     })) : (
                             <React.Fragment>
                                 <DataLine
-                                    key={0}
+                                    key={100}
+                                    graphTitle={false}
                                     graphWidth={this.props.contentWidth}
-                                    newVoltageData={this.props.data[0][0]}
+                                    data={this.props.data[0][0]}
                                     dataLimit={this.props.dataLimit}
                                     graphName={0}
                                     chargeStatus={this.props.chargeStatus[0]}
@@ -77,6 +79,7 @@ class GraphContainer extends React.Component {
                                 />
                                 <Heatmap 
                                     data={this.props.data[1]}
+                                    heatmapRange={this.props.heatmapRange}
                                 />
                             </React.Fragment>
                         )

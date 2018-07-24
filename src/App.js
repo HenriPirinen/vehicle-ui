@@ -171,7 +171,7 @@ const styles = theme => ({
   },
   content: {
     flexGrow: 1,
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: '#EEEEEE',
   },
   flex: {
     flex: 1,
@@ -203,6 +203,7 @@ class App extends Component {
       selectedTab: 'Main', //This is set to current tab
       enabledGraphs: [[true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true]], //[0] = voltage, [1] = temperature
       graphIntreval: [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]],
+      heatmapRange: [20,80],
       isFullscreenEnabled: false,
       weatherData: { 'default': null },
       weatherForecast: { 'default': null },
@@ -239,9 +240,8 @@ class App extends Component {
     this.setCruise = this.setCruise.bind(this); //Used @ main component
     this.logControl = this.logControl.bind(this); //Used @ log components
     this.toggleCharging = this.toggleCharging.bind(this); //Used @ graph component
-    this.confApi = this.confApi.bind(this); //Used @settings component
     this.handleSystemCommand = this.handleSystemCommand.bind(this) //Used @settings component
-    this.graphSettings = this.graphSettings.bind(this) //Used @settings
+    this.updateParentState = this.updateParentState.bind(this) //Used @settings
   }
 
   timestamp = () => {
@@ -261,14 +261,14 @@ class App extends Component {
     for (let i = 0; i < _updateCellDataPoints[0].length; i++) { //Fill array with default values.
       for (let x = 0; x < _updateCellDataPoints[0][i].length; x++) { //Voltage and temperature array lenght is equal
         _updateCellDataPoints[0][i][x].push({ x: new Date().getTime(), y: 0 });
-        _updateCellDataPoints[1][i][x].push({ x: new Date().getTime(), y: 20 });
+        _updateCellDataPoints[1][i][x].push({ x: new Date().getTime(), y: 21 });
       }
     };
 
     this.setState({ cellDataPoints: _updateCellDataPoints });
 
     //getLocation();
-    fetch("http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + location.longitude + "&APPID=" + api.api.weather + "") //TODO: get lat and lon from gps
+    /*fetch("http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + location.longitude + "&APPID=" + api.api.weather + "") //TODO: get lat and lon from gps
       .then(res => res.json())
       .then(
         (result) => {
@@ -292,7 +292,7 @@ class App extends Component {
           (error) => {
             console.warn('Error fetching forecast...');
           }
-        )
+        )*/
 
     this.socket = openSocket('192.168.1.33:4000');
 
@@ -368,9 +368,11 @@ class App extends Component {
 
         for (let i = 0; i < _validData.voltage.length; i++) {
           _updateCellDataPoints[0][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.voltage[i] });
+          _updateCellDataPoints[1][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.temperature[i] });
         }
 
         this.setState({ cellDataPoints: _updateCellDataPoints });
+        //console.log(this.state.cellDataPoints[1][0][0]);
       }
     });
 
@@ -600,7 +602,7 @@ class App extends Component {
     }
   }
 
-  graphSettings = (stateName, value, index = null, index2nd = null) => { //Replace handleSettings & confApi?
+  updateParentState = (stateName, value, index = null, index2nd = null) => { //Replace handleSettings
     /**
      * If parameter @param index has a value = state is array
      * If parameter @param index2nd has a value = state is 2D array
@@ -617,11 +619,6 @@ class App extends Component {
       }
       this.setState({[stateName]: _state});
     }
-  }
-
-  confApi = (setting, value) => {
-    console.log(setting + ': ' + value);
-    this.setState({[setting]: value});
   }
 
   handleSystemCommand = (command) => {
@@ -761,6 +758,7 @@ class App extends Component {
                         charging={this.state.charging}
                         type={this.state.selectedTab}
                         dataLimit={this.state.dataLimit}
+                        heatmapRange={this.state.heatmapRange}
                       />
                     </React.Fragment>
                   );
@@ -827,8 +825,7 @@ class App extends Component {
                   return (
                     <React.Fragment>
                       <SettingsTab
-                        graphSettings={this.graphSettings}
-                        confApi={this.confApi}
+                        updateParentState={this.updateParentState}
                         handleSystemCommand={this.handleSystemCommand}
                         handleSettings={this.handleSettings}
                         enabledGraphs={this.state.enabledGraphs}
@@ -842,6 +839,7 @@ class App extends Component {
                         driver1port={this.state.driver1port}
                         remoteUpdateInterval={this.state.remoteUpdateInterval}
                         graphIntreval={this.state.graphIntreval}
+                        heatmapRange={this.state.heatmapRange}
                       />
                     </React.Fragment>
                   );

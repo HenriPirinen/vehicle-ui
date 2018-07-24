@@ -56,7 +56,7 @@ class ApiSettings extends React.Component {
                     className={classes.textField}
                     value={this.state.weatherAPI}
                     onChange={this.handleChange('weatherAPI')}
-                    onBlur={() => this.props.confApi('weatherAPI',document.getElementById('weatherAPI').value)}
+                    onBlur={() => this.props.updateParentState('weatherAPI',document.getElementById('weatherAPI').value)}
                     margin="normal"
                 />
                 <TextField
@@ -65,7 +65,7 @@ class ApiSettings extends React.Component {
                     className={classes.textField}
                     value={this.state.mapAPI}
                     onChange={this.handleChange('mapAPI')}
-                    onBlur={() => this.props.confApi('mapAPI',document.getElementById('mapAPI').value)}
+                    onBlur={() => this.props.updateParentState('mapAPI',document.getElementById('mapAPI').value)}
                     margin="normal"
                 />
                 <Divider/>
@@ -75,7 +75,7 @@ class ApiSettings extends React.Component {
                     className={classes.textField}
                     value={this.state.localServerAddress}
                     onChange={this.handleChange('localServerAddress')}
-                    onBlur={() => this.props.confApi('localServerAddress',document.getElementById('localServerAddress').value)}
+                    onBlur={() => this.props.updateParentState('localServerAddress',document.getElementById('localServerAddress').value)}
                     margin="normal"
                 />
                 <TextField
@@ -84,7 +84,7 @@ class ApiSettings extends React.Component {
                     className={classes.textField}
                     value={this.state.remoteServerAddress}
                     onChange={this.handleChange('remoteServerAddress')}
-                    onBlur={() => this.props.confApi('remoteServerAddress',document.getElementById('remoteServerAddress').value)}
+                    onBlur={() => this.props.updateParentState('remoteServerAddress',document.getElementById('remoteServerAddress').value)}
                     margin="normal"
                 />
                 <Divider/>
@@ -94,7 +94,7 @@ class ApiSettings extends React.Component {
                     className={classes.textField}
                     value={this.state.controller1port}
                     onChange={this.handleChange('controller1port')}
-                    onBlur={() => this.props.confApi('controller1port',document.getElementById('controller.1').value)}
+                    onBlur={() => this.props.updateParentState('controller1port',document.getElementById('controller.1').value)}
                     margin="normal"
                 />
                 <TextField
@@ -103,7 +103,7 @@ class ApiSettings extends React.Component {
                     className={classes.textField}
                     value={this.state.controller2port}
                     onChange={this.handleChange('controller1port')}
-                    onBlur={() => this.props.confApi('controller2port',document.getElementById('controller.2').value)}
+                    onBlur={() => this.props.updateParentState('controller2port',document.getElementById('controller.2').value)}
                     margin="normal"
                 />
                 <Divider/>
@@ -113,7 +113,7 @@ class ApiSettings extends React.Component {
                     className={classes.textField}
                     value={this.state.driver1port}
                     onChange={this.handleChange('driver1port')}
-                    onBlur={() => this.props.confApi('driver1port',document.getElementById('driver.1').value)}
+                    onBlur={() => this.props.updateParentState('driver1port',document.getElementById('driver.1').value)}
                     margin="normal"
                 />
                 <TextField
@@ -122,7 +122,7 @@ class ApiSettings extends React.Component {
                     className={classes.textField}
                     value={this.state.interval}
                     onChange={this.handleChange('interval')}
-                    onBlur={() => this.props.confApi('remoteUpdateInterval',document.getElementById('interval').value)}
+                    onBlur={() => this.props.updateParentState('remoteUpdateInterval',document.getElementById('interval').value)}
                     margin="normal"
                 />
             </form>
