@@ -242,17 +242,23 @@ class App extends Component {
     this.toggleCharging = this.toggleCharging.bind(this); //Used @ graph component
     this.handleSystemCommand = this.handleSystemCommand.bind(this) //Used @settings component
     this.updateParentState = this.updateParentState.bind(this) //Used @settings
+    this.timestamp = this.timestamp.bind(this) //Used @ update component
   }
 
   timestamp = () => {
     var today = new Date();
+    var y = today.getFullYear();
+    var d = today.getDate();
+    var mo = today.getMonth();
     var h = today.getHours();
     var m = today.getMinutes();
     var s = today.getSeconds();
     if (m < 10) m = '0' + m;
     if (s < 10) s = '0' + m;
+    if (d < 10) d = '0' + d;
+    if (mo < 10) mo = '0' + m;
 
-    return '' + h + ':' + m + ':' + s + '';
+    return '' + d + '-' + mo + '-' + y + ' ' + h + ':' + m + ':' + s + '';
   };
 
   componentDidMount() {
@@ -268,7 +274,7 @@ class App extends Component {
     this.setState({ cellDataPoints: _updateCellDataPoints });
 
     //getLocation();
-    /*fetch("http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + location.longitude + "&APPID=" + api.api.weather + "") //TODO: get lat and lon from gps
+    fetch("http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + location.longitude + "&APPID=" + api.api.weather + "") //TODO: get lat and lon from gps
       .then(res => res.json())
       .then(
         (result) => {
@@ -292,9 +298,9 @@ class App extends Component {
           (error) => {
             console.warn('Error fetching forecast...');
           }
-        )*/
+        )
 
-    this.socket = openSocket('192.168.1.33:4000');
+    this.socket = openSocket('192.168.137.240:4000');
 
     /**
      * WebSocket topics:
@@ -817,6 +823,7 @@ class App extends Component {
                     <React.Fragment>
                       <SystemUpdateTab
                         webSocket={this.socket}
+                        timestamp={this.timestamp}
                         systemUpdateProgress={this.state.updateProgress}
                       />
                     </React.Fragment>

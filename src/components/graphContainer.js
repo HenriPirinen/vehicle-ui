@@ -24,13 +24,14 @@ import React from 'react';
 import DataLine from './dataLine';
 import Heatmap from './heatmap';
 
+
 class GraphContainer extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props)
 
         this.state = {
             parentWidth: document.getElementById('appContent').offsetWidth - 10,
-            graphs: [0,1,2,3,4],
+            graphs: [0, 1, 2, 3, 4, 5, 6, 7, 8],
         }
     }
 
@@ -40,49 +41,54 @@ class GraphContainer extends React.Component {
 
     render() {
         return (
-            <div id={'graphContainer'} style={{width: this.state.parentWidth}}>
+            <div id={'graphContainer'} style={{ width: this.state.parentWidth }}>
                 {this.props.type === 'Voltage' ? (
                     this.state.graphs.map(i => {
                         return (
                             this.props.enabledGraphs[0][i] ? (
-                            <DataLine
-                                key={i}
-                                graphTitle={true}
-                                graphWidth={this.props.contentWidth}
-                                data={this.props.data[0][i]}
-                                dataLimit={this.props.dataLimit}
-                                graphName={i}
-                                chargeStatus={this.props.chargeStatus[i]}
-                                isCharging={this.props.charging}
-                                toggleCharging={this.props.toggleCharging}
-                                interval={this.props.interval}
-                                commands={true}
-                                type={"Voltage"}
-                            />
-                            ):(null)
-                        );
-                    })) : (
-                            <React.Fragment>
                                 <DataLine
-                                    key={100}
-                                    graphTitle={false}
+                                    key={i}
+                                    graphTitle={true}
                                     graphWidth={this.props.contentWidth}
-                                    data={this.props.data[0][0]}
+                                    data={this.props.data[0][i]}
                                     dataLimit={this.props.dataLimit}
-                                    graphName={0}
-                                    chargeStatus={this.props.chargeStatus[0]}
+                                    graphName={i}
+                                    chargeStatus={this.props.chargeStatus[i]}
                                     isCharging={this.props.charging}
                                     toggleCharging={this.props.toggleCharging}
                                     interval={this.props.interval}
-                                    commands={false}
-                                    type={"Temperature"}
+                                    commands={true}
+                                    type={"Voltage"}
                                 />
-                                <Heatmap 
-                                    data={this.props.data[1]}
-                                    heatmapRange={this.props.heatmapRange}
-                                />
-                            </React.Fragment>
-                        )
+                            ) : (null)
+                        );
+                    })) : (
+                        <React.Fragment>
+                            <Heatmap
+                                data={this.props.data[1]}
+                                heatmapRange={this.props.heatmapRange}
+                            />
+                            {this.state.graphs.map(t => {
+                                return (
+                                    <DataLine
+                                        key={t}
+                                        graphTitle={false}
+                                        graphWidth={this.props.contentWidth}
+                                        data={this.props.data[1][t]}
+                                        dataLimit={this.props.dataLimit}
+                                        graphName={t}
+                                        chargeStatus={this.props.chargeStatus[t]}
+                                        isCharging={this.props.charging}
+                                        toggleCharging={this.props.toggleCharging}
+                                        interval={this.props.interval}
+                                        commands={false}
+                                        type={"Temperature"}
+                                    />
+                                )
+                            })}
+
+                        </React.Fragment>
+                    )
                 }
             </div>
         );

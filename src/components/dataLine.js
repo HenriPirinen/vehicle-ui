@@ -48,7 +48,7 @@ class DataLine extends React.Component {
     super(props)
 
     let itemsList = [];
-    for(let i = ((props.data.length * (props.graphName + 1))) - props.data.length; i <= ((props.data.length * (props.graphName + 1)) - 1); i++){
+    for (let i = ((props.data.length * (props.graphName + 1))) - props.data.length; i <= ((props.data.length * (props.graphName + 1)) - 1); i++) {
       itemsList.push(String(i));
     }
 
@@ -57,6 +57,7 @@ class DataLine extends React.Component {
       graphName: props.graphName,
       graphData: props.data,
       parentWidth: document.getElementById('appContent').offsetWidth,
+      //data: props.data,
       data: props.data,
       latest: 0,
       shouldUpdate: false,
@@ -67,27 +68,29 @@ class DataLine extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    let _data = new Array(newProps.data.length) //Initialize Dynamic two dimensional array
-    for(let group = 0; group < _data.length; group++){
+    let _data = [];
+
+    _data = new Array(newProps.data.length) //Initialize Dynamic two dimensional array
+    for (let group = 0; group < _data.length; group++) {
       _data[group] = [];
     }
 
     newProps.data[0][newProps.data[0].length - 1].y !== this.state.latest ? this.setState({ shouldUpdate: true }) : this.setState({ shouldUpdate: false })
-    
-    if(this.state.shouldUpdate){
-      for(let i = 0; i < this.props.data.length; i++){
-        if(this.state.interval[0][newProps.graphName] === 0){ //If graph is realtime, build array
-          if(newProps.data[i].length < newProps.dataLimit){ //If graph has not exceeded it's limit => copy
+
+    if (this.state.shouldUpdate) {
+      for (let i = 0; i < this.props.data.length; i++) {
+        if (this.state.interval[0][newProps.graphName] === 0) { //If graph is realtime, build array
+          if (newProps.data[i].length < newProps.dataLimit) { //If graph has not exceeded it's limit => copy
             _data[i] = newProps.data[i]
           } else {
             _data[i] = newProps.data[i].slice(newProps.data[i].length - newProps.dataLimit, newProps.data[i].length) //Slice array if it's length exceeds limit, limit set @ settings tab
           }
         } else { //If graph IS NOT realtime, build array
-          for(let z = 0, mult = 0; z < newProps.data[i].length; z++){ //Search data object with selected interval. Interval count starts at first data object
-            if(newProps.data[i][z].x > (parseInt(newProps.data[i][0].x, 10) + parseInt(newProps.interval[0][newProps.graphName] * mult, 10))){
+          for (let z = 0, mult = 0; z < newProps.data[i].length; z++) { //Search data object with selected interval. Interval count starts at first data object
+            if (newProps.data[i][z].x > (parseInt(newProps.data[i][0].x, 10) + parseInt(newProps.interval[0][newProps.graphName] * mult, 10))) {
               mult += 2;
               _data[i].push(newProps.data[i][z]);
-              if(_data[i].length > newProps.dataLimit) _data[i].shift();
+              if (_data[i].length > newProps.dataLimit) _data[i].shift();
             }
           }
         }
@@ -114,27 +117,25 @@ class DataLine extends React.Component {
     return (
       <div id={"graphRoot"} className={classes.root}>
         <Paper elevation={4}>
-          {this.props.graphTitle &&
-            <div className={classes.graphHeader}>
-              <Typography className={classes.headline} variant="title" gutterBottom>
-                Group {this.props.graphName}
-              </Typography>
-              {this.props.isCharging === true ? (
-                this.props.chargeStatus ? <CheckIcon/> : <CircularProgress className={classes.progress}/>
-                  ) : (
-                    null
-                  )
-              }
-            </div>
-          }
+          <div className={classes.graphHeader}>
+            <Typography className={classes.headline} variant="title" gutterBottom>
+              Group {this.props.graphName}
+            </Typography>
+            {this.props.isCharging === true ? (
+              this.props.chargeStatus ? <CheckIcon /> : <CircularProgress className={classes.progress} />
+            ) : (
+                null
+              )
+            }
+          </div>
           <XYPlot height={300} width={this.state.parentWidth - 35} xType="time" >
             <HorizontalGridLines />
             <VerticalGridLines />
             <XAxis title="Time" position="start" />
             <YAxis title={this.props.type} />
             {this.state.items.map(i => {
-                return <LineSeries key={i} data={this.state.graphData[this.state.items.indexOf(i)]} />
-              })
+              return <LineSeries key={i} data={this.state.graphData[this.state.items.indexOf(i)]} />
+            })
             }
           </XYPlot>
           <ExpansionPanel>
