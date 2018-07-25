@@ -50,10 +50,10 @@ class SystemUpdateTab extends React.Component {
   }
 
   handleClick(target) {
-    /*this.props.webSocket.emit('update', { //Send update command to server
+    this.props.webSocket.emit('update', { //Send update command to server
       handle: 'client',
-      target: 'arduino'
-    });*/
+      target: 'microcontroller'
+    });
     this.setState({[target]: !this.state[target]});
     localStorage.setItem(target, this.props.timestamp());
   }

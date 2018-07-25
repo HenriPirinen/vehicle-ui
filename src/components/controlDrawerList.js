@@ -5,7 +5,6 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
 import SystemUpdateIcon from '@material-ui/icons/SystemUpdate';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import SettingsIcon from '@material-ui/icons/Settings';
@@ -41,7 +40,8 @@ class DrawerList extends React.Component{
       isToggleOn: false,
       logNotifications: 0,
       updateNotifications: 0,
-      dataExpanded: false
+      dataExpanded: false,
+      settingsExpanded: false,
     };
 
     this.handleClick = this.handleSystemCommand.bind(this);
@@ -56,8 +56,8 @@ class DrawerList extends React.Component{
     });
   }
 
-  expand = () => {
-    this.setState({dataExpanded: !this.state.dataExpanded});
+  expand = (target, value = null) => {
+    value === null ? this.setState({[target]: !this.state[target]}) : this.setState({[target]: value});
   };
 
   render(){
@@ -66,13 +66,13 @@ class DrawerList extends React.Component{
   return (
     <div className={classes.root}>
       <List component="nav">
-      <ListItem button onClick={() => {this.props.handleContent('Main')}}>
+        <ListItem button onClick={() => {this.props.handleContent('Main'); this.expand('settingsExpanded', false)}}>
           <ListItemIcon>
             <HomeIcon />
           </ListItemIcon>
           <ListItemText primary="Main" />
         </ListItem>
-        <ListItem button onClick={() => this.expand()}>
+        <ListItem button onClick={() => this.expand('dataExpanded')}>
           <ListItemIcon>
             <TimelineIcon />
           </ListItemIcon>
@@ -81,7 +81,7 @@ class DrawerList extends React.Component{
           </ListItem>
           <Collapse in={this.state.dataExpanded} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => {this.props.handleContent('Voltage')}}>
+              <ListItem button className={classes.nested} onClick={() => {this.props.handleContent('Voltage'); this.expand('settingsExpanded', false)}}>
                 <ListItemIcon>
                   <BatteryChargingFullIcon />
                 </ListItemIcon>
@@ -89,7 +89,7 @@ class DrawerList extends React.Component{
               </ListItem>
             </List>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => {this.props.handleContent('Temperature')}}>
+              <ListItem button className={classes.nested} onClick={() => {this.props.handleContent('Temperature'); this.expand('settingsExpanded', false)}}>
                 <ListItemIcon>
                   <WhatshotIcon />
                 </ListItemIcon>
@@ -97,13 +97,13 @@ class DrawerList extends React.Component{
               </ListItem>
             </List>
           </Collapse>
-        <ListItem button onClick={() => {this.props.handleContent('Inverter')}}>
+        <ListItem button onClick={() => {this.props.handleContent('Inverter'); this.expand('settingsExpanded', false)}}>
           <ListItemIcon>
             <FlashOnIcon />
           </ListItemIcon>
           <ListItemText primary="Inverter" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('Log')}}>
+        <ListItem button onClick={() => {this.props.handleContent('Log'); this.expand('settingsExpanded', false)}}>
           <ListItemIcon>
             {this.state.logNotifications > 0 ? (
               <Badge badgeContent={this.state.logNotifications} color="primary">
@@ -116,19 +116,19 @@ class DrawerList extends React.Component{
           </ListItemIcon>
           <ListItemText primary="Log" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('Weather')}}>
+        <ListItem button onClick={() => {this.props.handleContent('Weather'); this.expand('settingsExpanded', false)}}>
           <ListItemIcon>
             <WbSunnyIcon />
           </ListItemIcon>
           <ListItemText primary="Weather" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('Map')}}>
+        <ListItem button onClick={() => {this.props.handleContent('Map'); this.expand('settingsExpanded', false)}}>
           <ListItemIcon>
             <MapIcon />
           </ListItemIcon>
           <ListItemText primary="Map" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('System Update')}}>
+        <ListItem button onClick={() => {this.props.handleContent('System Update'); this.expand('settingsExpanded', false)}}>
           <ListItemIcon>
           {this.state.updateNotifications > 0 ? (
               <Badge badgeContent={this.state.updateNotifications} color="primary">
@@ -141,25 +141,31 @@ class DrawerList extends React.Component{
           </ListItemIcon>
           <ListItemText primary="System Update" />
         </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('Settings')}}>
+        <ListItem button onClick={() => {this.expand('settingsExpanded'); this.props.handleContent('Settings');}}>
           <ListItemIcon>
             <SettingsIcon />
           </ListItemIcon>
           <ListItemText primary="Settings" />
-        </ListItem>
-        <Divider />
-        <ListItem button onClick={() => this.handleSystemCommand('sudo bash restart.sh')}>
-          <ListItemIcon>
-            <PowerSettingsNewIcon />
-          </ListItemIcon>
-          <ListItemText primary="Reload API" />
-        </ListItem>
-        <ListItem button onClick={() => this.handleSystemCommand('sudo reboot')}>
-          <ListItemIcon>
-            <RefreshIcon />
-          </ListItemIcon>
-          <ListItemText primary="Reboot" />
-        </ListItem>
+          {this.state.settingsExpanded ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={this.state.settingsExpanded} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+            <ListItem className={classes.nested} button onClick={() => this.handleSystemCommand('sudo bash restart.sh')}>
+              <ListItemIcon>
+                <PowerSettingsNewIcon />
+              </ListItemIcon>
+              <ListItemText primary="Reload API" />
+            </ListItem>
+            </List>
+            <List component="div" disablePadding>
+            <ListItem className={classes.nested} button onClick={() => this.handleSystemCommand('sudo reboot')}>
+              <ListItemIcon>
+                <RefreshIcon />
+              </ListItemIcon>
+              <ListItemText primary="Reboot" />
+            </ListItem>
+            </List>
+        </Collapse>
       </List>
     </div>
   );

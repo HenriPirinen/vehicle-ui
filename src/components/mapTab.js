@@ -6,7 +6,7 @@ export class MapTab extends React.Component {
 
   render() {
     return (
-      <div>
+      <div id="mapContainer">
         <Map google={this.props.google} zoom={5}>
         </Map>
       </div>
@@ -15,5 +15,5 @@ export class MapTab extends React.Component {
 }
 
 export default GoogleApiWrapper({
-  apiKey: api.maps
+  apiKey: api.api.maps
 })(MapTab)
