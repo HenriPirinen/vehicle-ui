@@ -258,9 +258,8 @@ class App extends Component {
     if (m < 10) m = '0' + m;
     if (s < 10) s = '0' + m;
     if (d < 10) d = '0' + d;
-    if (mo < 10) mo = '0' + m;
 
-    return '' + d + '-' + mo + '-' + y + ' ' + h + ':' + m + ':' + s + '';
+    return '' + d + '-' + (mo + 1) + '-' + y + ' ' + h + ':' + m + ':' + s + '';
   };
 
   componentDidMount() {

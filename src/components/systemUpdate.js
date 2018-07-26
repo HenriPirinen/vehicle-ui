@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import TabletMacIcon from '@material-ui/icons/TabletMac';
 import MemoryIcon from '@material-ui/icons/Memory';
 import RouterIcon from '@material-ui/icons/Router';
+import DirectionsCarIcon from '@material-ui/icons/DirectionsCar';
 import grey from '@material-ui/core/colors/grey';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -41,9 +42,11 @@ class SystemUpdateTab extends React.Component {
       controller: true, //Update status
       ui: true,
       server: true,
+      driver: true,
       controllerUpdateAvailable: false,
       uiUpdateAvailable: false,
-      serverUpdateAvailable: false
+      serverUpdateAvailable: false,
+      driverUpdateAvailable: false
     }
 
     this.handleClick = this.handleClick.bind(this);
@@ -52,8 +55,9 @@ class SystemUpdateTab extends React.Component {
   handleClick(target) {
     this.props.webSocket.emit('update', { //Send update command to server
       handle: 'client',
-      target: 'microcontroller'
+      target: 'ui'
     });
+    console.log(target);
     this.setState({[target]: !this.state[target]});
     localStorage.setItem(target, this.props.timestamp());
   }
@@ -109,6 +113,21 @@ class SystemUpdateTab extends React.Component {
           {!this.state.server ? <CircularProgress /> : null}
           <br />
           <Button onClick={() =>this.handleClick('server')} variant="raised" color="primary">
+            Check for updates
+          </Button>
+        </Paper>
+        </div>
+        <div className={classes.content}>
+        <Paper className={classes.root} elevation={4}>
+          <div className={classes.header}>
+            <Typography variant="headline" component="h3">Driver</Typography>
+            <DirectionsCarIcon className={classes.icon}/>
+          </div>
+          <Typography variant="subheading">Installed version 0.1.0</Typography>
+          <Typography variant="subheading">Last checked: {localStorage.getItem('driver')}</Typography>
+          {!this.state.driver ? <CircularProgress /> : null}
+          <br />
+          <Button onClick={() =>this.handleClick('driver')} variant="raised" color="primary">
             Check for updates
           </Button>
         </Paper>
