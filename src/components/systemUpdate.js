@@ -52,12 +52,12 @@ class SystemUpdateTab extends React.Component {
     this.handleClick = this.handleClick.bind(this);
   }
 
-  handleClick(target) {
+    handleClick(target) {
+        console.log(target);
     this.props.webSocket.emit('update', { //Send update command to server
       handle: 'client',
       target: 'ui'
     });
-    console.log(target);
     this.setState({[target]: !this.state[target]});
     localStorage.setItem(target, this.props.timestamp());
   }
