@@ -97,7 +97,6 @@ function geoLocErr(err) {
 
 var currentIndex = 0;
 function alterChargeIcon() {
-    console.log("Update succesfull");
   switch(currentIndex){
     case 20:
       currentIndex = 30;
