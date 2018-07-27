@@ -56,7 +56,7 @@ class SystemUpdateTab extends React.Component {
         console.log(target);
     this.props.webSocket.emit('update', { //Send update command to server
       handle: 'client',
-      target: 'ui'
+      target: 'driver'
     });
     this.setState({[target]: !this.state[target]});
     localStorage.setItem(target, this.props.timestamp());
