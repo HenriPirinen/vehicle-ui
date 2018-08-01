@@ -75,7 +75,7 @@ class DataLine extends React.Component {
       _data[group] = [];
     }
 
-    newProps.data[0][newProps.data[0].length - 1].y !== this.state.latest ? this.setState({ shouldUpdate: true }) : this.setState({ shouldUpdate: false })
+    newProps.data[0][newProps.data[0].length - 1].x !== this.state.latest ? this.setState({ shouldUpdate: true }) : this.setState({ shouldUpdate: false })
 
     if (this.state.shouldUpdate) {
       for (let i = 0; i < this.props.data.length; i++) {
@@ -99,7 +99,7 @@ class DataLine extends React.Component {
 
     this.setState({
       parentWidth: document.getElementById('graphRoot').offsetWidth - 10,
-      latest: newProps.data[0][newProps.data[0].length - 1].y,
+      latest: newProps.data[0][newProps.data[0].length - 1].x,
       graphData: _data
     });
   }
@@ -134,7 +134,7 @@ class DataLine extends React.Component {
             <XAxis title="Time" position="start" />
             <YAxis title={this.props.type} />
             {this.state.items.map(i => {
-              return <LineSeries key={i} data={this.state.graphData[this.state.items.indexOf(i)]} />
+              return <LineSeries key={i} data={this.state.graphData[this.state.items.indexOf(i)]} yDomain={[2.5, 3.9]}/>
             })
             }
           </XYPlot>

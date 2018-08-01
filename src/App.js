@@ -232,7 +232,7 @@ class App extends Component {
        * Get latest value from Group 0, cell 3: cellDataPoints[0][3][cellDataPoints[0][3].length - 1].y
        * Each group hold graph datapoint voltage values for 8 cells.
        */
-      cellDataPoints: [[[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],], [[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],]]
+      cellDataPoints: [[[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],[[], [], [], [], [], [], [], []],], [[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],[[], [], [], [], [], [], [], []],]]
     };
 
     this.contentHandler = this.contentHandler.bind(this); //Used @ DrawerList component
@@ -267,7 +267,7 @@ class App extends Component {
     let _updateCellDataPoints = this.state.cellDataPoints;
     for (let i = 0; i < _updateCellDataPoints[0].length; i++) { //Fill array with default values.
       for (let x = 0; x < _updateCellDataPoints[0][i].length; x++) { //Voltage and temperature array lenght is equal
-        _updateCellDataPoints[0][i][x].push({ x: new Date().getTime(), y: 0 });
+        _updateCellDataPoints[0][i][x].push({ x: new Date().getTime(), y: 3.0 });
         _updateCellDataPoints[1][i][x].push({ x: new Date().getTime(), y: 21 });
       }
     };
@@ -372,18 +372,16 @@ class App extends Component {
 
       if (validateJSON(_input)) {
         let _validData = JSON.parse(_input);
-
         for (let i = 0; i < _validData.voltage.length; i++) {
           _updateCellDataPoints[0][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.voltage[i] });
           _updateCellDataPoints[1][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.temperature[i] });
         }
-
         this.setState({ cellDataPoints: _updateCellDataPoints });
         //console.log(this.state.cellDataPoints[1][0][0]);
       }
     });
 
-    //Combine all logs to one websocket message ('log'). Add origin parameter to message.
+    //Combine all logs to one websocket message ('systemLog'). Add origin parameter to message.
     //WebSocket message types: dataset (for graphs), log & response (init values, get values from the inverter)
     
     this.socket.on('systemLog', (data) => {
@@ -527,7 +525,7 @@ class App extends Component {
     switch (action) {
       case 'clear':
         let _systemLog = this.state.systemLog;
-        _systemLog[target] = '';
+        _systemLog[target] = [];
         this.setState({ _systemLog });
         break;
       case 'filter':
