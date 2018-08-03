@@ -275,7 +275,7 @@ class App extends Component {
     this.setState({ cellDataPoints: _updateCellDataPoints });
 
     //getLocation();
-    fetch("http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + location.longitude + "&APPID=" + api.api.weather + "") //TODO: get lat and lon from gps
+    fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`) //TODO: get lat and lon from gps
       .then(res => res.json())
       .then(
         (result) => {
@@ -288,18 +288,18 @@ class App extends Component {
         }
       )
 
-      fetch("http://api.openweathermap.org/data/2.5/forecast?lat=60.733852&lon=24.761049&APPID=fdc49637770264f7b7b4c46708c68ce9")
-        .then(res => res.json())
-        .then(
-          (result) => {
-            this.setState({
-              weatherForecast: result
-            });
-          },
-          (error) => {
-            console.warn('Error fetching forecast...');
-          }
-        )
+    fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            weatherForecast: result
+          });
+        },
+        (error) => {
+          console.warn('Error fetching forecast...');
+        }
+      )
 
     this.socket = openSocket('192.168.137.240:4000');
 
@@ -396,21 +396,11 @@ class App extends Component {
 
        _systemLog[index].push(JSON.parse('{"time":"' + this.timestamp() + '","msg":"' + _message.msg + '","importance":"' + _message.importance + '"}'));
        this.setState({ systemLog: _systemLog });
-    });
 
-    this.socket.on('serverLog', (data) => {
-      let _input = JSON.parse(data.message.toString());
-      let _systemLog = this.state.systemLog;
-      _systemLog[0].push(JSON.parse('{"time":"' + this.timestamp() + '","msg":"' + _input.msg + '","importance":"' + _input.importance + '"}'));
-      this.setState({ systemLog: _systemLog });
-      //this.setState({ updateProgress: _input });
-    });
-
-    this.socket.on('controllerLog', (data) => {
-      let _input = JSON.parse(data.message.toString());
-      let _systemLog = this.state.systemLog;
-      _systemLog[2].push(JSON.parse('{"time":"' + this.timestamp() + '","msg":"' + _input.msg + '","importance":"' + _input.importance + '"}'));
-      console.log(_input);
+      if(_message.origin === 'Driver' && _message.msg.substring(0,10) === 'Set driver'){ //Add status ok / err to message?
+        this.setState({ showNotification: true });
+        this.setState({ editing: false });
+      }
     });
 
     this.socket.on('inverterResponse', (data) => {
@@ -443,16 +433,6 @@ class App extends Component {
             console.warn('Something went wrong at driver: Direction = ' + _message.direction);
         }
       }
-
-      if (_message.type === 'log') {
-        let _updateSystemLog = this.state.systemLog;
-        //_updateSystemLog[3].push(this.timestamp() + " | Message: " + _message.msg + " | Importance: " + _message.importance + "\n");
-        _updateSystemLog[3].push(JSON.parse('{"time":"' + this.timestamp() + '","msg":"' + _message.msg + '","importance":"' + _message.importance + '"}'));
-        this.setState({ systemLog: _updateSystemLog });
-      }
-
-      this.setState({ showNotification: true });
-      this.setState({ editing: false });
     });
   }
 

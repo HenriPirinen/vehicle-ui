@@ -39,7 +39,7 @@ class SystemUpdateTab extends React.Component {
     super(props)
 
     this.state = {
-      controller: true, //Update status
+      microcontroller: true, //Update status
       ui: true,
       server: true,
       driver: true,
@@ -53,10 +53,9 @@ class SystemUpdateTab extends React.Component {
   }
 
     handleClick(target) {
-        console.log(target);
     this.props.webSocket.emit('update', { //Send update command to server
       handle: 'client',
-      target: 'driver'
+      target: target
     });
     this.setState({[target]: !this.state[target]});
     localStorage.setItem(target, this.props.timestamp());
@@ -80,9 +79,9 @@ class SystemUpdateTab extends React.Component {
           </div>
           <Typography variant="subheading">Installed version 0.1.0</Typography>
           <Typography variant="subheading">Last checked: {localStorage.getItem('controller')}</Typography>
-          {!this.state.controller ? <CircularProgress /> : null}
+          {!this.state.microcontroller ? <CircularProgress /> : null}
           <br />
-          <Button onClick={() =>this.handleClick('controller')} variant="raised" color="primary">
+          <Button onClick={() =>this.handleClick('microcontroller')} variant="raised" color="primary">
             Check for updates
           </Button>
         </Paper>
