@@ -84,6 +84,7 @@ function getLocation() {
     console.log("Geolocation is not supported by this browser.");
   }
 }
+<<<<<<< HEAD
 
 function gotGeoLoc(pos) {
   location.latitude = pos.coords.latitude;
@@ -95,6 +96,19 @@ function geoLocErr(err) {
   console.warn('Error ' + err.code + ': ' + err.message + '');
 }
 
+=======
+
+function gotGeoLoc(pos) {
+  location.latitude = pos.coords.latitude;
+  location.longitude = pos.coords.longitude;
+  location.accuracy = pos.coords.accuracy;
+}
+
+function geoLocErr(err) {
+  console.warn('Error ' + err.code + ': ' + err.message + '');
+}
+
+>>>>>>> dd6f335e36c3963b65543a7b36dfa6dd71afd4b0
 var currentIndex = 0;
 function alterChargeIcon() {
   switch(currentIndex){
@@ -125,6 +139,7 @@ function alterChargeIcon() {
 function checkValues(group){
   return group === true;
 }
+<<<<<<< HEAD
 
 //---Variables---//
 var location = {
@@ -133,6 +148,16 @@ var location = {
   accuracy: 20
 };
 
+=======
+
+//---Variables---//
+var location = {
+  latitude: 60.733852,
+  longitude: 24.761049,
+  accuracy: 20
+};
+
+>>>>>>> dd6f335e36c3963b65543a7b36dfa6dd71afd4b0
 //---Constants---//
 
 const geoLocOptions = {
@@ -535,6 +560,7 @@ class App extends Component {
       this.setState({charging: false});
     }
   }
+<<<<<<< HEAD
 
   toggleCharging = (target) => { //Group
     /**
@@ -546,6 +572,19 @@ class App extends Component {
      * 51 = Group 5 -> On
      */
 
+=======
+
+  toggleCharging = (target) => { //Group
+    /**
+     * @param {integer} target Target group for toggling charging on/off
+     * Socket message: 0        1
+     *                 ^        ^
+     *               Target   State 
+     * 50 = Group 5 -> Off
+     * 51 = Group 5 -> On
+     */
+
+>>>>>>> dd6f335e36c3963b65543a7b36dfa6dd71afd4b0
     let _groupChargeStatus = this.state.groupChargeStatus;
     let _state = 0;
     _groupChargeStatus[target] = !_groupChargeStatus[target];
@@ -609,6 +648,10 @@ class App extends Component {
   handleSystemCommand = (command) => {
 
     //Send values to server -> server writes values to conf file -> Reload server -> server reads new conf file
+<<<<<<< HEAD
+=======
+
+>>>>>>> dd6f335e36c3963b65543a7b36dfa6dd71afd4b0
     this.socket.emit('reconfigure', { //Send toggle command to server
       command: command,
       weather: this.state.weatherAPI,
