@@ -609,7 +609,6 @@ class App extends Component {
   handleSystemCommand = (command) => {
 
     //Send values to server -> server writes values to conf file -> Reload server -> server reads new conf file
-
     this.socket.emit('reconfigure', { //Send toggle command to server
       command: command,
       weather: this.state.weatherAPI,
