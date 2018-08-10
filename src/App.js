@@ -225,8 +225,7 @@ class App extends Component {
       charging: true,
       sysLogFilter: [[true, true, true], [true, true, true], [true, true, true], [true, true, true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
       systemLog: [[], [], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver, [4] = UI.
-      //groupChargeStatus:[false, false, false, false, false, false, false, false, false],
-      groupChargeStatus:[false, false, false, false, false],
+      groupChargeStatus:[false, false, false, false, false, false, false, false, false],
       /**
        * 3D array, Group(int) -> cell(int) -> datapoint object {'x': time, 'y': voltage value}.
        * Get latest value from Group 0, cell 3: cellDataPoints[0][3][cellDataPoints[0][3].length - 1].y
@@ -301,7 +300,7 @@ class App extends Component {
         }
       )
 
-    this.socket = openSocket('192.168.137.240:4000');
+    this.socket = openSocket('192.168.1.33:4000');
 
     /**
      * WebSocket topics:
@@ -426,6 +425,24 @@ class App extends Component {
         }
       }
     });
+
+    //replace socket driver
+    this.socket.on('systemState', (data) => {
+      let _input = JSON.parse(data.message.toString());
+      let _handle = data.handle.toString();
+      let systemState;
+      switch(_handle){
+        case "Controller_1":
+          systemState = _input.value.toString();
+          break;
+        case "Controller_2":
+          systemState = (_input.value + 50).toString();
+          break;
+        default:
+          console.log(_handle);
+      }
+      console.log(`Group ${systemState.charAt(0)} set to ${systemState.charAt(1)}`);
+    });
   }
 
   contentHandler = (content) => { //Change tab
@@ -545,9 +562,9 @@ class App extends Component {
     _state = _groupChargeStatus[target] === true ? '0' : '1';
 
     this.socket.emit('command', {
-      command: target.toString() + _state,
+      command: `1${target > 4 ? (target - 5).toString()  + _state : target.toString() + _state}`, //1XY, 1 = Balance, Pin, State.
       handle: 'client',
-      target: target < 4 ? 'controller_1' : 'controller_2'
+      target: target <= 4 ? 'controller_1' : 'controller_2'
     });
   }
 

@@ -78,6 +78,9 @@ class DataLine extends React.Component {
     newProps.data[0][newProps.data[0].length - 1].x !== this.state.latest ? this.setState({ shouldUpdate: true }) : this.setState({ shouldUpdate: false })
 
     if (this.state.shouldUpdate) {
+      if(newProps.graphName === 4){
+        console.log(newProps.data);
+      }
       for (let i = 0; i < this.props.data.length; i++) {
         if (this.state.interval[0][newProps.graphName] === 0) { //If graph is realtime, build array
           if (newProps.data[i].length < newProps.dataLimit) { //If graph has not exceeded it's limit => copy
@@ -134,7 +137,7 @@ class DataLine extends React.Component {
             <XAxis title="Time" position="start" />
             <YAxis title={this.props.type} />
             {this.state.items.map(i => {
-              return <LineSeries key={i} data={this.state.graphData[this.state.items.indexOf(i)]} yDomain={[2.5, 3.9]}/>
+              return <LineSeries key={i} data={this.state.graphData[this.state.items.indexOf(i)]} /*yDomain={[2, 4]}*//>
             })
             }
           </XYPlot>
