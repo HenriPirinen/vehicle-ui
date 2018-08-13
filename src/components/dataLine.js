@@ -69,7 +69,6 @@ class DataLine extends React.Component {
 
   setProgress = () => { //Disable charge toggle until given action is completed by controller
     this.setState({actionInProgress: true});
-    console.log("Action in progress");
   }
 
   componentWillReceiveProps(newProps) {
@@ -87,7 +86,6 @@ class DataLine extends React.Component {
           actionInProgress: false,
           chargeStatus: newProps.chargeStatus
         }) 
-        console.log("Action completed");
       };
     } else {
       this.setState({ shouldUpdate: false })
@@ -120,7 +118,6 @@ class DataLine extends React.Component {
   }
 
   shouldComponentUpdate(newProps, newState) {
-    if(this.state.graphName === 7)console.log(this.state.graphData);
     if (this.state.shouldUpdate || this.state.actionInProgress) {
       return true;
     } else {

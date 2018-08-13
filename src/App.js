@@ -440,17 +440,20 @@ class App extends Component {
       switch(_handle){
         case "Controller_1":
           systemState = _input.value;
+          _groupChargeStatus[parseInt(systemState.charAt(0), 10)] = systemState.charAt(1) === "0" ? true : false;
+          this.setState({groupChargeStatus: _groupChargeStatus});
           break;
         case "Controller_2":
           systemState = (parseInt(_input.value, 10) + 50).toString();
+          _groupChargeStatus[parseInt(systemState.charAt(0), 10)] = systemState.charAt(1) === "0" ? true : false;
+          this.setState({groupChargeStatus: _groupChargeStatus});
+          break;
+        case "Server":
+          console.log(_input);
           break;
         default:
           console.log(_handle);
       }
-      _groupChargeStatus[parseInt(systemState.charAt(0), 10)] = systemState.charAt(1) === "0" ? true : false;
-      this.setState({groupChargeStatus: _groupChargeStatus});
-      console.log(`${_handle}: Group ${systemState.charAt(0)} set to ${systemState.charAt(1)}`);
-      console.log(this.state.groupChargeStatus);
     });
   }
 
