@@ -225,7 +225,7 @@ class App extends Component {
       charging: true,
       sysLogFilter: [[true, true, true], [true, true, true], [true, true, true], [true, true, true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
       systemLog: [[], [], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver, [4] = UI.
-      groupChargeStatus:[false, false, false, false, false, false, false, false, false],
+      groupChargeStatus:[true, true, true, true, true, true, true, true, true], //True = Group is ready i.e not charging
       /**
        * 3D array, Group(int) -> cell(int) -> datapoint object {'x': time, 'y': voltage value}.
        * Get latest value from Group 0, cell 3: cellDataPoints[0][3][cellDataPoints[0][3].length - 1].y
@@ -314,6 +314,10 @@ class App extends Component {
 
     this.socket.on('systemParam', (data) => {
       let _message = JSON.parse(data.message.toString());
+      let _groupChargeStatus = [];
+      _message.groupChargeStatus.forEach(element => {
+        element === 0 ? _groupChargeStatus.push(true) : _groupChargeStatus.push(false)
+      });
 
       this.setState({
         weatherAPI: _message.weatherAPI,
@@ -323,6 +327,7 @@ class App extends Component {
         controller1port: _message.controller_1,
         controller2port: _message.controller_2,
         remoteUpdateInterval: _message.remoteUpdateInterval,
+        groupChargeStatus: _groupChargeStatus
       });
 
       switch (_message.driveDirection) {
@@ -431,17 +436,21 @@ class App extends Component {
       let _input = JSON.parse(data.message.toString());
       let _handle = data.handle.toString();
       let systemState;
+      let _groupChargeStatus = this.state.groupChargeStatus;
       switch(_handle){
         case "Controller_1":
-          systemState = _input.value.toString();
+          systemState = _input.value;
           break;
         case "Controller_2":
-          systemState = (_input.value + 50).toString();
+          systemState = (parseInt(_input.value, 10) + 50).toString();
           break;
         default:
           console.log(_handle);
       }
-      console.log(`Group ${systemState.charAt(0)} set to ${systemState.charAt(1)}`);
+      _groupChargeStatus[parseInt(systemState.charAt(0), 10)] = systemState.charAt(1) === "0" ? true : false;
+      this.setState({groupChargeStatus: _groupChargeStatus});
+      console.log(`${_handle}: Group ${systemState.charAt(0)} set to ${systemState.charAt(1)}`);
+      console.log(this.state.groupChargeStatus);
     });
   }
 
@@ -555,11 +564,11 @@ class App extends Component {
      * 51 = Group 5 -> On
      */
 
-    let _groupChargeStatus = this.state.groupChargeStatus;
+    /*let _groupChargeStatus = this.state.groupChargeStatus;
     let _state = 0;
     _groupChargeStatus[target] = !_groupChargeStatus[target];
-    this.setState({groupChargeStatus: _groupChargeStatus});
-    _state = _groupChargeStatus[target] === true ? '0' : '1';
+    this.setState({groupChargeStatus: _groupChargeStatus});*/
+    let _state = this.state.groupChargeStatus[target] === true ? '1' : '0';
 
     this.socket.emit('command', {
       command: `1${target > 4 ? (target - 5).toString()  + _state : target.toString() + _state}`, //1XY, 1 = Balance, Pin, State.

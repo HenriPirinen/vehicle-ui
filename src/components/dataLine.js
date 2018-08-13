@@ -57,14 +57,19 @@ class DataLine extends React.Component {
       graphName: props.graphName,
       graphData: props.data,
       parentWidth: document.getElementById('appContent').offsetWidth,
-      //data: props.data,
-      data: props.data,
-      latest: 0,
+      latest: 0, //Latest measured value, if latest is not equal to last item of new data, update component.
       shouldUpdate: false,
       infoExapanded: false,
       items: itemsList,
       interval: props.interval,
+      chargeStatus: props.chargeStatus,
+      actionInProgress: false
     }
+  }
+
+  setProgress = () => { //Disable charge toggle until given action is completed by controller
+    this.setState({actionInProgress: true});
+    console.log("Action in progress");
   }
 
   componentWillReceiveProps(newProps) {
@@ -75,12 +80,20 @@ class DataLine extends React.Component {
       _data[group] = [];
     }
 
-    newProps.data[0][newProps.data[0].length - 1].x !== this.state.latest ? this.setState({ shouldUpdate: true }) : this.setState({ shouldUpdate: false })
+    if(newProps.data[0][newProps.data[0].length - 1].x !== this.state.latest || newProps.chargeStatus !== this.state.chargeStatus){
+      this.setState({ shouldUpdate: true })
+      if(newProps.chargeStatus !== this.state.chargeStatus) {
+        this.setState({
+          actionInProgress: false,
+          chargeStatus: newProps.chargeStatus
+        }) 
+        console.log("Action completed");
+      };
+    } else {
+      this.setState({ shouldUpdate: false })
+    }
 
     if (this.state.shouldUpdate) {
-      if(newProps.graphName === 4){
-        console.log(newProps.data);
-      }
       for (let i = 0; i < this.props.data.length; i++) {
         if (this.state.interval[0][newProps.graphName] === 0) { //If graph is realtime, build array
           if (newProps.data[i].length < newProps.dataLimit) { //If graph has not exceeded it's limit => copy
@@ -98,17 +111,17 @@ class DataLine extends React.Component {
           }
         }
       }
+      this.setState({
+        parentWidth: document.getElementById('graphRoot').offsetWidth - 10,
+        latest: newProps.data[0][newProps.data[0].length - 1].x, //
+        graphData: _data
+      });
     }
-
-    this.setState({
-      parentWidth: document.getElementById('graphRoot').offsetWidth - 10,
-      latest: newProps.data[0][newProps.data[0].length - 1].x,
-      graphData: _data
-    });
   }
 
   shouldComponentUpdate(newProps, newState) {
-    if (this.state.shouldUpdate) {
+    if(this.state.graphName === 7)console.log(this.state.graphData);
+    if (this.state.shouldUpdate || this.state.actionInProgress) {
       return true;
     } else {
       return false;
@@ -147,7 +160,13 @@ class DataLine extends React.Component {
             </ExpansionPanelSummary>
             {this.props.commands &&
               <ExpansionPanelDetails>
-                <Button disabled={!this.props.isCharging} variant="raised" color="primary" className={classes.button} onClick={() => this.props.toggleCharging(this.props.graphName)}>
+                <Button 
+                  disabled={!this.props.isCharging || this.state.actionInProgress ? true : false}
+                  variant="raised" 
+                  color="primary" 
+                  className={classes.button} 
+                  onClick={() => {this.props.toggleCharging(this.props.graphName); this.setProgress();}}
+                >
                   {this.props.chargeStatus ? "Start charging" : "Stop charging"}
                   <TrendingUpIcon className={classes.rightIcon}>start</TrendingUpIcon>
                 </Button>
