@@ -215,7 +215,7 @@ class App extends Component {
       horizontal: 'center',
       dataLimit: 100,
       showNotification: false,
-      updateProgress: 'Update microcontroller',
+      updateInProgress: false,
       editing: false,
       cruiseON: false,
       cruiseSpeed: 25,
@@ -236,14 +236,14 @@ class App extends Component {
 
     this.contentHandler = this.contentHandler.bind(this); //Used @ DrawerList component
     this.handleSettings = this.handleSettings.bind(this); //Used @ settings component
-    this.changeDirection = this.changeDirection.bind(this); //Used @ main component
+    this.setDriverState = this.setDriverState.bind(this); //Used @ main component
     this.vehicleMode = this.vehicleMode.bind(this); //Used @ main component
     this.setCruise = this.setCruise.bind(this); //Used @ main component
     this.logControl = this.logControl.bind(this); //Used @ log components
     this.toggleCharging = this.toggleCharging.bind(this); //Used @ graph component
-    this.handleSystemCommand = this.handleSystemCommand.bind(this) //Used @settings component
-    this.updateParentState = this.updateParentState.bind(this) //Used @settings
-    this.timestamp = this.timestamp.bind(this) //Used @ update component
+    this.handleSystemCommand = this.handleSystemCommand.bind(this); //Used @settings component
+    this.updateParentState = this.updateParentState.bind(this); //Used @settings
+    this.timestamp = this.timestamp.bind(this); //Used @ update component
   }
 
   timestamp = () => {
@@ -261,6 +261,16 @@ class App extends Component {
     return `${d}-${mo + 1}-${y} ${h}:${m}:${s}`;
   };
 
+  setDirection = (_input) => {
+    if(_input.charAt(0) === _input.charAt(1)){
+      this.setState({ driveDirection: 'neutral' });
+    } else if (_input.charAt(0) === '1' && _input.charAt(1) === '0'){
+      this.setState({ driveDirection: 'reverse' });
+    } else if (_input.charAt(1) === '1' && _input.charAt(0) === '0'){
+      this.setState({ driveDirection: 'drive' });
+    }
+  };
+
   componentDidMount() {
 
     let _updateCellDataPoints = this.state.cellDataPoints;
@@ -272,6 +282,8 @@ class App extends Component {
     };
 
     this.setState({ cellDataPoints: _updateCellDataPoints });
+
+    localStorage.getItem("editing") === "true" ? this.setState({ editing: true }) : this.setState({ editing: false });  
 
     //getLocation();
     fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`) //TODO: get lat and lon from gps
@@ -329,20 +341,7 @@ class App extends Component {
         remoteUpdateInterval: _message.remoteUpdateInterval,
         groupChargeStatus: _groupChargeStatus
       });
-
-      switch (_message.driveDirection) {
-        case '0':
-          this.setState({ driveDirection: 'neutral' });
-          break;
-        case '1':
-          this.setState({ driveDirection: 'reverse' });
-          break;
-        case '2':
-          this.setState({ driveDirection: 'drive' });
-          break;
-        default:
-          console.warn('Something went wrong at driver: Direction = ' + _message.driveDirection);
-      }
+      this.setDirection(_message.driverState);
 
       /*this.socket.emit('command', { //Request inverter settings from the server
         command: 'json',
@@ -396,6 +395,7 @@ class App extends Component {
       if(_message.origin === 'Driver' && _message.msg.substring(0,10) === 'Set driver'){ //Add status ok / err to message?
         this.setState({ showNotification: true });
         this.setState({ editing: false });
+        localStorage.setItem("editing", "false");
       }
     });
 
@@ -406,34 +406,10 @@ class App extends Component {
       this.setState({ inverterValues: _input });
     });
 
-    this.socket.on('driver', (data) => {
-      /**
-       * Add message to driver log
-       * Show snackbar
-       * Initialize main tab
-       */
-      let _input = data.message.toString();
-      let _message = JSON.parse(_input);
-      if (_message.type === 'param') {
-        switch (_message.direction) {
-          case 0:
-            this.setState({ driveDirection: 'neutral' });
-            break;
-          case 1:
-            this.setState({ driveDirection: 'reverse' });
-            break;
-          case 2:
-            this.setState({ driveDirection: 'drive' });
-            break;
-          default:
-            console.warn(`Something went wrong at driver: Direction = ${_message.direction}`);
-        }
-      }
-    });
-
     //replace socket driver
     this.socket.on('systemState', (data) => {
       let _input = JSON.parse(data.message.toString());
+      console.log(_input);
       let _handle = data.handle.toString();
       let systemState;
       let _groupChargeStatus = this.state.groupChargeStatus;
@@ -448,8 +424,14 @@ class App extends Component {
           _groupChargeStatus[parseInt(systemState.charAt(0), 10)] = systemState.charAt(1) === "0" ? true : false;
           this.setState({groupChargeStatus: _groupChargeStatus});
           break;
+        case "Driver":
+          this.setDirection(_input.value);
+          console.log(_input.value);
+          break;
         case "Server":
-          console.log(_input);
+          if(_input.message === "successfull"){
+            this.setState({updateInProgress: false});
+          }
           break;
         default:
           console.log(_handle);
@@ -478,14 +460,15 @@ class App extends Component {
     }
   }
 
-  changeDirection = (direction) => {
+  setDriverState = (target) => {
     /**
-     * @param {string} direction neutral, drive, reverse 
+     * @param {string} target neutral, drive, reverse 
      */
+    localStorage.setItem("editing", "true");
     this.setState({ editing: true });
-    this.setState({ driveDirection: direction });
+    this.setDirection(target);
     this.socket.emit('command', { //Send update command to server
-      command: direction,
+      command: target,
       handle: 'client',
       target: 'driver'
     });
@@ -509,11 +492,16 @@ class App extends Component {
      */
     this.setState({ cruiseON: !this.state.cruiseON });
 
-    this.socket.emit('command', { //Temporary, for testing
+    /*this.socket.emit('command', { //Temporary, for testing
       command: 'set cruisemode ' + this.state.cruiseON ? '1' : '0',
       handle: 'client',
       target: 'inverter'
-    });
+    });*/
+    /*this.socket.emit('command', { //Temporary, for testing
+      command: 'set cruisemode ' + this.state.cruiseON ? '1' : '0',
+      handle: 'client',
+      target: 'driver'
+    });*/
   }
 
   logControl = (target, action, filter) => {
@@ -738,7 +726,7 @@ class App extends Component {
             <Snackbar
               anchorOrigin={{ vertical, horizontal }}
               open={this.state.showNotification}
-              autoHideDuration={2000}
+              autoHideDuration={3000}
               onClose={() => this.setState({ showNotification: false })}
               ContentProps={{
                 'aria-describedby': 'message-id',
@@ -771,7 +759,7 @@ class App extends Component {
                   return (
                     <React.Fragment>
                       <MainMenu
-                        changeDirection={this.changeDirection}
+                        setDriverState={this.setDriverState}
                         vehicleMode={this.vehicleMode}
                         setCruise={this.setCruise}
                         driveDirection={this.state.driveDirection}
@@ -823,7 +811,8 @@ class App extends Component {
                       <SystemUpdateTab
                         webSocket={this.socket}
                         timestamp={this.timestamp}
-                        systemUpdateProgress={this.state.updateProgress}
+                        systemUpdateProgress={this.state.updateInProgress}
+                        updateParentState={this.updateParentState}
                       />
                     </React.Fragment>
                   );

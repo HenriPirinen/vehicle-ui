@@ -80,7 +80,7 @@ class MainMenu extends React.Component {
                                         )
                                 }
                                 style={{ fontSize: 120 }}
-                                onClick={() => this.props.changeDirection('drive')} //Drive
+                                onClick={() => this.props.setDriverState('0100')} //Drive
                             />
                             <br />
                             {this.props.driveDirection === 'neutral' ?
@@ -88,12 +88,12 @@ class MainMenu extends React.Component {
                                     <RadioButtonCheckedIcon
                                         style={{ fontSize: 100 }}
                                         color={this.props.editing ? 'secondary' : 'primary'}
-                                        onClick={() => this.props.changeDirection('neutral')}
+                                        onClick={() => this.props.setDriverState('0000')}
                                     />) : (
                                     <RadioButtonUncheckedIcon
                                         style={{ fontSize: 100 }}
                                         color={'disabled'}
-                                        onClick={() => this.props.changeDirection('neutral')}
+                                        onClick={() => this.props.setDriverState('0000')}
                                     />
                                 )
                             }
@@ -105,7 +105,7 @@ class MainMenu extends React.Component {
                                         this.props.driveDirection === 'reverse' ? 'primary' : 'disabled'
                                     )}
                                 style={{ fontSize: 120 }}
-                                onClick={() => this.props.changeDirection('reverse')} //Reverse
+                                onClick={() => this.props.setDriverState('1000')} //Reverse
                             />
                             <Typography
                                 variant="headline"
@@ -131,27 +131,10 @@ class MainMenu extends React.Component {
                                 className={this.props.cruiseON ? classes.cruiseStatusON : classes.cruiseStatusOFF} 
                                 onClick={() => {this.props.setCruise()}}
                             />
-                            {/*<br />
-                            <AddCircleIcon 
-                                style={{ fontSize: 100 }}
-                                color={'primary'}
-                                onClick={() => {this.props.setCruise(true)}}
-                            />
-                            <Typography
-                                variant="display3"
-                                component="h1"
-                                color={'primary'}
-                            >
-                                {this.props.cruise}
-                            </Typography>
-                            <RemoveCircleIcon 
-                                style={{ fontSize: 100 }}
-                                color={'primary'}
-                                onClick={() => {this.props.setCruise(false)}}
-                            />*/}
                         </Paper>
                     </React.Fragment>
-                ) : (
+                ) : (   
+                        //Remove ?
                         <React.Fragment>
                             <Paper className={classes.root} elevation={4}>
                                 <div className={classes.wrapper}>

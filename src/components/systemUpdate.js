@@ -46,7 +46,8 @@ class SystemUpdateTab extends React.Component {
       controllerUpdateAvailable: false,
       uiUpdateAvailable: false,
       serverUpdateAvailable: false,
-      driverUpdateAvailable: false
+      driverUpdateAvailable: false,
+      updateInProgress: props.systemUpdateProgress
     }
 
     this.handleClick = this.handleClick.bind(this);
@@ -57,13 +58,14 @@ class SystemUpdateTab extends React.Component {
       handle: 'client',
       target: target
     });
+    this.props.updateParentState("updateInProgress", true)
     this.setState({[target]: !this.state[target]});
     localStorage.setItem(target, this.props.timestamp());
   }
 
   componentWillReceiveProps(newProps) {
     this.setState({
-      updateComplete: newProps.systemUpdateProgress
+      updateInProgress: newProps.systemUpdateProgress
     });
   }
 
@@ -78,11 +80,11 @@ class SystemUpdateTab extends React.Component {
             <MemoryIcon className={classes.icon}/>
           </div>
           <Typography variant="subheading">Installed version 0.1.0</Typography>
-          <Typography variant="subheading">Last checked: {localStorage.getItem('controller')}</Typography>
-          {!this.state.microcontroller ? <CircularProgress /> : null}
+          <Typography variant="subheading">Last checked: {localStorage.getItem('microcontroller')}</Typography>
+          {!this.state.microcontroller && this.state.updateInProgress ? <CircularProgress /> : null}
           <br />
-          <Button onClick={() =>this.handleClick('microcontroller')} variant="raised" color="primary">
-            Check for updates
+          <Button onClick={() => this.handleClick('microcontroller')} variant="raised" color="primary">
+            Update
           </Button>
         </Paper>
         </div>
@@ -94,10 +96,10 @@ class SystemUpdateTab extends React.Component {
           </div>
           <Typography variant="subheading">Installed version 0.1.0</Typography>
           <Typography variant="subheading">Last checked: {localStorage.getItem('ui')}</Typography>
-          {!this.state.ui ? <CircularProgress /> : null}
+          {!this.state.ui && this.state.updateInProgress ? <CircularProgress /> : null}
           <br />
-          <Button onClick={() =>this.handleClick('ui')} variant="raised" color="primary">
-            Check for updates
+          <Button onClick={() => this.handleClick('ui')} variant="raised" color="primary">
+            Update
           </Button>
         </Paper>
         </div>
@@ -109,10 +111,10 @@ class SystemUpdateTab extends React.Component {
           </div>
           <Typography variant="subheading">Installed version 0.1.0</Typography>
           <Typography variant="subheading">Last checked: {localStorage.getItem('server')}</Typography>
-          {!this.state.server ? <CircularProgress /> : null}
+          {!this.state.server && this.state.updateInProgress ? <CircularProgress /> : null}
           <br />
-          <Button onClick={() =>this.handleClick('server')} variant="raised" color="primary">
-            Check for updates
+          <Button onClick={() => this.handleClick('server')} variant="raised" color="primary">
+            Update
           </Button>
         </Paper>
         </div>
@@ -124,10 +126,10 @@ class SystemUpdateTab extends React.Component {
           </div>
           <Typography variant="subheading">Installed version 0.1.0</Typography>
           <Typography variant="subheading">Last checked: {localStorage.getItem('driver')}</Typography>
-          {!this.state.driver ? <CircularProgress /> : null}
+          {!this.state.driver && this.state.updateInProgress ? <CircularProgress /> : null}
           <br />
-          <Button onClick={() =>this.handleClick('driver')} variant="raised" color="primary">
-            Check for updates
+          <Button onClick={() => this.handleClick('driver')} variant="raised" color="primary">
+            Update
           </Button>
         </Paper>
         </div>
