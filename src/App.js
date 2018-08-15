@@ -49,6 +49,7 @@ import SettingsTab from './components/settings';
 import GraphContainer from './components/graphContainer';
 import Snackbar from '@material-ui/core/Snackbar';
 import api from './keys.js';
+import { config } from './uiconfig.js';
 import BatteryFullIcon from '@material-ui/icons/BatteryFull';
 import BatteryChargingFullIcon from '@material-ui/icons/BatteryChargingFull';
 import BatteryCharging20Icon from '@material-ui/icons/BatteryCharging20';
@@ -58,12 +59,6 @@ import BatteryCharging60Icon from '@material-ui/icons/BatteryCharging60';
 import BatteryCharging80Icon from '@material-ui/icons/BatteryCharging80';
 import BatteryCharging90Icon from '@material-ui/icons/BatteryCharging90';
 import PowerIcon from '@material-ui/icons/Power';
-
-/**
- * App.js holds state of every child component.
- */
-
-//--Functions--//
 
 function validateJSON(string) {
   /* Validate Json, beacause sometimes i get illegal character error at index 0... */
@@ -97,7 +92,7 @@ function geoLocErr(err) {
 
 var currentIndex = 0;
 function alterChargeIcon() {
-  switch(currentIndex){
+  switch (currentIndex) {
     case 20:
       currentIndex = 30;
       return <BatteryCharging20Icon />
@@ -122,18 +117,15 @@ function alterChargeIcon() {
   }
 }
 
-function checkValues(group){
+function checkValues(group) {
   return group === true;
 }
 
-//---Variables---//
 var location = {
   latitude: 60.733852,
   longitude: 24.761049,
   accuracy: 20
 };
-
-//---Constants---//
 
 const geoLocOptions = {
   enableHighAccuracy: true,
@@ -185,7 +177,7 @@ const styles = theme => ({
   link: {
     textDecoration: 'none',
     color: 'inherit',
-}
+  }
 });
 
 class App extends Component {
@@ -202,10 +194,10 @@ class App extends Component {
       controller1port: '',
       controller2port: '',
       remoteUpdateInterval: 300000,
-      selectedTab: 'Main', //This is set to current tab
+      selectedTab: config.type === 'local' ? 'Main' : 'Log', //Startpage
       enabledGraphs: [[true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true]], //[0] = voltage, [1] = temperature
       graphIntreval: [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]],
-      heatmapRange: [20,80],
+      heatmapRange: [20, 80],
       isFullscreenEnabled: false,
       weatherData: { 'default': null },
       weatherForecast: { 'default': null },
@@ -220,18 +212,18 @@ class App extends Component {
       cruiseON: false,
       cruiseSpeed: 25,
       inverterValues: '',
-      vehicleStarted: false,
+      vehicleStarted: true,
       starting: false,
       charging: true,
       sysLogFilter: [[true, true, true], [true, true, true], [true, true, true], [true, true, true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
       systemLog: [[], [], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver, [4] = UI.
-      groupChargeStatus:[true, true, true, true, true, true, true, true, true], //True = Group is ready i.e not charging
+      groupChargeStatus: [true, true, true, true, true, true, true, true, true], //True = Group is ready i.e not charging
       /**
        * 3D array, Group(int) -> cell(int) -> datapoint object {'x': time, 'y': voltage value}.
        * Get latest value from Group 0, cell 3: cellDataPoints[0][3][cellDataPoints[0][3].length - 1].y
        * Each group hold graph datapoint voltage values for 8 cells.
        */
-      cellDataPoints: [[[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],[[], [], [], [], [], [], [], []],], [[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],[[], [], [], [], [], [], [], []],]]
+      cellDataPoints: [[[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],], [[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],]]
     };
 
     this.contentHandler = this.contentHandler.bind(this); //Used @ DrawerList component
@@ -262,11 +254,11 @@ class App extends Component {
   };
 
   setDirection = (_input) => {
-    if(_input.charAt(0) === _input.charAt(1)){
+    if (_input.charAt(0) === _input.charAt(1)) {
       this.setState({ driveDirection: 'neutral' });
-    } else if (_input.charAt(0) === '1' && _input.charAt(1) === '0'){
+    } else if (_input.charAt(0) === '1' && _input.charAt(1) === '0') {
       this.setState({ driveDirection: 'reverse' });
-    } else if (_input.charAt(1) === '1' && _input.charAt(0) === '0'){
+    } else if (_input.charAt(1) === '1' && _input.charAt(0) === '0') {
       this.setState({ driveDirection: 'drive' });
     }
   };
@@ -283,12 +275,13 @@ class App extends Component {
 
     this.setState({ cellDataPoints: _updateCellDataPoints });
 
-    localStorage.getItem("editing") === "true" ? this.setState({ editing: true }) : this.setState({ editing: false });  
+    localStorage.getItem("editing") === "true" ? this.setState({ editing: true }) : this.setState({ editing: false });
 
     //getLocation();
-    fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`) //TODO: get lat and lon from gps
-      .then(res => res.json())
-      .then(
+    if(config.local){
+      fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`) //TODO: get lat and lon from gps
+        .then(res => res.json())
+        .then(
         (result) => {
           this.setState({
             weatherData: result
@@ -297,11 +290,11 @@ class App extends Component {
         (error) => {
           console.warn('Error fetching weather...');
         }
-      )
+        )
 
-    fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`)
-      .then(res => res.json())
-      .then(
+      fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`)
+        .then(res => res.json())
+        .then(
         (result) => {
           this.setState({
             weatherForecast: result
@@ -310,9 +303,10 @@ class App extends Component {
         (error) => {
           console.warn('Error fetching forecast...');
         }
-      )
+        )
+    }
 
-    this.socket = openSocket('192.168.1.33:4000');
+    this.socket = openSocket(config.websocketAdress);
 
     /**
      * WebSocket topics:
@@ -378,21 +372,21 @@ class App extends Component {
 
     //Combine all logs to one websocket message ('systemLog'). Add origin parameter to message.
     //WebSocket message types: dataset (for graphs), log & response (init values, get values from the inverter)
-    
+
     this.socket.on('systemLog', (data) => {
       let _message = JSON.parse(data.message.toString());
       let _systemLog = this.state.systemLog;
       let index = 4; //4 = UI Log
 
-      if(_message.origin === 'Server'){index = 0}
-      else if(_message.origin === 'Inverter'){index = 1}
-      else if(_message.origin === 'Controller'){index = 2}
-      else if(_message.origin === 'Driver'){index = 3}
+      if (_message.origin === 'Server') { index = 0 }
+      else if (_message.origin === 'Inverter') { index = 1 }
+      else if (_message.origin === 'Controller') { index = 2 }
+      else if (_message.origin === 'Driver') { index = 3 }
 
-       _systemLog[index].push(JSON.parse(`{"time":"${this.timestamp()}","msg":"${_message.msg}","importance":"${_message.importance}"}`));
-       this.setState({ systemLog: _systemLog });
+      _systemLog[index].push(JSON.parse(`{"time":"${this.timestamp()}","msg":"${_message.msg}","importance":"${_message.importance}"}`));
+      this.setState({ systemLog: _systemLog });
 
-      if(_message.origin === 'Driver' && _message.msg.substring(0,10) === 'Set driver'){ //Add status ok / err to message?
+      if (_message.origin === 'Driver' && _message.msg.substring(0, 10) === 'Set driver') { //Add status ok / err to message?
         this.setState({ showNotification: true });
         this.setState({ editing: false });
         localStorage.setItem("editing", "false");
@@ -413,24 +407,24 @@ class App extends Component {
       let _handle = data.handle.toString();
       let systemState;
       let _groupChargeStatus = this.state.groupChargeStatus;
-      switch(_handle){
+      switch (_handle) {
         case "Controller_1":
           systemState = _input.value;
           _groupChargeStatus[parseInt(systemState.charAt(0), 10)] = systemState.charAt(1) === "0" ? true : false;
-          this.setState({groupChargeStatus: _groupChargeStatus});
+          this.setState({ groupChargeStatus: _groupChargeStatus });
           break;
         case "Controller_2":
           systemState = (parseInt(_input.value, 10) + 50).toString();
           _groupChargeStatus[parseInt(systemState.charAt(0), 10)] = systemState.charAt(1) === "0" ? true : false;
-          this.setState({groupChargeStatus: _groupChargeStatus});
+          this.setState({ groupChargeStatus: _groupChargeStatus });
           break;
         case "Driver":
           this.setDirection(_input.value);
           console.log(_input.value);
           break;
         case "Server":
-          if(_input.message === "successfull"){
-            this.setState({updateInProgress: false});
+          if (_input.message === "successfull") {
+            this.setState({ updateInProgress: false });
           }
           break;
         default:
@@ -448,10 +442,10 @@ class App extends Component {
       isFullscreenEnabled: !this.state.isFullscreenEnabled,
     });
     if (!document.fullscreenElement) {
-      if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-      else if(document.documentElement.mozRequestFullScreen) document.documentElement.mozRequestFullScreen(); //Firefox
-      else if(document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullScreen(); //Chrome, Safari, Opera
-      else if(document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen(); //Edge
+      if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+      else if (document.documentElement.mozRequestFullScreen) document.documentElement.mozRequestFullScreen(); //Firefox
+      else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullScreen(); //Chrome, Safari, Opera
+      else if (document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen(); //Edge
     } else {
       if (document.exitFullscreen) document.exitFullscreen();
       else if (document.mozCancelFullScreen) document.mozCancelFullScreen(); //Firefox
@@ -537,11 +531,11 @@ class App extends Component {
     /**
      * @param {boolean} state charging state. true = charging
      */
-    if(state){
-      this.setState({charging: true});
+    if (state) {
+      this.setState({ charging: true });
 
     } else {
-      this.setState({charging: false});
+      this.setState({ charging: false });
     }
   }
 
@@ -562,7 +556,7 @@ class App extends Component {
     let _state = this.state.groupChargeStatus[target] === true ? '1' : '0';
 
     this.socket.emit('command', {
-      command: `1${target > 4 ? (target - 5).toString()  + _state : target.toString() + _state}`, //1XY, 1 = Balance, Pin, State.
+      command: `1${target > 4 ? (target - 5).toString() + _state : target.toString() + _state}`, //1XY, 1 = Balance, Pin, State.
       handle: 'client',
       target: target <= 4 ? 'controller_1' : 'controller_2'
     });
@@ -602,16 +596,16 @@ class App extends Component {
      * If parameter @param index2nd has a value = state is 2D array
      */
 
-    if(index === null){
-      this.setState({[stateName]: value});
+    if (index === null) {
+      this.setState({ [stateName]: value });
     } else {
       let _state = this.state[stateName]
-      if(index2nd !== null){
+      if (index2nd !== null) {
         _state[index][index2nd] = value;
       } else {
         _state[index] = value;
       }
-      this.setState({[stateName]: _state});
+      this.setState({ [stateName]: _state });
     }
   }
 
@@ -644,15 +638,19 @@ class App extends Component {
       <div>
         <div className={classes.toolbar}>
           <Typography variant="display1" noWrap className={classes.appTitle}>
-              <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui">Regni UI</a>
+            <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui">Regni UI</a>
           </Typography>
           <Typography variant="caption" noWrap className={classes.appTitle}>
-          <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui/releases">v0.1.0</a>
+            <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui/releases">v0.1.0</a>
           </Typography>
         </div>
         <Divider />
         <List>
-          <DrawerList webSocket={this.socket} handleContent={this.contentHandler} />
+          <DrawerList 
+            webSocket={this.socket} 
+            handleContent={this.contentHandler}
+            uiType={config.local} 
+          />
         </List>
       </div>
     );
@@ -679,8 +677,8 @@ class App extends Component {
               this.state.groupChargeStatus.every(checkValues) ? (
                 <BatteryFullIcon />
               ) : (
-                    alterChargeIcon()
-                  )
+                  alterChargeIcon()
+                )
             ) : (
                 <BatteryFullIcon />
               )
@@ -793,8 +791,8 @@ class App extends Component {
                 case 'Weather':
                   return (
                     <React.Fragment>
-                      <WeatherTab 
-                        data={this.state.weatherData} 
+                      <WeatherTab
+                        data={this.state.weatherData}
                         forecast={this.state.weatherForecast}
                       />
                     </React.Fragment>
@@ -835,6 +833,7 @@ class App extends Component {
                         remoteUpdateInterval={this.state.remoteUpdateInterval}
                         graphIntreval={this.state.graphIntreval}
                         heatmapRange={this.state.heatmapRange}
+                        uiType={config.local}
                       />
                     </React.Fragment>
                   );

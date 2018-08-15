@@ -43,22 +43,27 @@ class InterfaceSettings extends React.Component {
             />
           </Paper>
         </div>
-        <div className={classes.content}>
-          <Paper className={classes.root} elevation={4}>
-            <ApiSettings 
-              updateParentState={this.props.updateParentState}
-              localServerAddress={this.props.localServerAddress}
-              remoteServerAddress={this.props.remoteServerAddress}
-              weatherAPI={this.props.weatherAPI}
-              mapAPI={this.props.mapAPI}
-              handleSystemCommand={this.props.handleSystemCommand}
-              controller1port={this.props.controller1port}
-              controller2port={this.props.controller2port}
-              driver1port={this.props.driver1port}
-              remoteUpdateInterval={this.props.remoteUpdateInterval}
-            />
-          </Paper>
-        </div>
+        {this.props.uiType ? (
+          <div className={classes.content}>
+            <Paper className={classes.root} elevation={4}>
+              <ApiSettings
+                updateParentState={this.props.updateParentState}
+                localServerAddress={this.props.localServerAddress}
+                remoteServerAddress={this.props.remoteServerAddress}
+                weatherAPI={this.props.weatherAPI}
+                mapAPI={this.props.mapAPI}
+                handleSystemCommand={this.props.handleSystemCommand}
+                controller1port={this.props.controller1port}
+                controller2port={this.props.controller2port}
+                driver1port={this.props.driver1port}
+                remoteUpdateInterval={this.props.remoteUpdateInterval}
+              />
+            </Paper>
+          </div>
+        ) : (
+            null
+          )
+        }
       </React.Fragment>
     );
   }

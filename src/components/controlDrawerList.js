@@ -33,8 +33,8 @@ const styles = theme => ({
   },
 });
 
-class DrawerList extends React.Component{
-  constructor(props){
+class DrawerList extends React.Component {
+  constructor(props) {
     super(props)
     this.state = {
       isToggleOn: false,
@@ -43,7 +43,6 @@ class DrawerList extends React.Component{
       dataExpanded: false,
       settingsExpanded: false,
     };
-
     this.handleClick = this.handleSystemCommand.bind(this);
   }
 
@@ -57,31 +56,35 @@ class DrawerList extends React.Component{
   }
 
   expand = (target, value = null) => {
-    value === null ? this.setState({[target]: !this.state[target]}) : this.setState({[target]: value});
+    value === null ? this.setState({ [target]: !this.state[target] }) : this.setState({ [target]: value });
   };
 
-  render(){
+  render() {
     const { classes } = this.props;
-
-  return (
-    <div className={classes.root}>
-      <List component="nav">
-        <ListItem button onClick={() => {this.props.handleContent('Main'); this.expand('settingsExpanded', false)}}>
-          <ListItemIcon>
-            <HomeIcon />
-          </ListItemIcon>
-          <ListItemText primary="Main" />
-        </ListItem>
-        <ListItem button onClick={() => this.expand('dataExpanded')}>
-          <ListItemIcon>
-            <TimelineIcon />
-          </ListItemIcon>
-          <ListItemText primary="Data" />
-          {this.state.dataExpanded ? <ExpandLess /> : <ExpandMore />}
+    return (
+      <div className={classes.root}>
+        <List component="nav">
+          {this.props.uiType ? (
+            <ListItem button onClick={() => { this.props.handleContent('Main'); this.expand('settingsExpanded', false) }}>
+              <ListItemIcon>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Main" />
+            </ListItem>
+          ) : (
+              null
+            )
+          }
+          <ListItem button onClick={() => this.expand('dataExpanded')}>
+            <ListItemIcon>
+              <TimelineIcon />
+            </ListItemIcon>
+            <ListItemText primary="Data" />
+            {this.state.dataExpanded ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
           <Collapse in={this.state.dataExpanded} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => {this.props.handleContent('Voltage'); this.expand('settingsExpanded', false)}}>
+              <ListItem button className={classes.nested} onClick={() => { this.props.handleContent('Voltage'); this.expand('settingsExpanded', false) }}>
                 <ListItemIcon>
                   <BatteryChargingFullIcon />
                 </ListItemIcon>
@@ -89,7 +92,7 @@ class DrawerList extends React.Component{
               </ListItem>
             </List>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => {this.props.handleContent('Temperature'); this.expand('settingsExpanded', false)}}>
+              <ListItem button className={classes.nested} onClick={() => { this.props.handleContent('Temperature'); this.expand('settingsExpanded', false) }}>
                 <ListItemIcon>
                   <WhatshotIcon />
                 </ListItemIcon>
@@ -97,79 +100,95 @@ class DrawerList extends React.Component{
               </ListItem>
             </List>
           </Collapse>
-        <ListItem button onClick={() => {this.props.handleContent('Inverter'); this.expand('settingsExpanded', false)}}>
-          <ListItemIcon>
-            <FlashOnIcon />
-          </ListItemIcon>
-          <ListItemText primary="Inverter" />
-        </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('Log'); this.expand('settingsExpanded', false)}}>
-          <ListItemIcon>
-            {this.state.logNotifications > 0 ? (
-              <Badge badgeContent={this.state.logNotifications} color="primary">
-                <ImportContactsIcon />
-              </Badge>
-              ):(
-                <ImportContactsIcon />
+          {this.props.uiType ? (
+            <ListItem button onClick={() => { this.props.handleContent('Inverter'); this.expand('settingsExpanded', false) }}>
+              <ListItemIcon>
+                <FlashOnIcon />
+              </ListItemIcon>
+              <ListItemText primary="Inverter" />
+            </ListItem>
+          ) : (
+              null
+            )}
+          <ListItem button onClick={() => { this.props.handleContent('Log'); this.expand('settingsExpanded', false) }}>
+            <ListItemIcon>
+              {this.state.logNotifications > 0 ? (
+                <Badge badgeContent={this.state.logNotifications} color="primary">
+                  <ImportContactsIcon />
+                </Badge>
+              ) : (
+                  <ImportContactsIcon />
                 )
-            }
-          </ListItemIcon>
-          <ListItemText primary="Log" />
-        </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('Weather'); this.expand('settingsExpanded', false)}}>
-          <ListItemIcon>
-            <WbSunnyIcon />
-          </ListItemIcon>
-          <ListItemText primary="Weather" />
-        </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('Map'); this.expand('settingsExpanded', false)}}>
-          <ListItemIcon>
-            <MapIcon />
-          </ListItemIcon>
-          <ListItemText primary="Map" />
-        </ListItem>
-        <ListItem button onClick={() => {this.props.handleContent('System Update'); this.expand('settingsExpanded', false)}}>
-          <ListItemIcon>
-          {this.state.updateNotifications > 0 ? (
-              <Badge badgeContent={this.state.updateNotifications} color="primary">
-                <SystemUpdateIcon />
-              </Badge>
-              ):(
-                <SystemUpdateIcon />
-              )
+              }
+            </ListItemIcon>
+            <ListItemText primary="Log" />
+          </ListItem>
+          {this.props.uiType ? (
+            <React.Fragment>
+              <ListItem button onClick={() => { this.props.handleContent('Weather'); this.expand('settingsExpanded', false) }}>
+                <ListItemIcon>
+                  <WbSunnyIcon />
+                </ListItemIcon>
+                <ListItemText primary="Weather" />
+              </ListItem>
+              <ListItem button onClick={() => { this.props.handleContent('Map'); this.expand('settingsExpanded', false) }}>
+                <ListItemIcon>
+                  <MapIcon />
+                </ListItemIcon>
+                <ListItemText primary="Map" />
+              </ListItem>
+            </React.Fragment>
+          ) : (
+              null
+            )
           }
-          </ListItemIcon>
-          <ListItemText primary="System Update" />
-        </ListItem>
-        <ListItem button onClick={() => {this.expand('settingsExpanded'); this.props.handleContent('Settings');}}>
-          <ListItemIcon>
-            <SettingsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Settings" />
-          {this.state.settingsExpanded ? <ExpandLess /> : <ExpandMore />}
+          <ListItem button onClick={() => { this.props.handleContent('System Update'); this.expand('settingsExpanded', false) }}>
+            <ListItemIcon>
+              {this.state.updateNotifications > 0 ? (
+                <Badge badgeContent={this.state.updateNotifications} color="primary">
+                  <SystemUpdateIcon />
+                </Badge>
+              ) : (
+                  <SystemUpdateIcon />
+                )
+              }
+            </ListItemIcon>
+            <ListItemText primary="System Update" />
+          </ListItem>
+          <ListItem button onClick={() => { this.expand('settingsExpanded'); this.props.handleContent('Settings'); }}>
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Settings" />
+            {this.state.settingsExpanded ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
           <Collapse in={this.state.settingsExpanded} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-            <ListItem className={classes.nested} button onClick={() => this.handleSystemCommand('sudo bash restart.sh')}>
-              <ListItemIcon>
-                <PowerSettingsNewIcon />
-              </ListItemIcon>
-              <ListItemText primary="Reload API" />
-            </ListItem>
+              <ListItem className={classes.nested} button onClick={() => this.handleSystemCommand('sudo bash restart.sh')}>
+                <ListItemIcon>
+                  <PowerSettingsNewIcon />
+                </ListItemIcon>
+                <ListItemText primary="Reload API" />
+              </ListItem>
             </List>
             <List component="div" disablePadding>
-            <ListItem className={classes.nested} button onClick={() => this.handleSystemCommand('sudo reboot')}>
-              <ListItemIcon>
-                <RefreshIcon />
-              </ListItemIcon>
-              <ListItemText primary="Reboot" />
-            </ListItem>
+              {this.props.uiType ? (
+                <ListItem className={classes.nested} button onClick={() => this.handleSystemCommand('sudo reboot')}>
+                  <ListItemIcon>
+                    <RefreshIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Reboot" />
+                </ListItem>
+              ) : (
+                  null
+                )
+              }
             </List>
-        </Collapse>
-      </List>
-    </div>
-  );
-}
+          </Collapse>
+        </List>
+      </div>
+    );
+  }
 }
 
 DrawerList.propTypes = {

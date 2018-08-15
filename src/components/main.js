@@ -134,7 +134,6 @@ class MainMenu extends React.Component {
                         </Paper>
                     </React.Fragment>
                 ) : (   
-                        //Remove ?
                         <React.Fragment>
                             <Paper className={classes.root} elevation={4}>
                                 <div className={classes.wrapper}>
