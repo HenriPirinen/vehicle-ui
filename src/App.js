@@ -39,6 +39,7 @@ import Divider from '@material-ui/core/Divider';
 import MenuIcon from '@material-ui/icons/Menu';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import DrawerList from './components/controlDrawerList';
+import SignIn from './components/signIn';
 import MainMenu from './components/main';
 import InverterTab from './components/inverter';
 import LogTab from './components/log';
@@ -46,6 +47,8 @@ import WeatherTab from './components/weather';
 import MapTab from './components/mapTab';
 import SystemUpdateTab from './components/systemUpdate'
 import SettingsTab from './components/settings';
+import { BrowserRouter as Router, Redirect } from 'react-router-dom';
+import Route from 'react-router-dom/Route';
 import GraphContainer from './components/graphContainer';
 import Snackbar from '@material-ui/core/Snackbar';
 import api from './keys.js';
@@ -65,7 +68,7 @@ function validateJSON(string) {
   try {
     JSON.parse(string);
   } catch (e) {
-    console.warn(e);
+    //console.warn(e);
     return false;
   }
   return true;
@@ -185,6 +188,8 @@ class App extends Component {
     super(props)
 
     this.state = {
+      securityToken: '', //Required on remote client, empty on local client
+      verified: config.local ? true : false, //Don't display signin screen for local UI.
       mobileOpen: false,
       weatherAPI: '',
       mapAPI: '',
@@ -236,6 +241,7 @@ class App extends Component {
     this.handleSystemCommand = this.handleSystemCommand.bind(this); //Used @settings component
     this.updateParentState = this.updateParentState.bind(this); //Used @settings
     this.timestamp = this.timestamp.bind(this); //Used @ update component
+    this.authToken = this.authToken.bind(this); //Used at signin
   }
 
   timestamp = () => {
@@ -278,31 +284,31 @@ class App extends Component {
     localStorage.getItem("editing") === "true" ? this.setState({ editing: true }) : this.setState({ editing: false });
 
     //getLocation();
-    if(config.local){
+    if (config.local) {
       fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`) //TODO: get lat and lon from gps
         .then(res => res.json())
         .then(
-        (result) => {
-          this.setState({
-            weatherData: result
-          });
-        },
-        (error) => {
-          console.warn('Error fetching weather...');
-        }
+          (result) => {
+            this.setState({
+              weatherData: result
+            });
+          },
+          (error) => {
+            console.warn('Error fetching weather...');
+          }
         )
 
       fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`)
         .then(res => res.json())
         .then(
-        (result) => {
-          this.setState({
-            weatherForecast: result
-          });
-        },
-        (error) => {
-          console.warn('Error fetching forecast...');
-        }
+          (result) => {
+            this.setState({
+              weatherForecast: result
+            });
+          },
+          (error) => {
+            console.warn('Error fetching forecast...');
+          }
         )
     }
 
@@ -361,17 +367,28 @@ class App extends Component {
 
       if (validateJSON(_input)) {
         let _validData = JSON.parse(_input);
-        for (let i = 0; i < _validData.voltage.length; i++) {
-          _updateCellDataPoints[0][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.voltage[i] });
-          _updateCellDataPoints[1][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.temperature[i] });
+        if (config.local) {
+          for (let i = 0; i < _validData.voltage.length; i++) {
+            _updateCellDataPoints[0][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.voltage[i] });
+            _updateCellDataPoints[1][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.temperature[i] });
+          }
+        } else {
+          console.log(_validData);
+          /*for(let [index, item] of _validData.data.entries()){
+            for(let object of item){
+              _updateCellDataPoints[0][index][]
+            }
+          }*/
         }
         this.setState({ cellDataPoints: _updateCellDataPoints });
-        //console.log(this.state.cellDataPoints[1][0][0]);
       }
     });
 
-    //Combine all logs to one websocket message ('systemLog'). Add origin parameter to message.
-    //WebSocket message types: dataset (for graphs), log & response (init values, get values from the inverter)
+    this.socket.emit(`requestData`, {
+      token: this.state.securityToken,
+      sDate: '2018-08-16',
+      eDate: '2018-08-17'
+    });
 
     this.socket.on('systemLog', (data) => {
       let _message = JSON.parse(data.message.toString());
@@ -431,6 +448,23 @@ class App extends Component {
           console.log(_handle);
       }
     });
+
+    this.socket.on('authToken', (payload) => {
+      if(payload.success) this.setState({verified: true});
+    })
+  }
+
+  authToken = (event, token) => {
+    if(event === 'request'){
+      this.socket.emit('authToken', {
+        action: 'request'
+      });
+    } else if(event === 'verify'){
+      this.socket.emit('authToken', {
+        action: 'verify',
+        token: token
+      });
+    }
   }
 
   contentHandler = (content) => { //Change tab
@@ -556,6 +590,7 @@ class App extends Component {
     let _state = this.state.groupChargeStatus[target] === true ? '1' : '0';
 
     this.socket.emit('command', {
+      token: this.state.securityToken,
       command: `1${target > 4 ? (target - 5).toString() + _state : target.toString() + _state}`, //1XY, 1 = Balance, Pin, State.
       handle: 'client',
       target: target <= 4 ? 'controller_1' : 'controller_2'
@@ -646,208 +681,233 @@ class App extends Component {
         </div>
         <Divider />
         <List>
-          <DrawerList 
-            webSocket={this.socket} 
+          <DrawerList
+            webSocket={this.socket}
             handleContent={this.contentHandler}
-            uiType={config.local} 
+            uiType={config.local}
           />
         </List>
       </div>
     );
 
     return (
-      <div className={classes.root}>
-        <AppBar className={classes.appBar}>
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={this.handleDrawerToggle}
-              className={classes.navIconHide}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="title" color="inherit" noWrap className={classes.flex}>
-              {this.state.selectedTab} {/*Set appbar title*/}
-            </Typography>
-            {this.state.charging &&
-              <PowerIcon />
-            }
-            {this.state.charging ? (
-              this.state.groupChargeStatus.every(checkValues) ? (
-                <BatteryFullIcon />
-              ) : (
-                  alterChargeIcon()
-                )
-            ) : (
-                <BatteryFullIcon />
-              )
-            }
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={() => this.toggleFullscreen()}
-            >
-              <FullscreenIcon />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Hidden mdUp>
-          <Drawer
-            variant="temporary"
-            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-            open={this.state.mobileOpen}
-            onClose={this.handleDrawerToggle}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            {drawer}
-          </Drawer>
-        </Hidden>
-        <Hidden smDown implementation="css">
-          <Drawer
-            variant="permanent"
-            open
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-          >
-            {drawer}
-          </Drawer>
-        </Hidden>
-        <main className={classes.content} >
-          <div id='appContent'>
-            <Snackbar
-              anchorOrigin={{ vertical, horizontal }}
-              open={this.state.showNotification}
-              autoHideDuration={3000}
-              onClose={() => this.setState({ showNotification: false })}
-              ContentProps={{
-                'aria-describedby': 'message-id',
-              }}
-              message={<span id="message-id">Execute commands</span>}
-            />
-            <div className={classes.toolbar} />
+      <Router>
+        <div className={classes.root}>
+          <Route path="/" exact render={() => {
+            return (
+              <React.Fragment>
+                {this.state.verified ? (
+                  <React.Fragment>
+                <AppBar className={classes.appBar}>
+                  <Toolbar>
+                    <IconButton
+                      color="inherit"
+                      aria-label="open drawer"
+                      onClick={this.handleDrawerToggle}
+                      className={classes.navIconHide}
+                    >
+                      <MenuIcon />
+                    </IconButton>
+                    <Typography variant="title" color="inherit" noWrap className={classes.flex}>
+                      {this.state.selectedTab} {/*Set appbar title*/}
+                    </Typography>
+                    {this.state.charging &&
+                      <PowerIcon />
+                    }
+                    {this.state.charging ? (
+                      this.state.groupChargeStatus.every(checkValues) ? (
+                        <BatteryFullIcon />
+                      ) : (
+                          alterChargeIcon()
+                        )
+                    ) : (
+                        <BatteryFullIcon />
+                      )
+                    }
+                    <IconButton
+                      color="inherit"
+                      aria-label="open drawer"
+                      onClick={() => this.toggleFullscreen()}
+                    >
+                      <FullscreenIcon />
+                    </IconButton>
+                  </Toolbar>
+                </AppBar>
+                <Hidden mdUp>
+                  <Drawer
+                    variant="temporary"
+                    anchor={theme.direction === 'rtl' ? 'right' : 'left'}
+                    open={this.state.mobileOpen}
+                    onClose={this.handleDrawerToggle}
+                    classes={{
+                      paper: classes.drawerPaper,
+                    }}
+                    ModalProps={{
+                      keepMounted: true, // Better open performance on mobile.
+                    }}
+                  >
+                    {drawer}
+                  </Drawer>
+                </Hidden>
+                <Hidden smDown implementation="css">
+                  <Drawer
+                    variant="permanent"
+                    open
+                    classes={{
+                      paper: classes.drawerPaper,
+                    }}
+                  >
+                    {drawer}
+                  </Drawer>
+                </Hidden>
+                <main className={classes.content} >
+                  <div id='appContent'>
+                    <Snackbar
+                      anchorOrigin={{ vertical, horizontal }}
+                      open={this.state.showNotification}
+                      autoHideDuration={3000}
+                      onClose={() => this.setState({ showNotification: false })}
+                      ContentProps={{
+                        'aria-describedby': 'message-id',
+                      }}
+                      message={<span id="message-id">Execute commands</span>}
+                    />
+                    <div className={classes.toolbar} />
 
-            {(() => {
-              switch (this.state.selectedTab) {
-                case 'Voltage':
-                case 'Temperature':
-                  return (
-                    <React.Fragment>
-                      <GraphContainer
-                        toggleCharging={this.toggleCharging}
-                        contentWidth={this.state.contentWidth}
-                        enabledGraphs={this.state.enabledGraphs}
-                        data={this.state.cellDataPoints}
-                        interval={this.state.graphIntreval}
-                        chargeStatus={this.state.groupChargeStatus}
-                        charging={this.state.charging}
-                        type={this.state.selectedTab}
-                        dataLimit={this.state.dataLimit}
-                        heatmapRange={this.state.heatmapRange}
-                      />
-                    </React.Fragment>
-                  );
-                case 'Main':
-                  return (
-                    <React.Fragment>
-                      <MainMenu
-                        setDriverState={this.setDriverState}
-                        vehicleMode={this.vehicleMode}
-                        setCruise={this.setCruise}
-                        driveDirection={this.state.driveDirection}
-                        editing={this.state.editing}
-                        cruise={this.state.cruiseSpeed}
-                        vehicleStarted={this.state.vehicleStarted}
-                        starting={this.state.starting}
-                        cruiseON={this.state.cruiseON}
-                      />
-                    </React.Fragment>
-                  );
-                case 'Inverter':
-                  return (
-                    <React.Fragment>
-                      <InverterTab
-                        webSocket={this.socket}
-                        values={this.state.inverterValues}
-                      />
-                    </React.Fragment>
-                  );
-                case 'Log':
-                  return (
-                    <React.Fragment>
-                      <LogTab
-                        logs={this.state.systemLog}
-                        logControl={this.logControl}
-                        filter={this.state.sysLogFilter}
-                      />
-                    </React.Fragment>
-                  );
-                case 'Weather':
-                  return (
-                    <React.Fragment>
-                      <WeatherTab
-                        data={this.state.weatherData}
-                        forecast={this.state.weatherForecast}
-                      />
-                    </React.Fragment>
-                  );
-                case 'Map':
-                  return (
-                    <React.Fragment>
-                      <MapTab />
-                    </React.Fragment>
-                  );
-                case 'System Update':
-                  return (
-                    <React.Fragment>
-                      <SystemUpdateTab
-                        webSocket={this.socket}
-                        timestamp={this.timestamp}
-                        systemUpdateProgress={this.state.updateInProgress}
-                        updateParentState={this.updateParentState}
-                      />
-                    </React.Fragment>
-                  );
-                case 'Settings':
-                  return (
-                    <React.Fragment>
-                      <SettingsTab
-                        updateParentState={this.updateParentState}
-                        handleSystemCommand={this.handleSystemCommand}
-                        handleSettings={this.handleSettings}
-                        enabledGraphs={this.state.enabledGraphs}
-                        dataLimit={this.state.dataLimit}
-                        localServerAddress={this.state.localServerAddress}
-                        remoteServerAddress={this.state.remoteServerAddress}
-                        weatherAPI={this.state.weatherAPI}
-                        mapAPI={this.state.mapAPI}
-                        controller1port={this.state.controller1port}
-                        controller2port={this.state.controller2port}
-                        driver1port={this.state.driver1port}
-                        remoteUpdateInterval={this.state.remoteUpdateInterval}
-                        graphIntreval={this.state.graphIntreval}
-                        heatmapRange={this.state.heatmapRange}
-                        uiType={config.local}
-                      />
-                    </React.Fragment>
-                  );
-                default:
-                  return (
-                    <React.Fragment>
-                      <ToggleButton socket={this.socket} />
-                    </React.Fragment>
-                  );
-              }
-            })()}
-          </div>
-        </main>
-      </div>
+                    {(() => {
+                      switch (this.state.selectedTab) {
+                        case 'Voltage':
+                        case 'Temperature':
+                          return (
+                            <React.Fragment>
+                              <GraphContainer
+                                toggleCharging={this.toggleCharging}
+                                contentWidth={this.state.contentWidth}
+                                enabledGraphs={this.state.enabledGraphs}
+                                data={this.state.cellDataPoints}
+                                interval={this.state.graphIntreval}
+                                chargeStatus={this.state.groupChargeStatus}
+                                charging={this.state.charging}
+                                type={this.state.selectedTab}
+                                dataLimit={this.state.dataLimit}
+                                heatmapRange={this.state.heatmapRange}
+                                enableCommands={config.local ? true : false}
+                              />
+                            </React.Fragment>
+                          );
+                        case 'Main':
+                          return (
+                            <React.Fragment>
+                              <MainMenu
+                                setDriverState={this.setDriverState}
+                                vehicleMode={this.vehicleMode}
+                                setCruise={this.setCruise}
+                                driveDirection={this.state.driveDirection}
+                                editing={this.state.editing}
+                                cruise={this.state.cruiseSpeed}
+                                vehicleStarted={this.state.vehicleStarted}
+                                starting={this.state.starting}
+                                cruiseON={this.state.cruiseON}
+                              />
+                            </React.Fragment>
+                          );
+                        case 'Inverter':
+                          return (
+                            <React.Fragment>
+                              <InverterTab
+                                webSocket={this.socket}
+                                values={this.state.inverterValues}
+                              />
+                            </React.Fragment>
+                          );
+                        case 'Log':
+                          return (
+                            <React.Fragment>
+                              <LogTab
+                                logs={this.state.systemLog}
+                                logControl={this.logControl}
+                                filter={this.state.sysLogFilter}
+                              />
+                            </React.Fragment>
+                          );
+                        case 'Weather':
+                          return (
+                            <React.Fragment>
+                              <WeatherTab
+                                data={this.state.weatherData}
+                                forecast={this.state.weatherForecast}
+                              />
+                            </React.Fragment>
+                          );
+                        case 'Map':
+                          return (
+                            <React.Fragment>
+                              <MapTab />
+                            </React.Fragment>
+                          );
+                        case 'System Update':
+                          return (
+                            <React.Fragment>
+                              <SystemUpdateTab
+                                webSocket={this.socket}
+                                timestamp={this.timestamp}
+                                systemUpdateProgress={this.state.updateInProgress}
+                                updateParentState={this.updateParentState}
+                              />
+                            </React.Fragment>
+                          );
+                        case 'Settings':
+                          return (
+                            <React.Fragment>
+                              <SettingsTab
+                                updateParentState={this.updateParentState}
+                                handleSystemCommand={this.handleSystemCommand}
+                                handleSettings={this.handleSettings}
+                                enabledGraphs={this.state.enabledGraphs}
+                                dataLimit={this.state.dataLimit}
+                                localServerAddress={this.state.localServerAddress}
+                                remoteServerAddress={this.state.remoteServerAddress}
+                                weatherAPI={this.state.weatherAPI}
+                                mapAPI={this.state.mapAPI}
+                                controller1port={this.state.controller1port}
+                                controller2port={this.state.controller2port}
+                                driver1port={this.state.driver1port}
+                                remoteUpdateInterval={this.state.remoteUpdateInterval}
+                                graphIntreval={this.state.graphIntreval}
+                                heatmapRange={this.state.heatmapRange}
+                                uiType={config.local}
+                              />
+                            </React.Fragment>
+                          );
+                        default:
+                          return (
+                            <React.Fragment>
+                              <ToggleButton socket={this.socket} />
+                            </React.Fragment>
+                          );
+                      }
+                    })()}
+                  </div>
+                </main>
+                </React.Fragment>
+                ):(<Redirect to="/login"/>)}
+              </React.Fragment>
+            );
+          }} />
+          <Route path="/login" exact render={
+            () => {
+              return (
+                <React.Fragment>
+                  <SignIn 
+                    authToken={this.authToken}
+                    verified={this.state.verified} 
+                  />
+                </React.Fragment>
+              );
+            }
+          } />
+        </div>
+      </Router>
     );
   }
 }

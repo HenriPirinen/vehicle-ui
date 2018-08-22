@@ -57,7 +57,7 @@ class GraphContainer extends React.Component {
                                     isCharging={this.props.charging}
                                     toggleCharging={this.props.toggleCharging}
                                     interval={this.props.interval}
-                                    commands={true}
+                                    commands={this.props.enableCommands}
                                     type={"Voltage"}
                                 />
                             ) : (null)

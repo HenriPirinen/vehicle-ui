@@ -17,6 +17,7 @@
     "react-dom": "^16.3.2",
     "react-full-screen": "^0.2.2",
     "react-jsx-highstock": "^2.2.1",
+    "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.4",
     "react-vis": "^1.10.4",
     "socket.io-client": "^2.1.0",
@@ -27,5 +28,24 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HenriPirinen/vehicle-ui.git"
+  },
+  "keywords": [
+    "vehicle",
+    "remote",
+    "ui",
+    "react",
+    "material-ui"
+  ],
+  "author": "Henri Pirinen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HenriPirinen/vehicle-ui/issues"
+  },
+  "homepage": "https://github.com/HenriPirinen/vehicle-ui#readme"
 }
