@@ -48,6 +48,10 @@ const styles = theme => ({
         color: grey[500],
         fontSize: 100
     },
+    cruiseStatusEdit: {
+        color: 'secondary',
+        fontSize: 100
+    }
 });
 
 class MainMenu extends React.Component {
@@ -127,9 +131,13 @@ class MainMenu extends React.Component {
                             >
                                 Cruise
                             </Typography>
-                            <CheckCircleIcon 
-                                className={this.props.cruiseON ? classes.cruiseStatusON : classes.cruiseStatusOFF} 
-                                onClick={() => {this.props.setCruise()}}
+                            <CheckCircleIcon
+                                className={this.props.cruiseON ? (
+                                    classes.cruiseStatusON
+                                ) : (
+                                    classes.cruiseStatusOFF
+                                )} 
+                                onClick={() => {this.props.setDriverState('0010')}}
                             />
                         </Paper>
                     </React.Fragment>

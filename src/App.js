@@ -237,7 +237,6 @@ class App extends Component {
     this.handleSettings = this.handleSettings.bind(this); //Used @ settings component
     this.setDriverState = this.setDriverState.bind(this); //Used @ main component
     this.vehicleMode = this.vehicleMode.bind(this); //Used @ main component
-    this.setCruise = this.setCruise.bind(this); //Used @ main component
     this.logControl = this.logControl.bind(this); //Used @ log components
     this.toggleCharging = this.toggleCharging.bind(this); //Used @ graph component
     this.handleSystemCommand = this.handleSystemCommand.bind(this); //Used @settings component
@@ -523,20 +522,6 @@ class App extends Component {
         starting: false
       });
     }, 2000);
-  }
-
-  setCruise = () => {
-    /**
-     * Toggle cruise mode.
-     * Update status on the server
-     */
-    this.setState({ cruiseON: !this.state.cruiseON });
-
-    /*this.socket.emit('command', { //Temporary, for testing
-      command: 'set cruisemode ' + this.state.cruiseON ? '1' : '0',
-      handle: 'client',
-      target: 'driver'
-    });*/
   }
 
   logControl = (target, action, filter) => {
