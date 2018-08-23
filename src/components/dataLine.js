@@ -43,6 +43,7 @@ const styles = theme => ({
   }
 });
 
+//https://github.com/uber/react-vis/blob/master/showcase/axes/custom-axis-tick-format.js
 class DataLine extends React.Component {
   constructor(props) {
     super(props)
@@ -141,13 +142,13 @@ class DataLine extends React.Component {
               )
             }
           </div>
-          <XYPlot height={300} width={this.state.parentWidth - 35} xType="time" >
+          <XYPlot height={300} width={this.state.parentWidth - 35} xType="time" yDomain={[2, 4]}>
             <HorizontalGridLines />
             <VerticalGridLines />
             <XAxis title="Time" position="start" />
             <YAxis title={this.props.type} />
             {this.state.items.map(i => {
-              return <LineSeries key={i} data={this.state.graphData[this.state.items.indexOf(i)]} /*yDomain={[2, 4]}*//>
+              return <LineSeries key={i} data={this.state.graphData[this.state.items.indexOf(i)]}/>
             })
             }
           </XYPlot>

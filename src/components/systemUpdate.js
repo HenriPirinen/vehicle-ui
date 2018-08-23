@@ -53,13 +53,13 @@ class SystemUpdateTab extends React.Component {
     this.handleClick = this.handleClick.bind(this);
   }
 
-    handleClick(target) {
+  handleClick(target) {
     this.props.webSocket.emit('update', { //Send update command to server
       handle: 'client',
       target: target
     });
     this.props.updateParentState("updateInProgress", true)
-    this.setState({[target]: !this.state[target]});
+    this.setState({ [target]: !this.state[target] });
     localStorage.setItem(target, this.props.timestamp());
   }
 
@@ -73,65 +73,69 @@ class SystemUpdateTab extends React.Component {
     const { classes } = this.props;
     return (
       <div>
+        {this.props.environment && //Display Driver and Controllers if environment is local
+          <React.Fragment>
+            <div className={classes.content}>
+              <Paper className={classes.root} elevation={4}>
+                <div className={classes.header}>
+                  <Typography variant="headline" component="h3">Driver</Typography>
+                  <DirectionsCarIcon className={classes.icon} />
+                </div>
+                <Typography variant="subheading">Installed version 0.1.0</Typography>
+                <Typography variant="subheading">Last checked: {localStorage.getItem('driver')}</Typography>
+                {!this.state.driver && this.state.updateInProgress ? <CircularProgress /> : null}
+                <br />
+                <Button onClick={() => this.handleClick('driver')} variant="raised" color="primary">
+                  Update
+                </Button>
+              </Paper>
+            </div>
+            <div className={classes.content}>
+              <Paper className={classes.root} elevation={4}>
+                <div className={classes.header}>
+                  <Typography variant="headline" component="h3">Controllers </Typography>
+                  <MemoryIcon className={classes.icon} />
+                </div>
+                <Typography variant="subheading">Installed version 0.1.0</Typography>
+                <Typography variant="subheading">Last checked: {localStorage.getItem('microcontroller')}</Typography>
+                {!this.state.microcontroller && this.state.updateInProgress ? <CircularProgress /> : null}
+                <br />
+                <Button onClick={() => this.handleClick('microcontroller')} variant="raised" color="primary">
+                  Update
+                </Button>
+              </Paper>
+            </div>
+          </React.Fragment>
+        }
         <div className={classes.content}>
-        <Paper className={classes.root} elevation={4}>
-          <div className={classes.header}>
-            <Typography variant="headline" component="h3">Controllers </Typography>
-            <MemoryIcon className={classes.icon}/>
-          </div>
-          <Typography variant="subheading">Installed version 0.1.0</Typography>
-          <Typography variant="subheading">Last checked: {localStorage.getItem('microcontroller')}</Typography>
-          {!this.state.microcontroller && this.state.updateInProgress ? <CircularProgress /> : null}
-          <br />
-          <Button onClick={() => this.handleClick('microcontroller')} variant="raised" color="primary">
-            Update
+          <Paper className={classes.root} elevation={4}>
+            <div className={classes.header}>
+              <Typography variant="headline" component="h3">User interface</Typography>
+              <TabletMacIcon className={classes.icon} />
+            </div>
+            <Typography variant="subheading">Installed version 0.1.0</Typography>
+            <Typography variant="subheading">Last checked: {localStorage.getItem('ui')}</Typography>
+            {!this.state.ui && this.state.updateInProgress ? <CircularProgress /> : null}
+            <br />
+            <Button onClick={() => this.handleClick('ui')} variant="raised" color="primary">
+              Update
           </Button>
-        </Paper>
+          </Paper>
         </div>
         <div className={classes.content}>
-        <Paper className={classes.root} elevation={4}>
-          <div className={classes.header}>
-            <Typography variant="headline" component="h3">User interface</Typography>
-            <TabletMacIcon className={classes.icon}/>
-          </div>
-          <Typography variant="subheading">Installed version 0.1.0</Typography>
-          <Typography variant="subheading">Last checked: {localStorage.getItem('ui')}</Typography>
-          {!this.state.ui && this.state.updateInProgress ? <CircularProgress /> : null}
-          <br />
-          <Button onClick={() => this.handleClick('ui')} variant="raised" color="primary">
-            Update
+          <Paper className={classes.root} elevation={4}>
+            <div className={classes.header}>
+              <Typography variant="headline" component="h3">{this.props.environment ? 'Local Server' : 'Remote Server'}</Typography>
+              <RouterIcon className={classes.icon} />
+            </div>
+            <Typography variant="subheading">Installed version 0.1.0</Typography>
+            <Typography variant="subheading">Last checked: {this.props.environment ? localStorage.getItem('server') : localStorage.getItem('remoteServer')}</Typography>
+            {!this.state.server && this.state.updateInProgress ? <CircularProgress /> : null}
+            <br />
+            <Button onClick={() => this.handleClick(this.props.environment ? 'server' : 'remoteServer')} variant="raised" color="primary">
+              Update
           </Button>
-        </Paper>
-        </div>
-        <div className={classes.content}>
-        <Paper className={classes.root} elevation={4}>
-          <div className={classes.header}>
-            <Typography variant="headline" component="h3">Local Server</Typography>
-            <RouterIcon className={classes.icon}/>
-          </div>
-          <Typography variant="subheading">Installed version 0.1.0</Typography>
-          <Typography variant="subheading">Last checked: {localStorage.getItem('server')}</Typography>
-          {!this.state.server && this.state.updateInProgress ? <CircularProgress /> : null}
-          <br />
-          <Button onClick={() => this.handleClick('server')} variant="raised" color="primary">
-            Update
-          </Button>
-        </Paper>
-        </div>
-        <div className={classes.content}>
-        <Paper className={classes.root} elevation={4}>
-          <div className={classes.header}>
-            <Typography variant="headline" component="h3">Driver</Typography>
-            <DirectionsCarIcon className={classes.icon}/>
-          </div>
-          <Typography variant="subheading">Installed version 0.1.0</Typography>
-          <Typography variant="subheading">Last checked: {localStorage.getItem('driver')}</Typography>
-          {!this.state.driver && this.state.updateInProgress ? <CircularProgress /> : null}
-          <br />
-          <Button onClick={() => this.handleClick('driver')} variant="raised" color="primary">
-            Update
-          </Button>
-        </Paper>
+          </Paper>
         </div>
       </div>
     );
