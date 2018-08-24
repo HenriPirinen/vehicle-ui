@@ -47,7 +47,7 @@ class WeatherTab extends React.Component {
     let tick = [];
     let i,x;
     for(i = 0, x = 0; i < this.props.forecast.list.length; i++, x++){ //Tick value, every 8th epoch
-      forecastBuild.push({x: this.props.forecast.list[i].dt, y: Math.round((this.props.forecast.list[i].main.temp - 273.15)*100) / 100}); //x param = epoch time
+      forecastBuild.push({x: this.props.forecast.list[i].dt * 1000, y: Math.round((this.props.forecast.list[i].main.temp - 273.15)*100) / 100}); //x param = epoch time
       if(x === 7){
         tick.push(this.props.forecast.list[i].dt);
         x = 0;

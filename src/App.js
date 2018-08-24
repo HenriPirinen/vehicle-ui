@@ -387,7 +387,6 @@ class App extends Component {
             }
           }
         }
-        console.log(_updateCellDataPoints);
         this.setState({ cellDataPoints: _updateCellDataPoints });
       }
     });
@@ -765,10 +764,12 @@ class App extends Component {
                           message={<span id="message-id">Execute commands</span>}
                         />
                         <div className={classes.toolbar} />
-                          <Timeline 
+                        {!config.local && (this.state.selectedTab === 'Log' || this.state.selectedTab === 'Voltage' || this.state.selectedTab === 'Temperature') ?
+                          (<Timeline 
                             queryDB={this.queryDB}
                             updateParentState={this.updateParentState}
-                          />
+                          />) : (null)
+                        }
                         {(() => {
                           switch (this.state.selectedTab) {
                             case 'Voltage':
