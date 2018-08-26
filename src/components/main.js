@@ -32,12 +32,13 @@ const styles = theme => ({
     wrapper: {
         margin: theme.spacing.unit,
         position: 'relative',
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     fabProgress: {
-        color: green[500],
+        color: '#f50057',
         position: 'absolute',
-        top: -6,
-        left: -6,
         zIndex: 1,
     },
     cruiseStatusON: {
@@ -48,10 +49,6 @@ const styles = theme => ({
         color: grey[500],
         fontSize: 100
     },
-    cruiseStatusEdit: {
-        color: 'secondary',
-        fontSize: 100
-    }
 });
 
 class MainMenu extends React.Component {
@@ -84,7 +81,7 @@ class MainMenu extends React.Component {
                                         )
                                 }
                                 style={{ fontSize: 120 }}
-                                onClick={() => this.props.setDriverState('0100')} //Drive
+                                onClick={() => this.props.setDriverState('forward')} //Drive
                             />
                             <br />
                             {this.props.driveDirection === 'neutral' ?
@@ -92,12 +89,13 @@ class MainMenu extends React.Component {
                                     <RadioButtonCheckedIcon
                                         style={{ fontSize: 100 }}
                                         color={this.props.editing ? 'secondary' : 'primary'}
-                                        onClick={() => this.props.setDriverState('0000')}
-                                    />) : (
+                                        onClick={() => this.props.setDriverState('neutral')}
+                                    />
+                                ) : (
                                     <RadioButtonUncheckedIcon
                                         style={{ fontSize: 100 }}
                                         color={'disabled'}
-                                        onClick={() => this.props.setDriverState('0000')}
+                                        onClick={() => this.props.setDriverState('neutral')}
                                     />
                                 )
                             }
@@ -109,7 +107,7 @@ class MainMenu extends React.Component {
                                         this.props.driveDirection === 'reverse' ? 'primary' : 'disabled'
                                     )}
                                 style={{ fontSize: 120 }}
-                                onClick={() => this.props.setDriverState('1000')} //Reverse
+                                onClick={() => this.props.setDriverState('reverse')} //Reverse
                             />
                             <Typography
                                 variant="headline"
@@ -131,21 +129,26 @@ class MainMenu extends React.Component {
                             >
                                 Cruise
                             </Typography>
-                            <CheckCircleIcon
-                                className={this.props.cruiseON ? (
-                                    classes.cruiseStatusON
-                                ) : (
-                                    classes.cruiseStatusOFF
-                                )} 
-                                onClick={() => {this.props.setDriverState('0010')}}
-                            />
+                                <div className={classes.wrapper}>
+                                    {this.props.editing && 
+                                        <CircularProgress size={100} className={classes.fabProgress} 
+                                    />}
+                                    <CheckCircleIcon
+                                        className={this.props.cruiseON ? (
+                                            classes.cruiseStatusON
+                                        ) : (
+                                            classes.cruiseStatusOFF
+                                        )}
+                                        onClick={ () => {this.props.setDriverState('cruise')}}
+                                    />
+                                </div>
                         </Paper>
                     </React.Fragment>
                 ) : (   
                         <React.Fragment>
                             <Paper className={classes.root} elevation={4}>
                                 <div className={classes.wrapper}>
-                                    {this.props.starting && <CircularProgress size={165} className={classes.fabProgress} />}
+                                    {this.props.starting && <CircularProgress size={165} className={classes.fabProgress}/>}
                                     <PowerSettingsIcon
                                         style={{ fontSize: 150 }}
                                         color={'primary'}

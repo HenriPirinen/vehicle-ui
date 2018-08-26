@@ -187,6 +187,7 @@ class App extends Component {
     super(props)
 
     this.state = {
+      driverState: [0,0,0,0], //Reverse, Forward, Neutral, Cruise
       securityToken: '', //Required on remote client, empty on local client
       //verified: config.local ? true : false, //Don't display signin screen for local UI.
       verified: config.local ? true : true, //Don't display signin screen for local UI.
@@ -201,7 +202,7 @@ class App extends Component {
       controller1port: '',
       controller2port: '',
       remoteUpdateInterval: 300000,
-      selectedTab: config.type === 'local' ? 'Main' : 'Log', //Startpage
+      selectedTab: config.local ? 'Main' : 'Log', //Startpage
       enabledGraphs: [[true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true]], //[0] = voltage, [1] = temperature
       graphIntreval: [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]],
       heatmapRange: [20, 80],
@@ -217,7 +218,6 @@ class App extends Component {
       updateInProgress: false,
       editing: false,
       cruiseON: false,
-      cruiseSpeed: 25,
       inverterValues: '',
       vehicleStarted: true,
       starting: false,
@@ -262,11 +262,11 @@ class App extends Component {
   };
 
   setDirection = (_input) => {
-    if (_input.charAt(0) === _input.charAt(1)) {
+    if (_input[0] === 0 && _input[1] === 0) {
       this.setState({ driveDirection: 'neutral' });
-    } else if (_input.charAt(0) === '1' && _input.charAt(1) === '0') {
+    } else if (_input[0] === 1 && _input[1] === 0) {
       this.setState({ driveDirection: 'reverse' });
-    } else if (_input.charAt(1) === '1' && _input.charAt(0) === '0') {
+    } else if (_input[1] === 1 && _input[0] === 0) {
       this.setState({ driveDirection: 'drive' });
     }
   };
@@ -313,7 +313,7 @@ class App extends Component {
         }
         )
     };
-    
+
     this.socket = openSocket(config.websocketAdress);
 
     /**
@@ -327,11 +327,19 @@ class App extends Component {
      */
 
     this.socket.on('systemParam', (data) => {
+      console.log("Sysparam");
       let _message = JSON.parse(data.message.toString());
       let _groupChargeStatus = [];
       _message.groupChargeStatus.forEach(element => {
         element === 0 ? _groupChargeStatus.push(true) : _groupChargeStatus.push(false)
       });
+
+      let _driverState = _message.driverState.split("");
+      for(let i = 0; i < _driverState.length; i++){
+        _driverState[i] = parseInt(_driverState[i], 10);
+      }
+
+      console.log(_driverState);
 
       this.setState({
         weatherAPI: _message.weatherAPI,
@@ -341,10 +349,10 @@ class App extends Component {
         controller1port: _message.controller_1,
         controller2port: _message.controller_2,
         remoteUpdateInterval: _message.remoteUpdateInterval,
-        groupChargeStatus: _groupChargeStatus
+        groupChargeStatus: _groupChargeStatus,
+        driverState: _driverState
       });
-      this.setDirection(_message.driverState);
-
+      this.setDirection(_driverState);
       /*this.socket.emit('command', { //Request inverter settings from the server
         command: 'json',
         handle: 'client',
@@ -437,7 +445,7 @@ class App extends Component {
           this.setState({ groupChargeStatus: _groupChargeStatus });
           break;
         case "Driver":
-          this.setDirection(_input.value);
+          this.setDirection(_input.value.split(""));
           console.log(_input.value);
           break;
         case "Server":
@@ -461,7 +469,7 @@ class App extends Component {
         action: 'request'
       });
     } else if (event === 'verify') {
-      this.setState({securityToken: token});
+      this.setState({ securityToken: token });
       this.socket.emit('authToken', {
         action: 'verify',
         token: token
@@ -502,11 +510,38 @@ class App extends Component {
     /**
      * @param {string} target neutral, drive, reverse 
      */
+    let _driverState = this.state.driverState;
+
+    switch (target) {
+      case 'forward':
+        _driverState[0] = 0;
+        _driverState[1] = 1;
+        break;
+      case 'reverse':
+        _driverState[0] = 1;
+        _driverState[1] = 0;
+        break;
+      case 'neutral':
+        _driverState[0] = 0;
+        _driverState[1] = 0;
+        break;
+      case 'cruise':
+        _driverState[2] = _driverState[2] === 0 ? 1 : 0;
+        this.setState({ cruiseON: _driverState[2] === 0 ? false : true });
+        break;
+      default:
+    }
+    console.log(_driverState);
+    this.setState({
+      editing: true,
+      driverState: _driverState
+     });
+
     localStorage.setItem("editing", "true");
-    this.setState({ editing: true });
-    this.setDirection(target);
+    this.setDirection(this.state.driverState);
+
     this.socket.emit('command', { //Send update command to server
-      command: target,
+      command: _driverState.join(""),
       handle: 'client',
       target: 'driver'
     });
@@ -765,7 +800,7 @@ class App extends Component {
                         />
                         <div className={classes.toolbar} />
                         {!config.local && (this.state.selectedTab === 'Log' || this.state.selectedTab === 'Voltage' || this.state.selectedTab === 'Temperature') ?
-                          (<Timeline 
+                          (<Timeline
                             queryDB={this.queryDB}
                             updateParentState={this.updateParentState}
                           />) : (null)
@@ -800,7 +835,6 @@ class App extends Component {
                                     setCruise={this.setCruise}
                                     driveDirection={this.state.driveDirection}
                                     editing={this.state.editing}
-                                    cruise={this.state.cruiseSpeed}
                                     vehicleStarted={this.state.vehicleStarted}
                                     starting={this.state.starting}
                                     cruiseON={this.state.cruiseON}
