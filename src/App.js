@@ -190,7 +190,7 @@ class App extends Component {
       driverState: [0,0,0,0], //Reverse, Forward, Neutral, Cruise
       securityToken: '', //Required on remote client, empty on local client
       //verified: config.local ? true : false, //Don't display signin screen for local UI.
-      verified: config.local ? true : true, //Don't display signin screen for local UI.
+      verified: config.local ? true : false, //Don't display signin screen for local UI.
       dataSDate: '2018-08-16', //Start date
       dataEDate: '2018-08-17', //End date
       mobileOpen: false,

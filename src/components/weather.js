@@ -24,9 +24,11 @@ const styles = theme => ({
     marginRight: 16,
     marginBottom: 16,
     marginTop: theme.spacing.unit * 3,
+    width: document.getElementById('appContent').offsetWidth - 150
   }),
   content: theme.mixins.gutters({
-    display: 'flex',
+    //display: 'flex',
+    width: '80%',
     textAlign: 'center'
   }),
 });
@@ -129,8 +131,9 @@ class WeatherTab extends React.Component {
           <Typography variant="headline" component="h3">Humidity: {this.props.data.main.humidity} %</Typography>
           <Typography variant="headline" component="h3">Wind: {Math.round((this.props.data.wind.speed * 0.44704) * 100) / 100} m/s</Typography>
           </Paper>
+          <br />
           <Paper className={classes.root} elevation={4}>
-          <XYPlot width={600} height={500} xType="time">
+          <XYPlot width={document.getElementById('appContent').offsetWidth - 170} height={500} xType="time">
             <HorizontalGridLines />
             <VerticalGridLines />
             <XAxis title="Time" position="start" tickValues={[this.state.tick[0], this.state.tick[1], this.state.tick[2], this.state.tick[3], this.state.tick[4]]}/>
