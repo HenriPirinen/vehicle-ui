@@ -142,7 +142,7 @@ class DataLine extends React.Component {
               )
             }
           </div>
-          <XYPlot height={300} width={this.state.parentWidth - 35} xType="time" yDomain={[2, 4]}>
+          <XYPlot height={300} width={this.state.parentWidth - 35} xType="time" yDomain={this.props.graphDomain}>
             <HorizontalGridLines />
             <VerticalGridLines />
             <XAxis title="Time" position="start" />

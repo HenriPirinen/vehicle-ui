@@ -201,7 +201,10 @@ class App extends Component {
       driver1port: '',
       controller1port: '',
       controller2port: '',
+      thermoDevice: '',
       remoteUpdateInterval: 300000,
+      temperatureLimit: 100,
+      voltageLimit: 7.50,
       selectedTab: config.local ? 'Main' : 'Log', //Startpage
       enabledGraphs: [[true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true]], //[0] = voltage, [1] = temperature
       graphIntreval: [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]],
@@ -354,6 +357,9 @@ class App extends Component {
         driver1port: _message.driverPort,
         controller1port: _message.controller_1,
         controller2port: _message.controller_2,
+        thermoDevice: _message.thermoDevice,
+        temperatureLimit: _message.temperatureLimit,
+        voltageLimit: _message.voltageLimit,
         remoteUpdateInterval: _message.remoteUpdateInterval,
         groupChargeStatus: _groupChargeStatus,
         driverState: _driverState,
@@ -703,6 +709,9 @@ class App extends Component {
       controller1port: this.state.controller1port,
       controller2port: this.state.controller2port,
       driverPort: this.state.driver1port,
+      thermoDevice: this.state.thermoDevice,
+      temperatureLimit: this.state.temperatureLimit,
+      voltageLimit: this.state.voltageLimit,
       interval: this.state.remoteUpdateInterval,
       handle: 'client',
       target: 'server'
@@ -861,6 +870,7 @@ class App extends Component {
                                     toggleWebasto={this.state.toggleWebasto}
                                     cruiseON={this.state.cruiseON}
                                     editTarget={this.state.editTarget}
+                                    local={config.local}
                                   />
                                 </React.Fragment>
                               );
@@ -926,6 +936,9 @@ class App extends Component {
                                     controller1port={this.state.controller1port}
                                     controller2port={this.state.controller2port}
                                     driver1port={this.state.driver1port}
+                                    thermoDevice={this.state.thermoDevice}
+                                    temperatureLimit={this.state.temperatureLimit}
+                                    voltageLimit={this.state.voltageLimit}
                                     remoteUpdateInterval={this.state.remoteUpdateInterval}
                                     graphIntreval={this.state.graphIntreval}
                                     heatmapRange={this.state.heatmapRange}

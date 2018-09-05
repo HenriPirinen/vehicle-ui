@@ -52,6 +52,7 @@ class GraphContainer extends React.Component {
                                     graphWidth={this.props.contentWidth}
                                     data={this.props.data[0][i]}
                                     dataLimit={this.props.dataLimit}
+                                    graphDomain={[2,4]}
                                     graphName={i}
                                     chargeStatus={this.props.chargeStatus[i]}
                                     isCharging={this.props.charging}
@@ -76,6 +77,7 @@ class GraphContainer extends React.Component {
                                         graphWidth={this.props.contentWidth}
                                         data={this.props.data[1][t]}
                                         dataLimit={this.props.dataLimit}
+                                        graphDomain={[0,70]}
                                         graphName={t}
                                         chargeStatus={this.props.chargeStatus[t]}
                                         isCharging={this.props.charging}

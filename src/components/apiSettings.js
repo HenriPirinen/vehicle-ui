@@ -32,7 +32,10 @@ class ApiSettings extends React.Component {
         controller1port: props.controller1port,
         controller2port: props.controller2port,
         driver1port: props.driver1port,
-        interval: props.remoteUpdateInterval
+        thermoDevice: props.thermoDevice,
+        interval: props.remoteUpdateInterval,
+        voltageLimit: props.voltageLimit,
+        temperatureLimit: props.temperatureLimit
     };
   }
 
@@ -71,7 +74,7 @@ class ApiSettings extends React.Component {
                 <Divider/>
                 <TextField
                     id="localServerAddress"
-                    label="Regni API IP Adress"
+                    label="Regni API Adress"
                     className={classes.textField}
                     value={this.state.localServerAddress}
                     onChange={this.handleChange('localServerAddress')}
@@ -80,7 +83,7 @@ class ApiSettings extends React.Component {
                 />
                 <TextField
                     id="remoteServerAddress"
-                    label="Remote Server IP Adress"
+                    label="MQTT Broker Adress"
                     className={classes.textField}
                     value={this.state.remoteServerAddress}
                     onChange={this.handleChange('remoteServerAddress')}
@@ -90,7 +93,7 @@ class ApiSettings extends React.Component {
                 <Divider/>
                 <TextField
                     id="controller.1"
-                    label="Controller 1 Port"
+                    label="Controller 1 device"
                     className={classes.textField}
                     value={this.state.controller1port}
                     onChange={this.handleChange('controller1port')}
@@ -99,7 +102,7 @@ class ApiSettings extends React.Component {
                 />
                 <TextField
                     id="controller.2"
-                    label="Controller 2 Port"
+                    label="Controller 2 device"
                     className={classes.textField}
                     value={this.state.controller2port}
                     onChange={this.handleChange('controller1port')}
@@ -109,13 +112,42 @@ class ApiSettings extends React.Component {
                 <Divider/>
                 <TextField
                     id="driver.1"
-                    label="Driver Port"
+                    label="Driver device"
                     className={classes.textField}
                     value={this.state.driver1port}
                     onChange={this.handleChange('driver1port')}
                     onBlur={() => this.props.updateParentState('driver1port',document.getElementById('driver.1').value)}
                     margin="normal"
                 />
+                <TextField
+                    id="thermo"
+                    label="Thermocouple device"
+                    className={classes.textField}
+                    value={this.state.thermoDevice}
+                    onChange={this.handleChange('thermoDevice')}
+                    onBlur={() => this.props.updateParentState('thermoDevice',document.getElementById('thermo').value)}
+                    margin="normal"
+                />
+                <Divider/>
+                <TextField
+                    id="tempLimit"
+                    label="Thermocouple temperature limit"
+                    className={classes.textField}
+                    value={this.state.temperatureLimit}
+                    onChange={this.handleChange('temperatureLimit')}
+                    onBlur={() => this.props.updateParentState('temperatureLimit',document.getElementById('tempLimit').value)}
+                    margin="normal"
+                />
+                <TextField
+                    id="voltageLimit"
+                    label="Serial charge voltage limit"
+                    className={classes.textField}
+                    value={this.state.voltageLimit}
+                    onChange={this.handleChange('voltageLimit')}
+                    onBlur={() => this.props.updateParentState('voltageLimit',document.getElementById('voltageLimit').value)}
+                    margin="normal"
+                />
+                <Divider/>
                 <TextField
                     id="interval"
                     label="Remote update interval"

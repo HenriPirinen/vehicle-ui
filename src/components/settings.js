@@ -56,6 +56,9 @@ class InterfaceSettings extends React.Component {
                 controller1port={this.props.controller1port}
                 controller2port={this.props.controller2port}
                 driver1port={this.props.driver1port}
+                thermoDevice={this.props.thermoDevice}
+                temperatureLimit={this.props.temperatureLimit}
+                voltageLimit={this.props.voltageLimit}
                 remoteUpdateInterval={this.props.remoteUpdateInterval}
               />
             </Paper>

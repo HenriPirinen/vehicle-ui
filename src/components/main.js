@@ -11,10 +11,7 @@ import PowerSettingsIcon from '@material-ui/icons/PowerSettingsNew';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import green from '@material-ui/core/colors/green';
 import grey from '@material-ui/core/colors/grey';
-//import AddCircleIcon from '@material-ui/icons/AddCircle';
-//import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-//import PeugeotLogo from '../media/Peugeot_logo.svg';
 
 const styles = theme => ({
     root: theme.mixins.gutters({
@@ -56,7 +53,7 @@ class MainMenu extends React.Component {
         const { classes } = this.props;
         return (
             <div className={classes.content}>
-                {!this.props.webastoEnabled ? (
+                {this.props.local ? (
                     <React.Fragment>
                         <Paper className={classes.root} elevation={4}>
                             <Typography
@@ -122,33 +119,32 @@ class MainMenu extends React.Component {
                             </Typography>
                         </Paper>
                         <div id="test">
-                        {this.props.driveDirection !== `neutral` &&
-                            <Paper className={classes.root} elevation={4}>
-                                <Typography
-                                    variant="display3"
-                                    component="h1"
-                                    color={'primary'}
-                                >
-                                    Cruise
+                            {this.props.driveDirection !== `neutral` &&
+                                <Paper className={classes.root} elevation={4}>
+                                    <Typography
+                                        variant="display3"
+                                        component="h1"
+                                        color={'primary'}
+                                    >
+                                        Cruise
                                 </Typography>
-                                <div className={classes.wrapper}>
-                                    {this.props.editing && this.props.editTarget === 'cruise' ? (
-                                        <CircularProgress size={100} className={classes.fabProgress}/>
+                                    <div className={classes.wrapper}>
+                                        {this.props.editing && this.props.editTarget === 'cruise' ? (
+                                            <CircularProgress size={100} className={classes.fabProgress} />
                                         ) : (null)
-                                    }
-                                    <CheckCircleIcon
-                                        className={this.props.cruiseON ? (
-                                            classes.cruiseStatusON
-                                        ) : (
-                                                classes.cruiseStatusOFF
-                                            )}
-                                        onClick={() => { this.props.setDriverState('cruise') }}
-                                    />
-                                </div>
-                            </Paper>
-                        }
-                        <br />
-                        {this.props.driveDirection === `neutral` &&
+                                        }
+                                        <CheckCircleIcon
+                                            className={this.props.cruiseON ? (
+                                                classes.cruiseStatusON
+                                            ) : (
+                                                    classes.cruiseStatusOFF
+                                                )}
+                                            onClick={() => { this.props.setDriverState('cruise') }}
+                                        />
+                                    </div>
+                                </Paper>
+                            }
+                            <br />
                             <Paper className={classes.root} elevation={4}>
                                 <Typography
                                     variant="display3"
@@ -162,11 +158,10 @@ class MainMenu extends React.Component {
                                     <PowerSettingsIcon
                                         style={{ fontSize: 100 }}
                                         color={'disabled'}
-                                        onClick={() => {this.props.setDriverState('webasto'); this.props.vehicleMode();}}
+                                        onClick={() => { this.props.setDriverState('webasto'); this.props.vehicleMode(); }}
                                     />
                                 </div>
                             </Paper>
-                        }
                         </div>
                     </React.Fragment>
                 ) : (
@@ -184,7 +179,7 @@ class MainMenu extends React.Component {
                                     <PowerSettingsIcon
                                         style={{ fontSize: 100 }}
                                         color={'primary'}
-                                        onClick={() => {this.props.setDriverState('webasto'); this.props.vehicleMode();}}
+                                        onClick={() => { this.props.setDriverState('webasto'); this.props.vehicleMode(); }}
                                     />
                                 </div>
                             </Paper>
