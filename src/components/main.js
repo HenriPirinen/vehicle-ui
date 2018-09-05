@@ -56,14 +56,14 @@ class MainMenu extends React.Component {
         const { classes } = this.props;
         return (
             <div className={classes.content}>
-                {this.props.vehicleStarted ? (
+                {!this.props.webastoEnabled ? (
                     <React.Fragment>
                         <Paper className={classes.root} elevation={4}>
                             <Typography
                                 variant="headline"
                                 component="h3"
                                 color={
-                                    this.props.editing ? (
+                                    this.props.editing && this.props.editTarget === 'forward' ? (
                                         this.props.driveDirection === 'drive' ? 'secondary' : 'default'
                                     ) : (
                                             this.props.driveDirection === 'drive' ? 'primary' : 'default'
@@ -74,7 +74,7 @@ class MainMenu extends React.Component {
                             </Typography>
                             <ArrowUpwardIcon
                                 color={
-                                    this.props.editing ? (
+                                    this.props.editing && this.props.editTarget === 'forward' ? (
                                         this.props.driveDirection === 'drive' ? 'secondary' : 'disabled'
                                     ) : (
                                             this.props.driveDirection === 'drive' ? 'primary' : 'disabled'
@@ -88,7 +88,7 @@ class MainMenu extends React.Component {
                                 (
                                     <RadioButtonCheckedIcon
                                         style={{ fontSize: 100 }}
-                                        color={this.props.editing ? 'secondary' : 'primary'}
+                                        color={this.props.editing && this.props.editTarget === 'neutral' ? 'secondary' : 'primary'}
                                         onClick={() => this.props.setDriverState('neutral')}
                                     />
                                 ) : (
@@ -101,7 +101,7 @@ class MainMenu extends React.Component {
                             }
                             <br />
                             <ArrowDownwardIcon
-                                color={this.props.editing ? (
+                                color={this.props.editing && this.props.editTarget === 'reverse' ? (
                                     this.props.driveDirection === 'reverse' ? 'secondary' : 'disabled'
                                 ) : (
                                         this.props.driveDirection === 'reverse' ? 'primary' : 'disabled'
@@ -112,7 +112,7 @@ class MainMenu extends React.Component {
                             <Typography
                                 variant="headline"
                                 component="h3"
-                                color={this.props.editing ? (
+                                color={this.props.editing && this.props.editTarget === 'reverse' ? (
                                     this.props.driveDirection === 'reverse' ? 'secondary' : 'default'
                                 ) : (
                                         this.props.driveDirection === 'reverse' ? 'primary' : 'default'
@@ -121,47 +121,72 @@ class MainMenu extends React.Component {
                                 Reverse
                             </Typography>
                         </Paper>
-                        <Paper className={classes.root} elevation={4}>
-                            <Typography
-                                variant="display3"
-                                component="h1"
-                                color={'primary'}
-                            >
-                                Cruise
-                            </Typography>
+                        <div id="test">
+                        {this.props.driveDirection !== `neutral` &&
+                            <Paper className={classes.root} elevation={4}>
+                                <Typography
+                                    variant="display3"
+                                    component="h1"
+                                    color={'primary'}
+                                >
+                                    Cruise
+                                </Typography>
                                 <div className={classes.wrapper}>
-                                    {this.props.editing && 
-                                        <CircularProgress size={100} className={classes.fabProgress} 
-                                    />}
+                                    {this.props.editing && this.props.editTarget === 'cruise' ? (
+                                        <CircularProgress size={100} className={classes.fabProgress}/>
+                                        ) : (null)
+                                    }
                                     <CheckCircleIcon
                                         className={this.props.cruiseON ? (
                                             classes.cruiseStatusON
                                         ) : (
-                                            classes.cruiseStatusOFF
-                                        )}
-                                        onClick={ () => {this.props.setDriverState('cruise')}}
+                                                classes.cruiseStatusOFF
+                                            )}
+                                        onClick={() => { this.props.setDriverState('cruise') }}
                                     />
                                 </div>
-                        </Paper>
-                    </React.Fragment>
-                ) : (   
-                        <React.Fragment>
+                            </Paper>
+                        }
+                        <br />
+                        {this.props.driveDirection === `neutral` &&
                             <Paper className={classes.root} elevation={4}>
-                                <div className={classes.wrapper}>
-                                    {this.props.starting && <CircularProgress size={165} className={classes.fabProgress}/>}
-                                    <PowerSettingsIcon
-                                        style={{ fontSize: 150 }}
-                                        color={'primary'}
-                                        onClick={() => this.props.vehicleMode()}
-                                    />
-                                </div>
                                 <Typography
-                                    variant="headline"
-                                    component="h3"
+                                    variant="display3"
+                                    component="h1"
                                     color={'primary'}
                                 >
-                                    Start
+                                    Webasto
                                 </Typography>
+                                <div className={classes.wrapper}>
+                                    {this.props.toggleWebasto && <CircularProgress size={100} className={classes.fabProgress} />}
+                                    <PowerSettingsIcon
+                                        style={{ fontSize: 100 }}
+                                        color={'disabled'}
+                                        onClick={() => {this.props.setDriverState('webasto'); this.props.vehicleMode();}}
+                                    />
+                                </div>
+                            </Paper>
+                        }
+                        </div>
+                    </React.Fragment>
+                ) : (
+                        <React.Fragment>
+                            <Paper className={classes.root} elevation={4}>
+                                <Typography
+                                    variant="display3"
+                                    component="h1"
+                                    color={'primary'}
+                                >
+                                    Webasto
+                                </Typography>
+                                <div className={classes.wrapper}>
+                                    {this.props.toggleWebasto && <CircularProgress size={100} className={classes.fabProgress} />}
+                                    <PowerSettingsIcon
+                                        style={{ fontSize: 100 }}
+                                        color={'primary'}
+                                        onClick={() => {this.props.setDriverState('webasto'); this.props.vehicleMode();}}
+                                    />
+                                </div>
                             </Paper>
                         </React.Fragment>
                     )}

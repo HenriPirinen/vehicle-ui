@@ -217,10 +217,11 @@ class App extends Component {
       showNotification: false,
       updateInProgress: false,
       editing: false,
+      editTarget: '',
       cruiseON: false,
       inverterValues: '',
-      vehicleStarted: true,
-      starting: false,
+      webastoEnabled: false,
+      toggleWebasto: false,
       charging: true,
       sysLogFilter: [[true, true, true], [true, true, true], [true, true, true], [true, true, true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
       systemLog: [[], [], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver, [4] = UI.
@@ -284,8 +285,14 @@ class App extends Component {
 
       this.setState({ cellDataPoints: _updateCellDataPoints });
 
-      localStorage.getItem("editing") === "true" ? this.setState({ editing: true }) : this.setState({ editing: false });
-
+      if(localStorage.getItem("editing") === "true"){
+        this.setState({ 
+          editing: true,
+          editTarget: localStorage.getItem("editTarget")
+        });
+      } else {
+        this.setState({ editing: false });
+      }
       //getLocation();
       fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`) //TODO: get lat and lon from gps
         .then(res => res.json())
@@ -327,7 +334,6 @@ class App extends Component {
      */
 
     this.socket.on('systemParam', (data) => {
-      console.log("Sysparam");
       let _message = JSON.parse(data.message.toString());
       let _groupChargeStatus = [];
       _message.groupChargeStatus.forEach(element => {
@@ -350,7 +356,9 @@ class App extends Component {
         controller2port: _message.controller_2,
         remoteUpdateInterval: _message.remoteUpdateInterval,
         groupChargeStatus: _groupChargeStatus,
-        driverState: _driverState
+        driverState: _driverState,
+        cruiseON: _driverState[2] === 0 ? false : true,
+        webastoEnabled: _driverState[3] === 0 ? false : true
       });
       this.setDirection(_driverState);
       /*this.socket.emit('command', { //Request inverter settings from the server
@@ -377,12 +385,16 @@ class App extends Component {
 
       if (validateJSON(_input)) {
         let _validData = JSON.parse(_input);
-        if (config.local) {
-          for (let i = 0; i < _validData.voltage.length; i++) {
-            _updateCellDataPoints[0][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.voltage[i] });
-            _updateCellDataPoints[1][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.temperature[i] });
+        if (config.local) { //Group data from the local server, only available if UI is configured to local state.
+          if(_validData.origin !== `Thermocouple`){
+            for (let i = 0; i < _validData.voltage.length; i++) {
+              _updateCellDataPoints[0][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.voltage[i] });
+              _updateCellDataPoints[1][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.temperature[i] });
+            }
+          } else {
+            console.log(_validData);
           }
-        } else {
+        } else { //Data requested from the remote server (database), only available if UI is configured to remote state.
           for (let g = 0; g < _validData.data.length; g++) {
             for (let c = 0; c < _validData.data[g].length; c++) {
               if (_validData.data[g][c].length > 0) {
@@ -447,6 +459,10 @@ class App extends Component {
         case "Driver":
           this.setDirection(_input.value.split(""));
           console.log(_input.value);
+          this.setState({
+            cruiseON: _input.value.charAt(2) === `0` ? false : true,
+            webastoEnabled: _input.value.charAt(3) === `0` ? false : true
+          });
           break;
         case "Server":
           if (_input.message === "successfull") {
@@ -529,15 +545,21 @@ class App extends Component {
         _driverState[2] = _driverState[2] === 0 ? 1 : 0;
         this.setState({ cruiseON: _driverState[2] === 0 ? false : true });
         break;
+      case 'webasto':
+        _driverState[3] = _driverState[3] === 0 ? 1 : 0;
+        this.setState({ toggleWebasto: _driverState[3] === 0 ? false : true });
+        break;
       default:
     }
     console.log(_driverState);
     this.setState({
       editing: true,
-      driverState: _driverState
+      driverState: _driverState,
+      editTarget: target
      });
 
     localStorage.setItem("editing", "true");
+    localStorage.setItem("editTarget", target);
     this.setDirection(this.state.driverState);
 
     this.socket.emit('command', { //Send update command to server
@@ -549,11 +571,11 @@ class App extends Component {
 
   vehicleMode = () => {
 
-    this.setState({ starting: true });
-    setTimeout(() => { //Simulate starting
+    this.setState({ toggleWebasto: true });
+    setTimeout(() => { //Simulate toggleWebasto
       this.setState({
-        vehicleStarted: !this.state.vehicleStarted,
-        starting: false
+        webastoEnabled: !this.state.webastoEnabled,
+        toggleWebasto: false
       });
     }, 2000);
   }
@@ -835,9 +857,10 @@ class App extends Component {
                                     setCruise={this.setCruise}
                                     driveDirection={this.state.driveDirection}
                                     editing={this.state.editing}
-                                    vehicleStarted={this.state.vehicleStarted}
-                                    starting={this.state.starting}
+                                    webastoEnabled={this.state.webastoEnabled}
+                                    toggleWebasto={this.state.toggleWebasto}
                                     cruiseON={this.state.cruiseON}
+                                    editTarget={this.state.editTarget}
                                   />
                                 </React.Fragment>
                               );

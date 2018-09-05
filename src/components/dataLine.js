@@ -165,7 +165,7 @@ class DataLine extends React.Component {
                   className={classes.button} 
                   onClick={() => {this.props.toggleCharging(this.props.graphName); this.setProgress();}}
                 >
-                  {this.props.chargeStatus ? "Start charging" : "Stop charging"}
+                  {this.props.chargeStatus ? "Start balance" : "Stop balance"}
                   <TrendingUpIcon className={classes.rightIcon}>start</TrendingUpIcon>
                 </Button>
               </ExpansionPanelDetails>
