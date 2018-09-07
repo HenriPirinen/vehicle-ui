@@ -570,8 +570,10 @@ class App extends Component {
 
     this.socket.emit('command', { //Send update command to server
       command: _driverState.join(""),
+      type: "onExecute",
       handle: 'client',
-      target: 'driver'
+      target: 'driver',
+      token: this.state.securityToken
     });
   }
 
@@ -582,6 +584,13 @@ class App extends Component {
       this.setState({
         webastoEnabled: !this.state.webastoEnabled,
         toggleWebasto: false
+      });
+      this.socket.emit('command', { //Send update command to server
+        command: this.state.webastoEnabled ? "$webasto" : "$!webasto",
+        type: "instant",
+        handle: 'client',
+        target: 'driver',
+        token: this.state.securityToken
       });
     }, 2000);
   }
