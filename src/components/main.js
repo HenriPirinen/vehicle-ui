@@ -178,7 +178,7 @@ class MainMenu extends React.Component {
                                     {this.props.toggleWebasto && <CircularProgress size={100} className={classes.fabProgress} />}
                                     <PowerSettingsIcon
                                         style={{ fontSize: 100 }}
-                                        color={'primary'}
+                                        color={this.props.webastoEnabled ?'primary' : 'disabled'}
                                         onClick={() => { this.props.setDriverState('webasto'); this.props.vehicleMode(); }}
                                     />
                                 </div>

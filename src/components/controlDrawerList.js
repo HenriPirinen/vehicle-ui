@@ -64,17 +64,12 @@ class DrawerList extends React.Component {
     return (
       <div className={classes.root}>
         <List component="nav">
-          {this.props.uiType ? (
-            <ListItem button onClick={() => { this.props.handleContent('Main'); this.expand('settingsExpanded', false) }}>
-              <ListItemIcon>
-                <HomeIcon />
-              </ListItemIcon>
-              <ListItemText primary="Main" />
-            </ListItem>
-          ) : (
-              null
-            )
-          }
+          <ListItem button onClick={() => { this.props.handleContent('Main'); this.expand('settingsExpanded', false) }}>
+            <ListItemIcon>
+              <HomeIcon />
+            </ListItemIcon>
+            <ListItemText primary="Main" />
+          </ListItem>
           <ListItem button onClick={() => this.expand('dataExpanded')}>
             <ListItemIcon>
               <TimelineIcon />
