@@ -56,6 +56,7 @@ class GraphContainer extends React.Component {
                                     graphName={i}
                                     chargeStatus={this.props.chargeStatus[i]}
                                     isCharging={this.props.charging}
+                                    isBalancing={this.props.isBalancing}
                                     toggleCharging={this.props.toggleCharging}
                                     interval={this.props.interval}
                                     commands={this.props.enableCommands}
@@ -68,6 +69,20 @@ class GraphContainer extends React.Component {
                             <Heatmap
                                 data={this.props.data[1]}
                                 heatmapRange={this.props.heatmapRange}
+                            />
+                            <DataLine
+                                graphTitle={"Thermocouple"}
+                                graphWidth={this.props.contentWidth}
+                                data={this.props.thermocoupleData}
+                                dataLimit={this.props.dataLimit}
+                                graphDomain={[0,150]}
+                                graphName={0} //
+                                chargeStatus={""} //
+                                isCharging={false} //
+                                toggleCharging={""} //
+                                interval={this.props.interval} //
+                                commands={false} //
+                                type={"thermoTemperature"} //
                             />
                             {this.state.graphs.map(t => {
                                 return (

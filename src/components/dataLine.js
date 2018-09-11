@@ -82,12 +82,12 @@ class DataLine extends React.Component {
 
     if(newProps.data[0][newProps.data[0].length - 1].x !== this.state.latest || newProps.chargeStatus !== this.state.chargeStatus){
       this.setState({ shouldUpdate: true })
-      if(newProps.chargeStatus !== this.state.chargeStatus) {
+      if(newProps.chargeStatus !== this.state.chargeStatus && this.props.type !== 'thermoTemperature') {
         this.setState({
           actionInProgress: false,
           chargeStatus: newProps.chargeStatus
-        }) 
-      };
+        });
+      }
     } else {
       this.setState({ shouldUpdate: false })
     }
@@ -159,7 +159,7 @@ class DataLine extends React.Component {
             {this.props.commands &&
               <ExpansionPanelDetails>
                 <Button 
-                  disabled={!this.props.isCharging || this.state.actionInProgress ? true : false}
+                  disabled={!this.props.isBalancing || this.state.actionInProgress ? true : false}
                   variant="raised" 
                   color="primary" 
                   className={classes.button} 

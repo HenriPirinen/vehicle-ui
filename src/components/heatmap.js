@@ -59,7 +59,6 @@ function generateData(measurements, rangeMin, rangeMax) {
     }
 
     //Group / Cell / List of measuruments
-    console.log(measurements);
     for (let group = 0; group < measurements.length; group++) { //Format data to simple list
         for (let cell = 0; cell < measurements[group].length; cell++) {
             formatedData.push(measurements[group][cell][measurements[group][cell].length - 1].y);

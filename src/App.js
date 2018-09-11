@@ -187,7 +187,7 @@ class App extends Component {
     super(props)
 
     this.state = {
-      driverState: [0,0,0,0], //Reverse, Forward, Neutral, Cruise
+      driverState: [0, 0, 0, 0], //Reverse, Forward, Neutral, Cruise
       securityToken: '', //Required on remote client, empty on local client
       //verified: config.local ? true : false, //Don't display signin screen for local UI.
       verified: config.local ? true : false, //Don't display signin screen for local UI.
@@ -225,15 +225,17 @@ class App extends Component {
       inverterValues: '',
       webastoEnabled: false,
       toggleWebasto: false,
-      charging: true,
+      isCharging: false,
+      isBalancing: false,
       sysLogFilter: [[true, true, true], [true, true, true], [true, true, true], [true, true, true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
       systemLog: [[], [], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver, [4] = UI.
-      groupChargeStatus: [true, true, true, true, true, true, true, true, true], //True = Group is ready i.e not charging
+      groupChargeStatus: [true, true, true, true, true, true, true, true, true], //True = Group is charging. This value can be manipulated when veheicle is at balancing state
       /**
        * 3D array, Group(int) -> cell(int) -> datapoint object {'x': time, 'y': voltage value}.
        * Get latest value from Group 0, cell 3: cellDataPoints[0][3][cellDataPoints[0][3].length - 1].y
        * Each group hold graph datapoint voltage values for 8 cells.
        */
+      thermocoupleData: [[], []],
       cellDataPoints: [[[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],], [[[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []], [[], [], [], [], [], [], [], []],]]
     };
 
@@ -288,8 +290,8 @@ class App extends Component {
 
       this.setState({ cellDataPoints: _updateCellDataPoints });
 
-      if(localStorage.getItem("editing") === "true"){
-        this.setState({ 
+      if (localStorage.getItem("editing") === "true") {
+        this.setState({
           editing: true,
           editTarget: localStorage.getItem("editTarget")
         });
@@ -300,27 +302,27 @@ class App extends Component {
       fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`) //TODO: get lat and lon from gps
         .then(res => res.json())
         .then(
-        (result) => {
-          this.setState({
-            weatherData: result
-          });
-        },
-        (error) => {
-          console.warn('Error fetching weather...');
-        }
+          (result) => {
+            this.setState({
+              weatherData: result
+            });
+          },
+          (error) => {
+            console.warn('Error fetching weather...');
+          }
         )
 
       fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`)
         .then(res => res.json())
         .then(
-        (result) => {
-          this.setState({
-            weatherForecast: result
-          });
-        },
-        (error) => {
-          console.warn('Error fetching forecast...');
-        }
+          (result) => {
+            this.setState({
+              weatherForecast: result
+            });
+          },
+          (error) => {
+            console.warn('Error fetching forecast...');
+          }
         )
     };
 
@@ -344,7 +346,7 @@ class App extends Component {
       });
 
       let _driverState = _message.driverState.split("");
-      for(let i = 0; i < _driverState.length; i++){
+      for (let i = 0; i < _driverState.length; i++) {
         _driverState[i] = parseInt(_driverState[i], 10);
       }
 
@@ -364,7 +366,8 @@ class App extends Component {
         groupChargeStatus: _groupChargeStatus,
         driverState: _driverState,
         cruiseON: _driverState[2] === 0 ? false : true,
-        webastoEnabled: _driverState[3] === 0 ? false : true
+        webastoEnabled: _driverState[3] === 0 ? false : true,
+        charging: _message.isCharging
       });
       this.setDirection(_driverState);
       /*this.socket.emit('command', { //Request inverter settings from the server
@@ -388,17 +391,20 @@ class App extends Component {
        */
       let _input = data.message.toString();
       let _updateCellDataPoints = this.state.cellDataPoints;
+      let _thermocoupleData = this.state.thermocoupleData;
 
       if (validateJSON(_input)) {
         let _validData = JSON.parse(_input);
         if (config.local) { //Group data from the local server, only available if UI is configured to local state.
-          if(_validData.origin !== `Thermocouple`){
+          if (_validData.origin !== `Thermocouple`) {
             for (let i = 0; i < _validData.voltage.length; i++) {
               _updateCellDataPoints[0][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.voltage[i] });
               _updateCellDataPoints[1][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.temperature[i] });
             }
           } else {
-            console.log(_validData);
+            let _parsedData = _validData.value.split(",");
+            _thermocoupleData[0].push({ x: new Date().getTime(), y: _parsedData[0] });
+            _thermocoupleData[1].push({ x: new Date().getTime(), y: _parsedData[1] });
           }
         } else { //Data requested from the remote server (database), only available if UI is configured to remote state.
           for (let g = 0; g < _validData.data.length; g++) {
@@ -413,7 +419,10 @@ class App extends Component {
             }
           }
         }
-        this.setState({ cellDataPoints: _updateCellDataPoints });
+        this.setState({
+          cellDataPoints: _updateCellDataPoints,
+          thermocoupleData: _thermocoupleData 
+        });
       }
     });
 
@@ -444,10 +453,9 @@ class App extends Component {
       this.setState({ inverterValues: _input });
     });
 
-    //replace socket driver
     this.socket.on('systemState', (data) => {
       let _input = JSON.parse(data.message.toString());
-      console.log(_input);
+      //console.log(_input);
       let _handle = data.handle.toString();
       let systemState;
       let _groupChargeStatus = this.state.groupChargeStatus;
@@ -463,12 +471,19 @@ class App extends Component {
           this.setState({ groupChargeStatus: _groupChargeStatus });
           break;
         case "Driver":
-          this.setDirection(_input.value.split(""));
-          console.log(_input.value);
-          this.setState({
-            cruiseON: _input.value.charAt(2) === `0` ? false : true,
-            webastoEnabled: _input.value.charAt(3) === `0` ? false : true
-          });
+          switch(data.type){
+            case 'relayState':
+              this.setDirection(_input.value.split(""));
+              this.setState({
+                cruiseON: _input.value.charAt(2) === `0` ? false : true,
+                webastoEnabled: _input.value.charAt(3) === `0` ? false : true
+              });
+              break;
+            case 'charging':
+              this.setState({[_input.param]: _input.value});
+              break;
+            default:
+          }
           break;
         case "Server":
           if (_input.message === "successfull") {
@@ -562,7 +577,7 @@ class App extends Component {
       editing: true,
       driverState: _driverState,
       editTarget: target
-     });
+    });
 
     localStorage.setItem("editing", "true");
     localStorage.setItem("editTarget", target);
@@ -777,10 +792,10 @@ class App extends Component {
                         <Typography variant="title" color="inherit" noWrap className={classes.flex}>
                           {this.state.selectedTab} {/*Set appbar title*/}
                         </Typography>
-                        {this.state.charging &&
+                        {this.state.isCharging &&
                           <PowerIcon />
                         }
-                        {this.state.charging ? (
+                        {this.state.isCharging ? (
                           this.state.groupChargeStatus.every(checkValues) ? (
                             <BatteryFullIcon />
                           ) : (
@@ -858,11 +873,13 @@ class App extends Component {
                                     data={this.state.cellDataPoints}
                                     interval={this.state.graphIntreval}
                                     chargeStatus={this.state.groupChargeStatus}
-                                    charging={this.state.charging}
+                                    charging={this.state.isCharging}
                                     type={this.state.selectedTab}
                                     dataLimit={this.state.dataLimit}
                                     heatmapRange={this.state.heatmapRange}
                                     enableCommands={config.local ? true : false}
+                                    thermocoupleData={this.state.thermocoupleData}
+                                    isBalancing={this.state.isBalancing}
                                   />
                                 </React.Fragment>
                               );
