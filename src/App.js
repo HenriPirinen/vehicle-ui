@@ -189,10 +189,10 @@ class App extends Component {
     this.state = {
       driverState: [0, 0, 0, 0], //Reverse, Forward, Neutral, Cruise
       securityToken: '', //Required on remote client, empty on local client
-      //verified: config.local ? true : false, //Don't display signin screen for local UI.
       verified: config.local ? true : false, //Don't display signin screen for local UI.
       dataSDate: '2018-08-16', //Start date
       dataEDate: '2018-08-17', //End date
+      loggedInAs: '',
       mobileOpen: false,
       weatherAPI: '',
       mapAPI: '',
@@ -205,7 +205,7 @@ class App extends Component {
       remoteUpdateInterval: 300000,
       temperatureLimit: 100,
       voltageLimit: 7.50,
-      selectedTab: config.local ? 'Main' : 'Log', //Startpage
+      selectedTab: 'Main', //Startpage
       enabledGraphs: [[true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true]], //[0] = voltage, [1] = temperature
       graphIntreval: [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]],
       heatmapRange: [20, 80],
@@ -248,7 +248,7 @@ class App extends Component {
     this.handleSystemCommand = this.handleSystemCommand.bind(this); //Used @settings component
     this.updateParentState = this.updateParentState.bind(this); //Used @ settings component
     this.timestamp = this.timestamp.bind(this); //Used @ update component
-    this.authToken = this.authToken.bind(this); //Used @ signin component
+    this.logIn = this.logIn.bind(this); //Used @ signin component
     this.queryDB = this.queryDB.bind(this); //Used @ timeline component
   }
 
@@ -299,6 +299,8 @@ class App extends Component {
         this.setState({ editing: false });
       }
       //getLocation();
+
+      //Get current weather
       fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`) //TODO: get lat and lon from gps
         .then(res => res.json())
         .then(
@@ -312,6 +314,7 @@ class App extends Component {
           }
         )
 
+      //Get five day forecast
       fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`)
         .then(res => res.json())
         .then(
@@ -326,7 +329,7 @@ class App extends Component {
         )
     };
 
-    this.socket = openSocket(config.websocketAdress);
+    this.socket = openSocket(`${window.location.hostname}:4000`);
 
     /**
      * WebSocket topics:
@@ -395,33 +398,19 @@ class App extends Component {
 
       if (validateJSON(_input)) {
         let _validData = JSON.parse(_input);
-        if (config.local) { //Group data from the local server, only available if UI is configured to local state.
-          if (_validData.origin !== `Thermocouple`) {
-            for (let i = 0; i < _validData.voltage.length; i++) {
-              _updateCellDataPoints[0][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.voltage[i] });
-              _updateCellDataPoints[1][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.temperature[i] });
-            }
-          } else {
-            let _parsedData = _validData.value.split(",");
-            _thermocoupleData[0].push({ x: new Date().getTime(), y: _parsedData[0] });
-            _thermocoupleData[1].push({ x: new Date().getTime(), y: _parsedData[1] });
+        if (_validData.origin !== `Thermocouple`) {
+          for (let i = 0; i < _validData.voltage.length; i++) {
+            _updateCellDataPoints[0][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.voltage[i] });
+            _updateCellDataPoints[1][_validData.Group][i].push({ x: new Date().getTime(), y: _validData.temperature[i] });
           }
-        } else { //Data requested from the remote server (database), only available if UI is configured to remote state.
-          for (let g = 0; g < _validData.data.length; g++) {
-            for (let c = 0; c < _validData.data[g].length; c++) {
-              if (_validData.data[g][c].length > 0) {
-                for (let o = 0; o < _validData.data[g][c].length; o++) {
-                  let object = JSON.parse(_validData.data[g][c][o]);
-                  _updateCellDataPoints[0][g][c].push({ x: object.time * 1000, y: object.voltage });
-                  _updateCellDataPoints[1][g][c].push({ x: object.time * 1000, y: object.temperature });
-                }
-              }
-            }
-          }
+        } else {
+          let _parsedData = _validData.value.split(",");
+          _thermocoupleData[0].push({ x: new Date().getTime(), y: _parsedData[0] });
+          _thermocoupleData[1].push({ x: new Date().getTime(), y: _parsedData[1] });
         }
         this.setState({
           cellDataPoints: _updateCellDataPoints,
-          thermocoupleData: _thermocoupleData 
+          thermocoupleData: _thermocoupleData
         });
       }
     });
@@ -471,7 +460,7 @@ class App extends Component {
           this.setState({ groupChargeStatus: _groupChargeStatus });
           break;
         case "Driver":
-          switch(data.type){
+          switch (data.type) {
             case 'relayState':
               this.setDirection(_input.value.split(""));
               this.setState({
@@ -480,7 +469,7 @@ class App extends Component {
               });
               break;
             case 'charging':
-              this.setState({[_input.param]: _input.value});
+              this.setState({ [_input.param]: _input.value });
               break;
             default:
           }
@@ -500,26 +489,51 @@ class App extends Component {
     })
   }
 
-  authToken = (event, token) => {
-    if (event === 'request') {
-      this.socket.emit('authToken', {
-        action: 'request'
-      });
-    } else if (event === 'verify') {
-      this.setState({ securityToken: token });
-      this.socket.emit('authToken', {
-        action: 'verify',
-        token: token
-      });
-    }
+  logIn = (mail, password) => {
+    fetch(`http://${window.location.hostname}:4000/auth`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `email=${mail}&password=${password}`
+    }).then(res => res.json())
+      .then((result) => {
+        this.setState({ 
+          verified: result.success,
+          securityToken: result.key,
+          loggedInAs: mail
+        })
+      })
   }
 
   queryDB = (sDate, eDate) => {
-    this.socket.emit(`requestData`, {
-      token: this.state.securityToken,
-      sDate: sDate,
-      eDate: eDate
-    });
+    //console.log(this.state.cellDataPoints);
+    fetch(`http://${window.location.hostname}:4000/getData`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `sDate=${sDate}&eDate=${eDate}&user=${this.state.loggedInAs}&key=${this.state.securityToken}`
+    }).then(res => res.json())
+      .then((result) => {
+        console.log(result)
+        let _updateCellDataPoints = this.state.cellDataPoints;
+        for (let g = 0; g < result.data.length; g++) {
+          for (let c = 0; c < result.data[g].length; c++) {
+            if (result.data[g][c].length > 0) {
+              for (let o = 0; o < result.data[g][c].length; o++) {
+                let object = JSON.parse(result.data[g][c][o]);
+                _updateCellDataPoints[0][g][c].push({ x: object.time * 1000, y: object.voltage });
+                _updateCellDataPoints[1][g][c].push({ x: object.time * 1000, y: object.temperature });
+              }
+            }
+          }
+        }
+        this.setState({ cellDataPoints: _updateCellDataPoints });
+        console.log(this.state.cellDataPoints);
+      })
   }
 
   contentHandler = (content) => { //Change tab
@@ -595,11 +609,7 @@ class App extends Component {
   vehicleMode = () => {
 
     this.setState({ toggleWebasto: true });
-    setTimeout(() => { //Simulate toggleWebasto
-      this.setState({
-        webastoEnabled: !this.state.webastoEnabled,
-        toggleWebasto: false
-      });
+    if (config.local) {
       this.socket.emit('command', { //Send update command to server
         command: this.state.webastoEnabled ? "$webasto" : "$!webasto",
         type: "instant",
@@ -607,7 +617,24 @@ class App extends Component {
         target: 'driver',
         token: this.state.securityToken
       });
-    }, 2000);
+    } else {
+      fetch(`http://${window.location.hostname}:4000/webasto`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `command=${this.state.webastoEnabled ? "$!webasto" : "$webasto"}&key=${this.state.securityToken}&user=${this.state.loggedInAs}`
+      }).then(res => res.json())
+        .then((result) => {
+          if (result.success) {
+            this.setState({
+              webastoEnabled: !this.state.webastoEnabled,
+              toggleWebasto: false
+            });
+          }
+        })
+    }
   }
 
   logControl = (target, action, filter) => {
@@ -992,7 +1019,7 @@ class App extends Component {
               return (
                 <React.Fragment>
                   <SignIn
-                    authToken={this.authToken}
+                    logIn={this.logIn}
                     verified={this.state.verified}
                   />
                 </React.Fragment>

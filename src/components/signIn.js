@@ -43,18 +43,14 @@ class SignIn extends React.Component {
     super(props)
 
     this.state = {
-      token: '',
-      tokenRequested: false,
+      mailAddress: '',
+      password: ''
     }
   };
 
   handleChange = name => event => {
     this.setState({ [name]: event.target.value });
   };
-
-  activateInput = () => {
-    this.setState({ tokenRequested: true });
-  }
 
   render() {
     const { classes } = this.props;
@@ -70,36 +66,33 @@ class SignIn extends React.Component {
           <Typography variant="caption" noWrap className={classes.appTitle}>
             <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui/releases">v0.1.0</a>
           </Typography>
-          {this.state.tokenRequested ? (
-            <React.Fragment>
-              <TextField
-                id="token"
-                label="Session token"
-                className={classes.textField}
-                value={this.state.token}
-                onChange={this.handleChange('token')}
-                margin="normal"
-              />
-              <br />
-              <Button
-                color="primary"
-                className={classes.reqBtn}
-                variant="contained"
-                onClick={() => this.props.authToken('verify', this.state.token)}>
-                Verify
+          <React.Fragment>
+            <TextField
+              id="mailAddress"
+              label="Email"
+              className={classes.textField}
+              value={this.state.mailAddress}
+              onChange={this.handleChange('mailAddress')}
+              margin="normal"
+            />
+            <br />
+            <TextField
+              id="password"
+              label="Password"
+              className={classes.textField}
+              value={this.state.password}
+              onChange={this.handleChange('password')}
+              margin="normal"
+            />
+            <br />
+            <Button
+              className={classes.reqBtn}
+              color="primary"
+              variant="contained"
+              onClick={() => { this.props.logIn(this.state.mailAddress, this.state.password) }}>
+              Log in
               </Button>
-            </React.Fragment>
-          ) : (
-              <React.Fragment>
-                <Button
-                  className={classes.reqBtn}
-                  color="primary"
-                  variant="contained"
-                  onClick={() => { this.activateInput(); this.props.authToken('request', null) }}>
-                  Request token
-              </Button>
-              </React.Fragment>
-            )}
+          </React.Fragment>
         </Paper>
       </div>
     );

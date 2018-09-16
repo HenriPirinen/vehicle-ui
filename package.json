@@ -6,6 +6,7 @@
     "@material-ui/core": "^1.4.2",
     "@material-ui/icons": "^1.0.0-beta.43",
     "ajv": "^6.5.0",
+    "axios": "^0.18.0",
     "d3-time-format": "^2.1.1",
     "google-maps-react": "^2.0.2",
     "highcharts": "^5.0.15",
@@ -48,5 +49,5 @@
   "bugs": {
     "url": "https://github.com/HenriPirinen/vehicle-ui/issues"
   },
-  "homepage": "https://github.com/HenriPirinen/vehicle-ui#readme"
+  "homepage": "http://192.168.1.112:4000/webApp/"
 }

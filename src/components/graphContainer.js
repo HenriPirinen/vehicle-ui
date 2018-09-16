@@ -52,7 +52,7 @@ class GraphContainer extends React.Component {
                                     graphWidth={this.props.contentWidth}
                                     data={this.props.data[0][i]}
                                     dataLimit={this.props.dataLimit}
-                                    graphDomain={[2,4]}
+                                    graphDomain={[2, 4]}
                                     graphName={i}
                                     chargeStatus={this.props.chargeStatus[i]}
                                     isCharging={this.props.charging}
@@ -66,24 +66,28 @@ class GraphContainer extends React.Component {
                         );
                     })) : (
                         <React.Fragment>
-                            <Heatmap
-                                data={this.props.data[1]}
-                                heatmapRange={this.props.heatmapRange}
-                            />
-                            <DataLine
-                                graphTitle={"Thermocouple"}
-                                graphWidth={this.props.contentWidth}
-                                data={this.props.thermocoupleData}
-                                dataLimit={this.props.dataLimit}
-                                graphDomain={[0,150]}
-                                graphName={0} //
-                                chargeStatus={""} //
-                                isCharging={false} //
-                                toggleCharging={""} //
-                                interval={this.props.interval} //
-                                commands={false} //
-                                type={"thermoTemperature"} //
-                            />
+                            {this.props.enableCommands && //Hide heatmap on remote
+                                <React.Fragment>
+                                    <Heatmap
+                                        data={this.props.data[1]}
+                                        heatmapRange={this.props.heatmapRange}
+                                    />
+                                    <DataLine
+                                        graphTitle={"Thermocouple"}
+                                        graphWidth={this.props.contentWidth}
+                                        data={this.props.thermocoupleData}
+                                        dataLimit={this.props.dataLimit}
+                                        graphDomain={[0, 150]}
+                                        graphName={0} //
+                                        chargeStatus={""} //
+                                        isCharging={false} //
+                                        toggleCharging={""} //
+                                        interval={this.props.interval} //
+                                        commands={false} //
+                                        type={"thermoTemperature"} //
+                                    />
+                                </ React.Fragment>
+                            }
                             {this.state.graphs.map(t => {
                                 return (
                                     <DataLine
@@ -92,7 +96,7 @@ class GraphContainer extends React.Component {
                                         graphWidth={this.props.contentWidth}
                                         data={this.props.data[1][t]}
                                         dataLimit={this.props.dataLimit}
-                                        graphDomain={[0,70]}
+                                        graphDomain={[0, 70]}
                                         graphName={t}
                                         chargeStatus={this.props.chargeStatus[t]}
                                         isCharging={this.props.charging}
