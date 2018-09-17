@@ -303,30 +303,45 @@ class App extends Component {
       //Get current weather
       fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`) //TODO: get lat and lon from gps
         .then(res => res.json())
-        .then(
-          (result) => {
-            this.setState({
-              weatherData: result
-            });
-          },
-          (error) => {
-            console.warn('Error fetching weather...');
-          }
+        .then(result => {
+          this.setState({
+            weatherData: result
+          });
+        }, error => {
+          console.warn(error);
+        }
         )
 
       //Get five day forecast
       fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`)
         .then(res => res.json())
-        .then(
-          (result) => {
-            this.setState({
-              weatherForecast: result
-            });
-          },
-          (error) => {
-            console.warn('Error fetching forecast...');
-          }
+        .then(result => {
+          this.setState({
+            weatherForecast: result
+          });
+        }, error => {
+          console.warn(error);
+        }
         )
+
+      fetch(`http://192.168.0.10/cmd?cmd=get json`)
+        .then(res => res.json())
+        .then(result => {
+          this.setState({ inverterValues: JSON.stringify(result) });
+        }, error => {
+          console.warn(error);
+        }
+        )
+
+      /*fetch(`http://192.168.0.10/cmd?cmd=get json`)
+        .then(res => {
+          this.setState({ inverterValues: JSON.stringify(res) });
+        })
+        .then(result => {
+          console.log(result);
+        }), error => {
+          console.log(error);
+        }*/
     };
 
     this.socket = openSocket(`${window.location.hostname}:4000`);
@@ -435,12 +450,12 @@ class App extends Component {
       }
     });
 
-    this.socket.on('inverterResponse', (data) => {
+    /*this.socket.on('inverterResponse', (data) => {
       let _input = data.message.toString();
       _input.length > 300 ? console.log('Inverter values') : console.log('Regular');
       console.log("Inverter response: " + _input);
       this.setState({ inverterValues: _input });
-    });
+    });*/
 
     this.socket.on('systemState', (data) => {
       let _input = JSON.parse(data.message.toString());
@@ -499,7 +514,7 @@ class App extends Component {
       body: `email=${mail}&password=${password}`
     }).then(res => res.json())
       .then((result) => {
-        this.setState({ 
+        this.setState({
           verified: result.success,
           securityToken: result.key,
           loggedInAs: mail
@@ -932,7 +947,7 @@ class App extends Component {
                                 <React.Fragment>
                                   <InverterTab
                                     webSocket={this.socket}
-                                    values={this.state.inverterValues}
+                                    values={this.state.inverterV0alues}
                                   />
                                 </React.Fragment>
                               );
