@@ -55,10 +55,21 @@ class InverterManagmentTable extends React.Component {
       dialogMin: '',
       dialogMax: ''
     }
-    /*let initialValues = JSON.parse(props.values);
-    for(let item of data){ //After table data has been created, read current inverter values from the props.values and update correct values to the object
-        item.value = initialValues[item.name].value;
+    //console.log(JSON.parse(props.values));
+    //console.log(data);
+    let initialValues = JSON.parse(props.values);
+    /*for(let item of data){ //After table data has been created, read current inverter values from the props.values and update correct values to the object
+        //item.value = initialValues[item.name].value;
+        //if(initialValues[item.name].value !== undefined){
+        //console.log(`${item.name} = ${initialValues[item.name].value}`);
+        //}
+        console.log(item);
     }*/
+    for(let i = 1; i < data.length; i++){
+      //console.log(data[i].name);
+      data[i].value = initialValues[data[i].name].value;
+      //console.log(`${data[i].name} = ${initialValues[data[i].name].value}`);
+    }
     //data[1].value = initialValues['fweak'].value; Get real values from the inverter
   }
 

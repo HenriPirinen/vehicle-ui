@@ -12,7 +12,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import StopIcon from '@material-ui/icons/Stop';
 import SaveIcon from '@material-ui/icons/Save';
-import Icon from '@material-ui/core/Icon';
+import SendIcon from '@material-ui/icons/Send';
 import SdCardIcon from '@material-ui/icons/SdCard';
 import RestorePageIcon from '@material-ui/icons/RestorePage';
 
@@ -97,15 +97,15 @@ class InverterCommands extends React.Component {
                     </ExpansionPanelDetails>
                     <Divider />
                     <ExpansionPanelDetails>
-                        <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('Save')}}>
+                        <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('save')}}>
                             Save Parameters To Flash
                             <SaveIcon className={classes.rightIcon}>send</SaveIcon>
                         </Button>
-                        <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('Restore from flash')}}>
+                        <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('load')}}>
                             Restore Parameters From Flash
                             <SdCardIcon className={classes.rightIcon}>send</SdCardIcon>
                         </Button>
-                        <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('Restore def')}}>
+                        <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd('defaults')}}>
                             Restore Defaults
                             <RestorePageIcon className={classes.rightIcon}>send</RestorePageIcon>
                         </Button>
@@ -120,7 +120,7 @@ class InverterCommands extends React.Component {
                         />
                         <Button variant="raised" color="primary" className={classes.button} onClick={() => {this.sendCmd(document.getElementById('customCmd').value)}}>
                             Send Custom Command
-                            <Icon className={classes.rightIcon}>send</Icon>
+                            <SendIcon className={classes.rightIcon}>send</SendIcon>
                         </Button>
                     </ExpansionPanelDetails>
                 </ExpansionPanel>

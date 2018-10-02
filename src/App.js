@@ -49,7 +49,6 @@ import { BrowserRouter as Router, Redirect } from 'react-router-dom';
 import Route from 'react-router-dom/Route';
 import GraphContainer from './components/graphContainer';
 import Snackbar from '@material-ui/core/Snackbar';
-import api from './keys.js';
 import { config } from './uiconfig.js';
 import BatteryFullIcon from '@material-ui/icons/BatteryFull';
 import BatteryChargingFullIcon from '@material-ui/icons/BatteryChargingFull';
@@ -202,6 +201,7 @@ class App extends Component {
       controller1port: '',
       controller2port: '',
       thermoDevice: '',
+      inverterAddress: '',
       remoteUpdateInterval: 300000,
       temperatureLimit: 100,
       voltageLimit: 7.50,
@@ -299,49 +299,6 @@ class App extends Component {
         this.setState({ editing: false });
       }
       //getLocation();
-
-      //Get current weather
-      fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`) //TODO: get lat and lon from gps
-        .then(res => res.json())
-        .then(result => {
-          this.setState({
-            weatherData: result
-          });
-        }, error => {
-          console.warn(error);
-        }
-        )
-
-      //Get five day forecast
-      fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${location.latitude}&lon=${location.longitude}&APPID=${api.api.weather}`)
-        .then(res => res.json())
-        .then(result => {
-          this.setState({
-            weatherForecast: result
-          });
-        }, error => {
-          console.warn(error);
-        }
-        )
-
-      fetch(`http://192.168.0.10/cmd?cmd=get json`)
-        .then(res => res.json())
-        .then(result => {
-          this.setState({ inverterValues: JSON.stringify(result) });
-        }, error => {
-          console.warn(error);
-        }
-        )
-
-      /*fetch(`http://192.168.0.10/cmd?cmd=get json`)
-        .then(res => {
-          this.setState({ inverterValues: JSON.stringify(res) });
-        })
-        .then(result => {
-          console.log(result);
-        }), error => {
-          console.log(error);
-        }*/
     };
 
     this.socket = openSocket(`${window.location.hostname}:4000`);
@@ -368,7 +325,9 @@ class App extends Component {
         _driverState[i] = parseInt(_driverState[i], 10);
       }
 
-      console.log(_driverState);
+      //console.log(JSON.parse(_message.inverterValues));
+
+      window.googleApiKey = _message.mapAPI;
 
       this.setState({
         weatherAPI: _message.weatherAPI,
@@ -385,8 +344,35 @@ class App extends Component {
         driverState: _driverState,
         cruiseON: _driverState[2] === 0 ? false : true,
         webastoEnabled: _driverState[3] === 0 ? false : true,
-        charging: _message.isCharging
+        charging: _message.isCharging,
+        inverterValues: _message.inverterValues
       });
+
+      if (config.local) {
+        fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${_message.weatherAPI}`) //TODO: get lat and lon from gps
+        .then(res => res.json())
+        .then(result => {
+          this.setState({
+            weatherData: result
+          });
+        }, error => {
+          console.warn(error);
+        }
+        )
+
+      //Get five day forecast
+      fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${location.latitude}&lon=${location.longitude}&APPID=${_message.weatherAPI}`)
+        .then(res => res.json())
+        .then(result => {
+          this.setState({
+            weatherForecast: result
+          });
+        }, error => {
+          console.warn(error);
+        }
+        )
+      }
+
       this.setDirection(_driverState);
       /*this.socket.emit('command', { //Request inverter settings from the server
         command: 'json',
@@ -947,7 +933,7 @@ class App extends Component {
                                 <React.Fragment>
                                   <InverterTab
                                     webSocket={this.socket}
-                                    values={this.state.inverterV0alues}
+                                    values={this.state.inverterValues}
                                   />
                                 </React.Fragment>
                               );
@@ -973,7 +959,7 @@ class App extends Component {
                             case 'Map':
                               return (
                                 <React.Fragment>
-                                  <MapTab />
+                                  <MapTab apiKey={this.state.mapAPI}/>
                                 </React.Fragment>
                               );
                             case 'System Update':

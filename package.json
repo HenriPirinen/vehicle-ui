@@ -48,5 +48,5 @@
   "bugs": {
     "url": "https://github.com/HenriPirinen/vehicle-ui/issues"
   },
-  "homepage": "http://192.168.1.112:4000/webApp/"
+  "homepage": "http://192.168.0.10:4000/webApp/"
 }

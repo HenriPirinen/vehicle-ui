@@ -3,7 +3,6 @@ import { Map, GoogleApiWrapper } from 'google-maps-react';
 import api from '../keys.js';
 
 export class MapTab extends React.Component {
-
   render() {
     return (
       <div id="mapContainer">
