@@ -298,10 +298,13 @@ class App extends Component {
       } else {
         this.setState({ editing: false });
       }
-      //getLocation();
+      getLocation();
     };
 
-    this.socket = openSocket(`${window.location.hostname}:4000`);
+    this.socket = openSocket(`https://${window.location.hostname}`);
+    this.socket.on('disconnect', () => {
+      setTimeout(() => {window.location.reload(true)}, 5000); //Reload after server is ready (Takes about 3 seconds to start)
+    });
 
     /**
      * WebSocket topics:
@@ -315,6 +318,7 @@ class App extends Component {
 
     this.socket.on('systemParam', (data) => {
       let _message = JSON.parse(data.message.toString());
+      console.log(_message);
       let _groupChargeStatus = [];
       _message.groupChargeStatus.forEach(element => {
         element === 0 ? _groupChargeStatus.push(true) : _groupChargeStatus.push(false)
@@ -324,8 +328,6 @@ class App extends Component {
       for (let i = 0; i < _driverState.length; i++) {
         _driverState[i] = parseInt(_driverState[i], 10);
       }
-
-      //console.log(JSON.parse(_message.inverterValues));
 
       window.googleApiKey = _message.mapAPI;
 
@@ -349,7 +351,7 @@ class App extends Component {
       });
 
       if (config.local) {
-        fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${_message.weatherAPI}`) //TODO: get lat and lon from gps
+        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${_message.weatherAPI}`) //TODO: get lat and lon from gps
         .then(res => res.json())
         .then(result => {
           this.setState({
@@ -361,7 +363,7 @@ class App extends Component {
         )
 
       //Get five day forecast
-      fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${location.latitude}&lon=${location.longitude}&APPID=${_message.weatherAPI}`)
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${location.latitude}&lon=${location.longitude}&APPID=${_message.weatherAPI}`)
         .then(res => res.json())
         .then(result => {
           this.setState({
@@ -436,16 +438,8 @@ class App extends Component {
       }
     });
 
-    /*this.socket.on('inverterResponse', (data) => {
-      let _input = data.message.toString();
-      _input.length > 300 ? console.log('Inverter values') : console.log('Regular');
-      console.log("Inverter response: " + _input);
-      this.setState({ inverterValues: _input });
-    });*/
-
     this.socket.on('systemState', (data) => {
       let _input = JSON.parse(data.message.toString());
-      //console.log(_input);
       let _handle = data.handle.toString();
       let systemState;
       let _groupChargeStatus = this.state.groupChargeStatus;
@@ -481,7 +475,6 @@ class App extends Component {
           }
           break;
         default:
-          console.log(_handle);
       }
     });
 
@@ -497,7 +490,7 @@ class App extends Component {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: `email=${mail}&password=${password}`
+      body: `email=${mail}&password=${encodeURIComponent(password)}`
     }).then(res => res.json())
       .then((result) => {
         this.setState({
@@ -509,7 +502,6 @@ class App extends Component {
   }
 
   queryDB = (sDate, eDate) => {
-    //console.log(this.state.cellDataPoints);
     fetch(`http://${window.location.hostname}:4000/getData`, {
       method: 'POST',
       credentials: 'same-origin',
@@ -519,7 +511,7 @@ class App extends Component {
       body: `sDate=${sDate}&eDate=${eDate}&user=${this.state.loggedInAs}&key=${this.state.securityToken}`
     }).then(res => res.json())
       .then((result) => {
-        console.log(result)
+        //console.log(result)
         let _updateCellDataPoints = this.state.cellDataPoints;
         for (let g = 0; g < result.data.length; g++) {
           for (let c = 0; c < result.data[g].length; c++) {
@@ -533,10 +525,11 @@ class App extends Component {
           }
         }
         this.setState({ cellDataPoints: _updateCellDataPoints });
-        console.log(this.state.cellDataPoints);
+        //console.log(this.state.cellDataPoints);
       })
   }
 
+  //Replace with updateParentState
   contentHandler = (content) => { //Change tab
     this.setState({ selectedTab: content });
   }
@@ -587,7 +580,6 @@ class App extends Component {
         break;
       default:
     }
-    console.log(_driverState);
     this.setState({
       editing: true,
       driverState: _driverState,
@@ -663,7 +655,6 @@ class App extends Component {
         this.setState({ sysLogFilter: _systemLogFilter });
         break;
       default:
-        console.warn('Invalid action');
     }
   }
 
@@ -727,7 +718,6 @@ class App extends Component {
         });
         break;
       default:
-        console.warn('Something went wrong...');
     }
   }
 
