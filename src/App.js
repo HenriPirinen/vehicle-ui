@@ -484,7 +484,7 @@ class App extends Component {
   }
 
   logIn = (mail, password) => {
-    fetch(`http://${window.location.hostname}:4000/auth`, {
+    fetch(`https://${window.location.hostname}/auth`, {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
@@ -502,7 +502,7 @@ class App extends Component {
   }
 
   queryDB = (sDate, eDate) => {
-    fetch(`http://${window.location.hostname}:4000/getData`, {
+    fetch(`https://${window.location.hostname}/getData`, {
       method: 'POST',
       credentials: 'same-origin',
       headers: {

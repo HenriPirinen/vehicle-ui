@@ -6,6 +6,9 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import { Redirect } from 'react-router-dom';
 import Typography from '@material-ui/core/Typography';
+/*import InputAdornment from '@material-ui/core/InputAdornment';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';*/
 
 const styles = theme => ({
   root: {
@@ -44,13 +47,18 @@ class SignIn extends React.Component {
 
     this.state = {
       mailAddress: '',
-      password: ''
+      password: '',
+      showPassword: false,
     }
   };
 
   handleChange = name => event => {
     this.setState({ [name]: event.target.value });
   };
+
+  /*handleClickShowPassword = () => {
+    this.setState({ showPassword: !state.showPassword });
+  };*/
 
   render() {
     const { classes } = this.props;
@@ -83,6 +91,7 @@ class SignIn extends React.Component {
               value={this.state.password}
               onChange={this.handleChange('password')}
               margin="normal"
+              type="password"
             />
             <br />
             <Button
