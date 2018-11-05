@@ -511,8 +511,8 @@ class App extends Component {
       body: `sDate=${sDate}&eDate=${eDate}&user=${this.state.loggedInAs}&key=${this.state.securityToken}`
     }).then(res => res.json())
       .then((result) => {
-        //console.log(result)
         let _updateCellDataPoints = this.state.cellDataPoints;
+        //Build data array for graphs
         for (let g = 0; g < result.data.length; g++) {
           for (let c = 0; c < result.data[g].length; c++) {
             if (result.data[g][c].length > 0) {
@@ -524,8 +524,26 @@ class App extends Component {
             }
           }
         }
+
+        //Sort data array by date
+        for(let type = 0; type <= 1; type++){ //Voltage -> Temperature
+          for(let group = 0; group < _updateCellDataPoints[type].length; group++){
+            for(let cell = 0; cell < _updateCellDataPoints[type][group].length; cell++){
+              _updateCellDataPoints[type][group][cell].sort(function(a,b){
+                if(a.x < b.x){
+                  return -1;
+                } else if(a.x > b.x) {
+                  return 1;
+                } else {
+                  return 0;
+                }
+              });
+            }
+          }
+        }
+
         this.setState({ cellDataPoints: _updateCellDataPoints });
-        //console.log(this.state.cellDataPoints);
+        console.log(_updateCellDataPoints);
       })
   }
 
