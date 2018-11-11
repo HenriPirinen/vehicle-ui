@@ -900,6 +900,9 @@ class App extends Component {
                           switch (this.state.selectedTab) {
                             case 'Voltage':
                             case 'Temperature':
+                            if(this.state.cellDataPoints[0][0][0].length === 0){
+                              return null;
+                            } else {
                               return (
                                 <React.Fragment>
                                   <GraphContainer
@@ -919,6 +922,7 @@ class App extends Component {
                                   />
                                 </React.Fragment>
                               );
+                            }
                             case 'Main':
                               return (
                                 <React.Fragment>

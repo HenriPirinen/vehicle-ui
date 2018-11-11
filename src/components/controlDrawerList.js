@@ -96,30 +96,26 @@ class DrawerList extends React.Component {
             </List>
           </Collapse>
           {this.props.uiType ? (
-            <ListItem button onClick={() => { this.props.handleContent('Inverter'); this.expand('settingsExpanded', false) }}>
-              <ListItemIcon>
-                <FlashOnIcon />
-              </ListItemIcon>
-              <ListItemText primary="Inverter" />
-            </ListItem>
-          ) : (
-              null
-            )}
-          <ListItem button onClick={() => { this.props.handleContent('Log'); this.expand('settingsExpanded', false) }}>
-            <ListItemIcon>
-              {this.state.logNotifications > 0 ? (
-                <Badge badgeContent={this.state.logNotifications} color="primary">
-                  <ImportContactsIcon />
-                </Badge>
-              ) : (
-                  <ImportContactsIcon />
-                )
-              }
-            </ListItemIcon>
-            <ListItemText primary="Log" />
-          </ListItem>
-          {this.props.uiType ? (
             <React.Fragment>
+              <ListItem button onClick={() => { this.props.handleContent('Inverter'); this.expand('settingsExpanded', false) }}>
+                <ListItemIcon>
+                  <FlashOnIcon />
+                </ListItemIcon>
+                <ListItemText primary="Inverter" />
+              </ListItem>
+              <ListItem button onClick={() => { this.props.handleContent('Log'); this.expand('settingsExpanded', false) }}>
+                <ListItemIcon>
+                  {this.state.logNotifications > 0 ? (
+                    <Badge badgeContent={this.state.logNotifications} color="primary">
+                      <ImportContactsIcon />
+                    </Badge>
+                  ) : (
+                      <ImportContactsIcon />
+                    )
+                  }
+                </ListItemIcon>
+                <ListItemText primary="Log" />
+              </ListItem>
               <ListItem button onClick={() => { this.props.handleContent('Weather'); this.expand('settingsExpanded', false) }}>
                 <ListItemIcon>
                   <WbSunnyIcon />
