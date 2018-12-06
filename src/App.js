@@ -60,6 +60,13 @@ import BatteryCharging80Icon from '@material-ui/icons/BatteryCharging80';
 import BatteryCharging90Icon from '@material-ui/icons/BatteryCharging90';
 import PowerIcon from '@material-ui/icons/Power';
 import Timeline from './components/timeline';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
 
 function validateJSON(string) {
   /* Validate Json, beacause sometimes i get illegal character error at index 0... */
@@ -227,6 +234,8 @@ class App extends Component {
       toggleWebasto: false,
       isCharging: false,
       isBalancing: false,
+      displayThermalWarningDialog: false,
+      suppressThermalWarning: false,
       sysLogFilter: [[true, true, true], [true, true, true], [true, true, true], [true, true, true]], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver. [LOW,MEDIUM,HIGH]
       systemLog: [[], [], [], [], []], //systemLog[0] = Server, [1] = Inverter, [2] = Controller, [3] = Driver, [4] = UI.
       groupChargeStatus: [true, true, true, true, true, true, true, true, true], //True = Group is charging. This value can be manipulated when veheicle is at balancing state
@@ -436,6 +445,10 @@ class App extends Component {
         this.setState({ editing: false });
         localStorage.setItem("editing", "false");
       }
+    });
+
+    this.socket.on('thermalWarning', (data) => {
+      this.setState({displayThermalWarningDialog: true});
     });
 
     this.socket.on('systemState', (data) => {
@@ -739,6 +752,13 @@ class App extends Component {
     }
   }
 
+  suppressWarning = () => {
+    this.setState({ 
+      displayThermalWarningDialog: false,
+      suppressThermalWarning: true
+    });
+  }
+
   updateParentState = (stateName, value, index = null, index2nd = null) => { //Replace handleSettings
     /**
      * If parameter @param index has a value = state is array
@@ -889,6 +909,24 @@ class App extends Component {
                           }}
                           message={<span id="message-id">Execute commands</span>}
                         />
+                        <Dialog
+                          open={this.state.displayThermalWarningDialog && !this.state.suppressThermalWarning}
+                          onClose={this.suppressWarning}
+                          aria-labelledby="alert-dialog-title"
+                          aria-describedby="alert-dialog-description"
+                        >
+                          <DialogTitle id="alert-dialog-title">{"Emergency thermal protection enabled"}</DialogTitle>
+                          <DialogContent>
+                            <DialogContentText id="alert-dialog-description">
+                              Emergency engine thermal protection engaged!
+                            </DialogContentText>
+                          </DialogContent>
+                          <DialogActions>
+                            <Button onClick={this.suppressWarning} color="primary" autoFocus>
+                              Acknowledge
+                            </Button>
+                          </DialogActions>
+                        </Dialog>
                         <div className={classes.toolbar} />
                         {!config.local && (this.state.selectedTab === 'Log' || this.state.selectedTab === 'Voltage' || this.state.selectedTab === 'Temperature') ?
                           (<Timeline
