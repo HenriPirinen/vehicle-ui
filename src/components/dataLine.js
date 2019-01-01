@@ -1,6 +1,6 @@
 import React from 'react';
 import '../../node_modules/react-vis/dist/style.css';
-import { XYPlot, XAxis, YAxis, HorizontalGridLines, VerticalGridLines, LineSeries } from 'react-vis';
+import { XYPlot, XAxis, YAxis, HorizontalGridLines, VerticalGridLines, LineMarkSeries, Hint } from 'react-vis';
 import DiscreteColorLegend from 'react-vis/dist/legends/discrete-color-legend';
 import Typography from '@material-ui/core/Typography';
 import PropTypes from 'prop-types';
@@ -64,12 +64,21 @@ class DataLine extends React.Component {
       items: itemsList,
       interval: props.interval,
       chargeStatus: props.chargeStatus,
-      actionInProgress: false
+      actionInProgress: false,
+      hintValue: null,
     }
   }
 
   setProgress = () => { //Disable charge toggle until given action is completed by controller
     this.setState({actionInProgress: true});
+  }
+
+  forgetValue = () => {
+    this.setState({hintValue: null});
+  }
+
+  rememberValue = (hintValue) => {
+    this.setState({hintValue});
   }
 
   componentWillReceiveProps(newProps) {
@@ -128,6 +137,7 @@ class DataLine extends React.Component {
 
   render() {
     const { classes } = this.props;
+    const { hintValue } = this.state;
     return (
       <div id={"graphRoot"} className={classes.root}>
         <Paper elevation={4}>
@@ -148,9 +158,11 @@ class DataLine extends React.Component {
             <XAxis title="Time" position="start" />
             <YAxis title={this.props.type} />
             {this.state.items.map(i => {
-              return <LineSeries key={i} data={this.state.graphData[this.state.items.indexOf(i)]}/>
+              return <LineMarkSeries key={i} data={this.state.graphData[this.state.items.indexOf(i)]} onValueMouseOver={this.rememberValue}
+              onValueMouseOut={this.forgetValue}/>
             })
             }
+            {hintValue ? <Hint value={hintValue}/> : null}
           </XYPlot>
           <ExpansionPanel>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
