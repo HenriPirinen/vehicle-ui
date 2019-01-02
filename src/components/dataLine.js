@@ -43,7 +43,6 @@ const styles = theme => ({
   }
 });
 
-//https://github.com/uber/react-vis/blob/master/showcase/axes/custom-axis-tick-format.js
 class DataLine extends React.Component {
   constructor(props) {
     super(props)
