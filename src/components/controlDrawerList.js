@@ -157,18 +157,18 @@ class DrawerList extends React.Component {
             <List component="div" disablePadding>
               <ListItem className={classes.nested} button onClick={() => this.handleSystemCommand('sudo bash restart.sh')}>
                 <ListItemIcon>
-                  <PowerSettingsNewIcon />
+                  <RefreshIcon />
                 </ListItemIcon>
                 <ListItemText primary="Reload API" />
               </ListItem>
             </List>
             <List component="div" disablePadding>
               {this.props.uiType ? (
-                <ListItem className={classes.nested} button onClick={() => this.handleSystemCommand('sudo reboot')}>
+                <ListItem className={classes.nested} button onClick={() => this.handleSystemCommand('sudo shutdown now')}>
                   <ListItemIcon>
-                    <RefreshIcon />
+                    <PowerSettingsNewIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Reboot" />
+                  <ListItemText primary="Shutdown" />
                 </ListItem>
               ) : (
                   null

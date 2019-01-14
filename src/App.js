@@ -204,6 +204,8 @@ class App extends Component {
       mapAPI: '',
       localServerAddress: '192.168.1.33',
       remoteServerAddress: '',
+      mqttUName: '',
+      mqttPWord: '',
       driver1port: '',
       controller1port: '',
       controller2port: '',
@@ -356,7 +358,9 @@ class App extends Component {
         cruiseON: _driverState[2] === 0 ? false : true,
         webastoEnabled: _driverState[3] === 0 ? false : true,
         charging: _message.isCharging,
-        inverterValues: _message.inverterValues
+        inverterValues: _message.inverterValues,
+        mqttPWord: _message.mqttPWord,
+        mqttUName: _message.mqttUName
       });
 
       if (config.local) {
@@ -626,7 +630,6 @@ class App extends Component {
       type: "onExecute",
       handle: 'client',
       target: 'driver',
-      token: this.state.securityToken
     });
   }
 
@@ -639,10 +642,9 @@ class App extends Component {
         type: "instant",
         handle: 'client',
         target: 'driver',
-        token: this.state.securityToken
       });
     } else {
-      fetch(`http://${window.location.hostname}:4000/webasto`, {
+      fetch(`https://${window.location.hostname}/webasto`, {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
@@ -718,7 +720,6 @@ class App extends Component {
     let _state = this.state.groupChargeStatus[target] === true ? '1' : '0';
 
     this.socket.emit('command', {
-      token: this.state.securityToken,
       command: `1${target > 4 ? (target - 5).toString() + _state : target.toString() + _state}`, //1XY, 1 = Balance, Pin, State.
       handle: 'client',
       target: target <= 4 ? 'controller_1' : 'controller_2'
@@ -793,6 +794,8 @@ class App extends Component {
       temperatureLimit: this.state.temperatureLimit,
       voltageLimit: this.state.voltageLimit,
       interval: this.state.remoteUpdateInterval,
+      mqttUName: this.state.mqttUName,
+      mqttPWord: this.state.mqttPWord,
       handle: 'client',
       target: 'server'
     });
@@ -1047,6 +1050,8 @@ class App extends Component {
                                     graphIntreval={this.state.graphIntreval}
                                     heatmapRange={this.state.heatmapRange}
                                     uiType={config.local}
+                                    mqttUName={this.state.mqttUName}
+                                    mqttPWord={this.state.mqttPWord}
                                   />
                                 </React.Fragment>
                               );

@@ -60,6 +60,8 @@ class InterfaceSettings extends React.Component {
                 temperatureLimit={this.props.temperatureLimit}
                 voltageLimit={this.props.voltageLimit}
                 remoteUpdateInterval={this.props.remoteUpdateInterval}
+                mqttUName={this.props.mqttUName}
+                mqttPWord={this.props.mqttPWord}
               />
             </Paper>
           </div>

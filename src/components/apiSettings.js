@@ -35,7 +35,9 @@ class ApiSettings extends React.Component {
         thermoDevice: props.thermoDevice,
         interval: props.remoteUpdateInterval,
         voltageLimit: props.voltageLimit,
-        temperatureLimit: props.temperatureLimit
+        temperatureLimit: props.temperatureLimit,
+        mqttUName: props.mqttUName,
+        mqttPWord: props.mqttPWord
     };
   }
 
@@ -88,6 +90,25 @@ class ApiSettings extends React.Component {
                     value={this.state.remoteServerAddress}
                     onChange={this.handleChange('remoteServerAddress')}
                     onBlur={() => this.props.updateParentState('remoteServerAddress',document.getElementById('remoteServerAddress').value)}
+                    margin="normal"
+                />
+                <Divider/>
+                <TextField
+                    id="mqttUName"
+                    label="MQTT Username"
+                    className={classes.textField}
+                    value={this.state.mqttUName}
+                    onChange={this.handleChange('mqttUName')}
+                    onBlur={() => this.props.updateParentState('mqttUName',document.getElementById('mqttUName').value)}
+                    margin="normal"
+                />
+                <TextField
+                    id="mqttPWord"
+                    label="MQTT Password"
+                    className={classes.textField}
+                    value={this.state.mqttPWord}
+                    onChange={this.handleChange('mqttPWord')}
+                    onBlur={() => this.props.updateParentState('mqttPWord',document.getElementById('mqttPWord').value)}
                     margin="normal"
                 />
                 <Divider/>
