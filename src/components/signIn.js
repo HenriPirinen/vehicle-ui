@@ -72,7 +72,7 @@ class SignIn extends React.Component {
             <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui">Regni UI</a>
           </Typography>
           <Typography variant="caption" noWrap className={classes.appTitle}>
-            <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui/releases">v0.1.0</a>
+            <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui/releases">{this.props.versionNumber}</a>
           </Typography>
           <React.Fragment>
             <TextField

@@ -816,7 +816,7 @@ class App extends Component {
             <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui">Regni UI</a>
           </Typography>
           <Typography variant="caption" noWrap className={classes.appTitle}>
-            <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui/releases">v0.1.0</a>
+            <a className={classes.link} href="https://github.com/HenriPirinen/vehicle-ui/releases">{config.versionNumber}</a>
           </Typography>
         </div>
         <Divider />
@@ -1077,6 +1077,7 @@ class App extends Component {
                   <SignIn
                     logIn={this.logIn}
                     verified={this.state.verified}
+                    versionNumber={config.versionNumber}
                   />
                 </React.Fragment>
               );
