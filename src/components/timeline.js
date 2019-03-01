@@ -37,7 +37,7 @@ function Timeline(props) {
                     id="sDate"
                     label="Start date"
                     type="date"
-                    defaultValue="2018-08-16"
+                    defaultValue="2019-01-01"
                     className={classes.textField}
                     InputLabelProps={{
                         shrink: true,
@@ -47,7 +47,7 @@ function Timeline(props) {
                     id="eDate"
                     label="End date"
                     type="date"
-                    defaultValue="2018-08-17"
+                    defaultValue="2019-01-01"
                     className={classes.textField}
                     InputLabelProps={{
                         shrink: true,

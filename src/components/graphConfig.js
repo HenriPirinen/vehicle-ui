@@ -102,7 +102,10 @@ class GraphConfiguration extends React.Component {
                     className={classes.textField}
                     value={this.state.dataPoints}
                     onChange={this.updateState}
-                    onBlur={() => this.props.updateParentState('dataLimit', document.getElementById('dataPoints').value)}
+                    onBlur={() => {
+                        let fieldValue = document.getElementById('dataPoints').value;
+                        if(!isNaN(fieldValue) && fieldValue > 0) this.props.updateParentState('dataLimit', fieldValue);
+                    }}
                     margin="normal"
                 />
                 <Divider />
@@ -135,7 +138,11 @@ class GraphConfiguration extends React.Component {
                     className={classes.textField}
                     value={this.state.heatmapMin}
                     onChange={this.updateState}
-                    onBlur={() => this.props.updateParentState('heatmapRange', document.getElementById('heatmapMin').value, 0)}
+                    onBlur={() => {
+                        let condition_1 = document.getElementById('heatmapMin').value < document.getElementById('heatmapMax').value;
+                        let condition_2 = !isNaN(document.getElementById('heatmapMin').value) && !isNaN(document.getElementById('heatmapMax').value);
+                        if(condition_1 && condition_2) this.props.updateParentState('heatmapRange', document.getElementById('heatmapMin').value, 0)
+                    }}
                     margin="normal"
                 />
                 <TextField
@@ -144,7 +151,11 @@ class GraphConfiguration extends React.Component {
                     className={classes.textField}
                     value={this.state.heatmapMax}
                     onChange={this.updateState}
-                    onBlur={() => this.props.updateParentState('heatmapRange', document.getElementById('heatmapMax').value, 1)}
+                    onBlur={() => {
+                        let condition_1 = document.getElementById('heatmapMin').value < document.getElementById('heatmapMax').value;
+                        let condition_2 = !isNaN(document.getElementById('heatmapMin').value) && !isNaN(document.getElementById('heatmapMax').value);
+                        if(condition_1 && condition_2) this.props.updateParentState('heatmapRange', document.getElementById('heatmapMax').value, 1)
+                    }}
                     margin="normal"
                 />
             </React.Fragment>
